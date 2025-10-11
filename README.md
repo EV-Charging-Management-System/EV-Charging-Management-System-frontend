@@ -1,4 +1,4 @@
-# Bloodline DNA Frontend
+# Electric Verhicle Charging Station
 
 A modern React-based frontend application for DNA testing services, built with TypeScript and Vite.
 
