@@ -1,26 +1,23 @@
 'use client'
 import './index.css'
 import type React from 'react'
-
-
-// import TestRequestDetails from "./pages/staff/TestRequestDetails"
-
-// Manager Pages
-// import ManagerDashboard from './pages/manager/ManagerDashboard'
-
-// // Admin Pages
-// import AdminDashboard from './pages/admin/AdminDashboard'
-
-// Protected Route Component
-import { useAuth } from './hooks/useAuth'
-
-
-
-
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import Login from './components/Auth/Login'
+import RegisterForm from './components/Auth/Register'
+import ErrorBoundary from './components/Common/ErrorBoundary'
+import { AuthProvider } from './context/AuthContext'
 
 const App: React.FC = () => {
   return (
-   <></> 
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<ErrorBoundary><RegisterForm /></ErrorBoundary>} />
+          <Route path="/" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   )
 }
 
