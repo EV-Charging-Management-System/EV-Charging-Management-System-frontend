@@ -3,9 +3,26 @@ import "./HomePage.css";
 import { FaPhoneAlt } from "react-icons/fa";
 import Notification from "./Notification";
 import ProfileUser from "./ProfileUser";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { authService } from "../../services/authService"; // import logout
 
 const HomePage: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("user");
+      alert("Đăng xuất thành công!");
+      navigate("/login");
+    } catch (err) {
+      console.error(err);
+      alert("Logout thất bại!");
+    }
+  };
+
   return (
     <div className="home-container">
       {/* Header */}
@@ -77,7 +94,14 @@ const HomePage: React.FC = () => {
             Charging Rate: <strong>250,000 VND / Hour</strong>
           </p>
 
-          <button className="logout-btn">Logout</button>
+          {/* ✅ Nút logout */}
+          <button
+            className="logout-btn"
+            onClick={handleLogout}
+            style={{ backgroundColor: "#ef4444", color: "white", fontWeight: "bold" }}
+          >
+            Logout
+          </button>
         </div>
       </main>
 

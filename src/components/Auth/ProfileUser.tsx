@@ -1,21 +1,35 @@
 import React, { useState } from "react"; 
 import "./HomePage.css"; // dùng chung CSS
 import { useNavigate } from "react-router-dom";
-
+import { authService } from "../../services/authService"; // import service logout
 
 const ProfileUser: React.FC = () => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
-  // Xử lý điều hướng và đóng menu
   const handleNavigate = (path: string) => {
     navigate(path);
     setOpen(false);
   };
 
+  // ✅ Xử lý logout
+  const handleLogout = async () => {
+    try {
+      await authService.logout(); // gọi API logout
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("user");
+      alert("Đăng xuất thành công!");
+      navigate("/login"); // redirect về login
+      setOpen(false);
+    } catch (err) {
+      console.error(err);
+      alert("Logout thất bại!");
+    }
+  };
+
   return (
     <div className="profile-container" style={{ position: "relative" }}>
-      {/* Nút avatar tròn */}
       <img
         src="/account.jpg"
         alt="Account"
@@ -30,7 +44,6 @@ const ProfileUser: React.FC = () => {
         }}
       />
 
-      {/* Dropdown menu */}
       {open && (
         <div
           className="profile-dropdown"
@@ -80,6 +93,20 @@ const ProfileUser: React.FC = () => {
               onClick={() => handleNavigate("/vi-tra-sau")}
             >
               Ví Trả Sau
+            </button>
+
+            <hr style={{ borderColor: "rgba(255,255,255,0.2)", margin: "8px 0" }} />
+
+            <button
+              className="profile-btn logout-btn"
+              onClick={handleLogout} // dùng service logout
+              style={{
+                backgroundColor: "#ef4444",
+                color: "white",
+                fontWeight: "bold",
+              }}
+            >
+              Logout
             </button>
           </div>
         </div>
