@@ -7,7 +7,6 @@ const MembershipDetail: React.FC = () => {
   const navigate = useNavigate();
   const [error, setError] = useState<string>("");
 
-  // Dữ liệu tĩnh của từng gói hội viên
   const packages = {
     "1month": {
       title: "Gói 1 Tháng",
@@ -37,28 +36,26 @@ const MembershipDetail: React.FC = () => {
 
   const current = packages[type as keyof typeof packages];
 
+  const handleConfirm = () => {
+    setError("❌ Bạn chưa thanh toán! Vui lòng thanh toán trước khi xác nhận.");
+  };
+
+  // TH: không tìm thấy gói
   if (!current) {
     return (
       <div className="detail-container">
         <div className="detail-card">
           <h2>Không tìm thấy gói hội viên</h2>
-          <button
-            className="back-btn"
-            onClick={() => navigate("/membership")}
-          >
-            ← Quay lại
-          </button>
+
+          <div className="action-group">
+            <button className="back-btn" onClick={() => navigate("/membership")}>
+              ← Quay lại
+            </button>
+          </div>
         </div>
       </div>
     );
   }
-
-  // Khi bấm nút "Xác nhận và Thanh toán"
-  const handleConfirm = () => {
-    setError(
-      "❌ Bạn chưa thanh toán! Vui lòng thanh toán trước khi xác nhận."
-    );
-  };
 
   return (
     <div className="detail-container">
@@ -69,25 +66,18 @@ const MembershipDetail: React.FC = () => {
         <p>Ngày sinh: {current.birth}</p>
         <p>Email: {current.email}</p>
 
-        {/* Ảnh QR từ thư mục public */}
         <img src={current.qr} alt="QR Code" className="qr-image" />
 
-        {/* Nếu có lỗi sẽ hiện chữ đỏ */}
         {error && <p className="error-text">{error}</p>}
 
-        {/* Nút Xác nhận */}
-        <button className="confirm-btn" onClick={handleConfirm}>
-          Xác nhận và Thanh toán
-        </button>
-
-        {/* Nút Quay lại nằm dưới confirm */}
-        <button
-          className="back-btn"
-          onClick={() => navigate("/membership")}
-          style={{ marginTop: "16px" }} // đảm bảo cách confirm
-        >
-          ← Quay lại
-        </button>
+        {/* gom 2 nút vào 1 nhóm để đảm bảo thứ tự & spacing */}
+        <div className="action-group">
+          <button className="confirm-btn" onClick={handleConfirm}>
+            Xác nhận và Thanh toán</button>
+          <button className="back-btn" onClick={() => navigate("/membership")}>
+            ← Quay lại
+          </button>
+        </div>
       </div>
     </div>
   );
