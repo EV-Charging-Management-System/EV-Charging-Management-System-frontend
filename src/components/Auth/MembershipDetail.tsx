@@ -40,17 +40,24 @@ const MembershipDetail: React.FC = () => {
   if (!current) {
     return (
       <div className="detail-container">
-        <h2>Không tìm thấy gói hội viên</h2>
-        <button className="back-btn" onClick={() => navigate("/membership")}>
-          ← Quay lại
-        </button>
+        <div className="detail-card">
+          <h2>Không tìm thấy gói hội viên</h2>
+          <button
+            className="back-btn"
+            onClick={() => navigate("/membership")}
+          >
+            ← Quay lại
+          </button>
+        </div>
       </div>
     );
   }
 
   // Khi bấm nút "Xác nhận và Thanh toán"
   const handleConfirm = () => {
-    setError("❌ Bạn chưa thanh toán! Vui lòng thanh toán trước khi xác nhận.");
+    setError(
+      "❌ Bạn chưa thanh toán! Vui lòng thanh toán trước khi xác nhận."
+    );
   };
 
   return (
@@ -68,11 +75,17 @@ const MembershipDetail: React.FC = () => {
         {/* Nếu có lỗi sẽ hiện chữ đỏ */}
         {error && <p className="error-text">{error}</p>}
 
+        {/* Nút Xác nhận */}
         <button className="confirm-btn" onClick={handleConfirm}>
           Xác nhận và Thanh toán
         </button>
 
-        <button className="back-btn" onClick={() => navigate("/membership")}>
+        {/* Nút Quay lại nằm dưới confirm */}
+        <button
+          className="back-btn"
+          onClick={() => navigate("/membership")}
+          style={{ marginTop: "16px" }} // đảm bảo cách confirm
+        >
           ← Quay lại
         </button>
       </div>
