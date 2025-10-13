@@ -3,6 +3,7 @@ import "./HomePage.css";
 import { FaPhoneAlt } from "react-icons/fa";
 import Notification from "./Notification";
 import ProfileUser from "./ProfileUser";
+import { NavLink } from "react-router-dom";
 
 const HomePage: React.FC = () => {
   return (
@@ -29,12 +30,38 @@ const HomePage: React.FC = () => {
       {/* Menu */}
       <nav className="menu-bar">
         <ul className="menu-list">
-          <li>About</li>
-          <li>Booking Online Station</li>
-          <li>Blog</li>
-          <li>Payment</li>
-          <li>Contact</li>
-          <li>Business</li>
+          <li>
+            <NavLink
+              to="/"
+              end
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              About
+            </NavLink>
+          </li>
+          <li>
+            <a href="#">Booking Online Station</a>
+          </li>
+          <li>
+            <a href="#">Blog</a>
+          </li>
+          <li>
+            <a href="#">Payment</a>
+          </li>
+          <li>
+            <a href="#">Contact</a>
+          </li>
+          <li>
+            <NavLink
+              to="/membership"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              Membership
+            </NavLink>
+          </li>
+          <li>
+            <a href="#">Business</a>
+          </li>
         </ul>
       </nav>
 

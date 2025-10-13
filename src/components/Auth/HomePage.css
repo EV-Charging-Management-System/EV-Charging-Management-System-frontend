@@ -1,16 +1,34 @@
-/* Toàn trang */
+/* ================= FIX VIỀN TRẮNG & RESET ================= */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #000; /* fallback nếu hình chưa load */
+  overflow-x: hidden;     /* ngăn cuộn ngang gây viền */
+}
+
 .home-container {
+  width: 100vw;   /* ép full chiều ngang, bỏ viền trắng hai bên */
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
   background-image: url("/homepage.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  min-height: 100vh;
   color: white;
   display: flex;
   flex-direction: column;
 }
 
-/* Header */
+/* ================= HEADER ================= */
 .header {
   display: flex;
   align-items: center;
@@ -19,7 +37,7 @@
   background-color: rgba(0, 0, 0, 0.55);
 }
 
-/* Slogan */
+/* --- Slogan --- */
 .header-left {
   display: flex;
   align-items: center;
@@ -29,7 +47,7 @@
   font-style: italic;
 }
 
-/* Hotline */
+/* --- Hotline --- */
 .header-center {
   display: flex;
   align-items: center;
@@ -42,14 +60,43 @@
   animation: pulse 1.5s infinite;
 }
 
-/* Hiệu ứng nhấp nháy */
+/* Hiệu ứng nhấp nháy cho icon điện thoại */
 @keyframes pulse {
-  0% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(1.1); }
-  100% { opacity: 1; transform: scale(1); }
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
-/* Menu */
+/* --- Phần bên phải header (chuông + profile) --- */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-right button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  transition: transform 0.2s ease, color 0.3s ease;
+}
+
+.header-right button:hover {
+  color: #4ade80;
+  transform: scale(1.1);
+}
+
+/* ================= MENU ================= */
 .menu-bar {
   background-color: rgba(0, 0, 0, 0.6);
   padding: 12px 0;
@@ -66,19 +113,31 @@
   padding: 0;
 }
 
-.menu-list li {
+/* Link mặc định */
+.menu-list a {
   font-size: 17px;
   font-weight: 500;
-  cursor: pointer;
-  transition: color 0.3s, transform 0.2s;
+  color: white;
+  text-decoration: none;
+  transition: color 0.3s, transform 0.2s, border-bottom 0.2s;
 }
 
-.menu-list li:hover {
+/* Hover chỉ hoạt động khi KHÔNG ACTIVE */
+.menu-list a:not(.active):hover {
   color: #4ade80;
   transform: scale(1.05);
 }
 
-/* Nội dung chính */
+/* Active (trang hiện tại) */
+.menu-list a.active {
+  color: #4ade80;
+  font-weight: 600;
+  border-bottom: 2px solid #4ade80;
+  padding-bottom: 2px;
+  transform: scale(1.05);
+}
+
+/* ================= NỘI DUNG CHÍNH ================= */
 .main-content {
   display: flex;
   justify-content: center;
@@ -158,7 +217,7 @@
   background-color: #555;
 }
 
-/* Footer */
+/* ================= FOOTER ================= */
 .footer {
   text-align: center;
   padding: 12px 0;
@@ -166,25 +225,29 @@
   background-color: rgba(0, 0, 0, 0.55);
   border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
-/* ========== PROFILE USER ========== */
+
+/* ================= PROFILE USER ================= */
 .profile-container {
   position: relative;
+  display: flex;
+  align-items: center;
 }
 
 .account-avatar {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  cursor: pointer;
   border: 2px solid #4ade80;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  transition: all 0.25s ease;
 }
 
 .account-avatar:hover {
-  transform: scale(1.05);
+  transform: scale(1.08);
   box-shadow: 0 0 8px #4ade80;
 }
 
+/* Dropdown */
 .profile-dropdown {
   position: absolute;
   right: 0;
@@ -245,45 +308,4 @@
 .profile-menu button:hover {
   background: #4ade80;
   color: black;
-}
-/* ========== HEADER RIGHT (Chuông + Account) ========== */
-.header-right {
-  display: flex;
-  align-items: center; /* ✅ Căn giữa theo chiều dọc */
-  gap: 16px; /* ✅ Khoảng cách giữa chuông và avatar */
-}
-
-/* Nút chuông */
-.header-right button {
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-  transition: transform 0.2s ease, color 0.3s ease;
-}
-
-.header-right button:hover {
-  color: #4ade80;
-  transform: scale(1.1);
-}
-
-/* Avatar account */
-.profile-container {
-  position: relative;
-  display: flex;
-  align-items: center; /* ✅ Giữ avatar nằm đúng hàng với chuông */
-}
-
-.account-avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: 2px solid #4ade80;
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-
-.account-avatar:hover {
-  transform: scale(1.08);
-  box-shadow: 0 0 8px #4ade80;
 }
