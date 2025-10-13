@@ -37,6 +37,22 @@ const Login: React.FC = () => {
       await login(formData)
       navigate('/dashboard')
     } catch (err) {
+      console.error('Login attempt failed:', err)
+      // If network error or backend not available, try local fallback
+      const isNetworkError = !(err as any)?.response
+      if (isNetworkError) {
+        const localUsersRaw = localStorage.getItem('local_users')
+        const localUsers = localUsersRaw ? JSON.parse(localUsersRaw) : []
+        const credential = formData.Email
+        const matched = localUsers.find((u: any) => (u.emailAddress === credential || u.phoneNumber === credential) && u.password === formData.PasswordHash)
+        if (matched) {
+          // Emulate successful login
+          localStorage.setItem('user', JSON.stringify({ name: matched.fullName, email: matched.emailAddress }))
+          navigate('/dashboard')
+          return
+        }
+      }
+
       setError('Invalid email or password')
     } finally {
       setLoading(false)

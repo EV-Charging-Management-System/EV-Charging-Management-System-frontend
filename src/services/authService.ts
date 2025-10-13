@@ -61,8 +61,9 @@ export const authService = {
         message: response.data.message
       }
     } catch (error: any) {
-      const message = error?.response?.data?.message
-      throw new Error(message)
+      // Log detailed error for debugging and rethrow original error so callers can inspect response
+      console.error('[authService] register error:', error?.response?.data ?? error)
+      throw error
     }
   },
 

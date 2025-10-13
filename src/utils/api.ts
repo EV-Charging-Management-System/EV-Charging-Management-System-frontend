@@ -2,6 +2,14 @@ import axios, { type AxiosInstance, type AxiosResponse, type InternalAxiosReques
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'
 
+// Debug: show which API base URL is used at runtime
+try {
+  // eslint-disable-next-line no-console
+  console.log('[apiClient] API_BASE_URL =', API_BASE_URL)
+} catch (err) {
+  // ignore
+}
+
 // Create axios instance
 export const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,

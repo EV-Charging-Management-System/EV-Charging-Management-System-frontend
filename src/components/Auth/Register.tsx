@@ -75,8 +75,14 @@ const RegisterForm: React.FC = () => {
     }
     if (!formData.password) {
       newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+    } else {
+      // Password rules: at least 8 chars, at least 1 uppercase letter and 1 special char
+      const lengthOk = formData.password.length >= 8
+      const upperOk = /[A-Z]/.test(formData.password)
+      const specialOk = /[^A-Za-z0-9]/.test(formData.password)
+      if (!lengthOk || !upperOk || !specialOk) {
+        newErrors.password = 'Password must be at least 8 characters, include 1 uppercase letter and 1 special character'
+      }
     }
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
@@ -116,12 +122,41 @@ const RegisterForm: React.FC = () => {
           SignatureImage: ''
         }
 
+        // Try server registration first
         const resp = await register(payload)
         setSuccessMessage(resp?.message || 'Register successful! Please login.')
         // navigate to login after short delay
         setTimeout(() => navigate('/login'), 1500)
       } catch (err: any) {
-        setError(err?.message || 'Registration failed')
+        console.error('Register handler error:', err)
+        // If network error or no response from server, fallback to local storage (for offline/demo)
+        const isNetworkError = !err?.response
+        if (isNetworkError) {
+          // Save user locally so they can login against this browser instance
+          const localUsersRaw = localStorage.getItem('local_users')
+          const localUsers = localUsersRaw ? JSON.parse(localUsersRaw) : []
+          const newUser = {
+            fullName: formData.fullName,
+            phoneNumber: formData.phoneNumber,
+            emailAddress: formData.emailAddress,
+            password: formData.password
+          }
+          localUsers.push(newUser)
+          localStorage.setItem('local_users', JSON.stringify(localUsers))
+          setSuccessMessage('Registered locally (offline mode). Please login.')
+          setTimeout(() => navigate('/login'), 1200)
+        } else {
+          // Try to surface backend-provided message or validation details
+          const serverMessage = err?.response?.data?.message || err?.message
+          const validationErrors = err?.response?.data?.errors
+          let combined = serverMessage || 'Registration failed'
+          if (validationErrors && typeof validationErrors === 'object') {
+            const details = Object.values(validationErrors).flat().join('; ')
+            combined = `${combined}: ${details}`
+          }
+
+          setError(combined)
+        }
       } finally {
         setLoading(false)
       }
@@ -144,8 +179,18 @@ const RegisterForm: React.FC = () => {
 
         <div className="backdrop-blur-sm bg-black/30 rounded-3xl p-8 border border-emerald-500/20">
           <h2 className="text-white text-3xl font-bold text-center mb-8">Create Account</h2>
-
           <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+                {error}
+              </div>
+            )}
+
+            {successMessage && (
+              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md">
+                {successMessage}
+              </div>
+            )}
             <div>
               <input
                 type="text"
@@ -313,9 +358,17 @@ const RegisterForm: React.FC = () => {
 
             <button
               type="submit"
-              className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-3 rounded-lg transition-colors mt-6"
+              className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-3 rounded-lg transition-colors mt-6 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center"
+              disabled={loading}
             >
-              Register
+              {loading ? (
+                <>
+                  <span className="animate-spin mr-2 h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+                  Registering...
+                </>
+              ) : (
+                'Register'
+              )}
             </button>
 
             <button
