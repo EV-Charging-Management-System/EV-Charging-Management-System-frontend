@@ -1,0 +1,35 @@
+.page-container {
+  background: linear-gradient(180deg, #001f3f, #003366);
+  background-image: url("/blog.jpg");
+  background-size: cover;
+  background-position: center;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+}
+
+.page-title {
+  font-size: 40px;
+  font-weight: 700;
+  text-align: center;
+  margin-top: 100px;
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
+}
+
+.page-description {
+  text-align: center;
+  font-size: 18px;
+  max-width: 700px;
+  margin: 20px auto;
+}
+
+.footer {
+  text-align: center;
+  padding: 20px;
+  color: #ccc;
+}
+.footer a {
+  color: #00e5ff;
+  text-decoration: none;
+}

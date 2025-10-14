@@ -33,7 +33,7 @@ const Membership: React.FC = () => {
       <nav className="menu-bar">
         <ul className="menu-list">
           <li onClick={() => navigate("/")}>About</li>
-          <li>Booking Online Station</li>
+          <li onClick={() => navigate("/booking-online-station")}>Booking Online Station</li>
           <li>Blog</li>
           <li>Payment</li>
           <li>Contact</li>

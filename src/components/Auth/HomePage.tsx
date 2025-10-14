@@ -57,16 +57,36 @@ const HomePage: React.FC = () => {
             </NavLink>
           </li>
           <li>
-            <a href="#">Booking Online Station</a>
+            <NavLink
+              to="/booking-online-station"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              Booking Online Station
+            </NavLink>
           </li>
           <li>
-            <a href="#">Blog</a>
+           <NavLink
+              to="/blog"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              Blog
+            </NavLink>
           </li>
           <li>
-            <a href="#">Payment</a>
+            <NavLink
+              to="/payment"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              Payment
+            </NavLink>
           </li>
           <li>
-            <a href="#">Contact</a>
+            <NavLink
+              to="/contact"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              Contact
+            </NavLink>
           </li>
           <li>
             <NavLink
@@ -77,7 +97,12 @@ const HomePage: React.FC = () => {
             </NavLink>
           </li>
           <li>
-            <a href="#">Business</a>
+            <NavLink
+              to="/business"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              Business
+            </NavLink>
           </li>
         </ul>
       </nav>

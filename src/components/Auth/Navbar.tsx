@@ -12,6 +12,13 @@ const Navbar = () => {
       </NavLink>
 
       <NavLink
+        to="/booking-online-station"
+        className={({ isActive }) => (isActive ? "active" : "inactive")}
+      >
+        booking Online Station
+      </NavLink>
+
+      <NavLink
         to="/membership"
         className={({ isActive }) => (isActive ? "active" : "inactive")}
       >
