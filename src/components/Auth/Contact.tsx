@@ -27,7 +27,7 @@ const Contact: React.FC = () => {
       <nav className="menu-bar">
         <ul className="menu-list">
           <li onClick={() => navigate("/")}>About</li>
-          <li onClick={() => navigate("/booking-online-station")}>Booking</li>
+          <li onClick={() => navigate("/booking-online-station")}>Booking Online Station</li>
           <li onClick={() => navigate("/blog")}>Blog</li>
           <li onClick={() => navigate("/payment")}>Payment</li>
           <li className="menu-active">Contact</li>

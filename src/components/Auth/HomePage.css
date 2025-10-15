@@ -1,4 +1,4 @@
-/* ================= FIX VIỀN TRẮNG & RESET ================= */
+/* ================= RESET & FIX WHITE BORDER ================= */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -10,22 +10,44 @@ html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
-  background-color: #000; /* fallback nếu hình chưa load */
-  overflow-x: hidden;     /* ngăn cuộn ngang gây viền */
+  background-color: #000;
+  overflow-x: hidden;
+  font-family: "Poppins", sans-serif;
+  color: white;
 }
 
+a {
+  text-decoration: none;
+}
+
+/* ================ LAYOUT HELPERS ================ */
+.container {
+  width: min(1200px, 92%);
+  margin: 0 auto;
+}
+
+/* ================= HOME CONTAINER ================= */
 .home-container {
-  width: 100vw;   /* ép full chiều ngang, bỏ viền trắng hai bên */
+  width: 100vw;
   min-height: 100vh;
-  margin: 0;
-  padding: 0;
   background-image: url("/homepage.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  color: white;
   display: flex;
   flex-direction: column;
+  /* overlay layer so sections have clear contrast */
+  position: relative;
+}
+
+/* optional dark overlay for readability */
+.home-container::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.7) 70%);
+  z-index: 0;
+  pointer-events: none;
 }
 
 /* ================= HEADER ================= */
@@ -35,52 +57,45 @@ html, body, #root {
   justify-content: space-between;
   padding: 16px 48px;
   background-color: rgba(0, 0, 0, 0.55);
+  position: relative;
+  z-index: 3;
 }
 
-/* --- Slogan --- */
 .header-left {
   display: flex;
   align-items: center;
 }
+
 .slogan {
   font-size: 16px;
   font-style: italic;
+  color: #d1eace;
 }
 
-/* --- Hotline --- */
 .header-center {
   display: flex;
   align-items: center;
   gap: 8px;
   font-weight: 600;
   font-size: 18px;
+  color: #e6f9ea;
 }
+
 .phone-icon {
   color: #4ade80;
   animation: pulse 1.5s infinite;
 }
 
-/* Hiệu ứng nhấp nháy cho icon điện thoại */
 @keyframes pulse {
-  0% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.6;
-    transform: scale(1.1);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
+  0% {opacity: 1; transform: scale(1);}
+  50% {opacity: 0.6; transform: scale(1.06);}
+  100% {opacity: 1; transform: scale(1);}
 }
 
-/* --- Phần bên phải header (chuông + profile) --- */
 .header-right {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 18px;
 }
 
 .header-right button {
@@ -88,12 +103,12 @@ html, body, #root {
   border: none;
   color: white;
   cursor: pointer;
-  transition: transform 0.2s ease, color 0.3s ease;
+  transition: 0.2s;
 }
 
 .header-right button:hover {
   color: #4ade80;
-  transform: scale(1.1);
+  transform: scale(1.05);
 }
 
 /* ================= MENU ================= */
@@ -102,152 +117,293 @@ html, body, #root {
   padding: 12px 0;
   display: flex;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.03);
+  position: relative;
+  z-index: 3;
 }
 
 .menu-list {
   list-style: none;
   display: flex;
   gap: 32px;
-  margin: 0;
-  padding: 0;
 }
 
-/* Link mặc định */
 .menu-list a {
   font-size: 17px;
   font-weight: 500;
   color: white;
-  text-decoration: none;
-  transition: color 0.3s, transform 0.2s, border-bottom 0.2s;
+  transition: 0.2s;
+  padding: 6px 4px;
 }
 
-/* Hover chỉ hoạt động khi KHÔNG ACTIVE */
-.menu-list a:not(.active):hover {
+.menu-list a:hover {
   color: #4ade80;
-  transform: scale(1.05);
+  transform: translateY(-2px);
 }
 
-/* Active (trang hiện tại) */
 .menu-list a.active {
   color: #4ade80;
   font-weight: 600;
   border-bottom: 2px solid #4ade80;
   padding-bottom: 2px;
-  transform: scale(1.05);
 }
 
-/* ================= NỘI DUNG CHÍNH ================= */
+/* ================= HERO SECTION (BODY) ================= */
 .main-content {
+  flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  flex: 1;
-}
-
-/* Ô trung tâm */
-.station-card {
-  width: 360px;
-  background-color: rgba(0, 0, 0, 0.7);
-  border-radius: 16px;
-  padding: 24px;
+  padding: 80px 20px;
   text-align: center;
-  box-shadow: 0 0 20px rgba(0, 255, 128, 0.25);
-  backdrop-filter: blur(8px);
+  position: relative;
+  z-index: 2; /* above background overlay */
+  min-height: 60vh;
 }
 
-/* Ô tìm kiếm */
-.search-input {
-  width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  outline: none;
-  margin-bottom: 12px;
-  font-size: 16px;
+.hero-text {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+  position: relative;
 }
 
-/* Nút Find Station */
-.find-btn {
-  width: 100%;
-  padding: 10px;
-  border: none;
-  border-radius: 8px;
+.hero-text h1 {
+  font-size: 68px;
+  font-weight: 800;
+  line-height: 1.05;
+  margin-bottom: 20px;
+  text-shadow: 0 8px 30px rgba(0,0,0,0.8);
+  color: #ffffff;
+}
+
+.hero-text .highlight {
+  color: #4ade80;
+}
+
+.hero-text .description {
+  font-size: 22px;
+  color: #d7dedb;
+  margin-bottom: 36px;
+  line-height: 1.6;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-find {
   background-color: #4ade80;
   color: black;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.find-btn:hover {
-  background-color: #22c55e;
-  transform: scale(1.03);
-}
-
-/* Ảnh bản đồ */
-.map-img {
-  width: 100%;
-  margin: 24px 0;
+  padding: 16px 32px;
+  font-size: 18px;
   border-radius: 8px;
-  object-fit: cover;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-/* Giá sạc */
-.charging-rate {
-  margin-bottom: 20px;
-  font-size: 16px;
-}
-
-/* Nút logout */
-.logout-btn {
-  width: 100%;
-  padding: 10px;
   border: none;
-  border-radius: 8px;
-  background-color: #333;
-  color: white;
   font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: transform .25s ease, background-color .25s ease;
 }
 
-.logout-btn:hover {
-  background-color: #555;
+.btn-find:hover {
+  transform: translateY(-3px);
+  background-color: #22c55e;
+}
+
+.btn-premium {
+  background: transparent;
+  border: 2px solid #4ade80;
+  padding: 16px 32px;
+  font-size: 18px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  color: white;
+  transition: transform .25s ease, background-color .25s ease, color .25s ease;
+}
+
+.btn-premium:hover {
+  background-color: #4ade80;
+  color: black;
+  transform: translateY(-3px);
+}
+
+/* small icon inside button */
+.btn-find .icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* ================= FEATURES SECTION ================= */
+.features-section {
+  position: relative;
+  z-index: 2;
+  padding: 72px 0;
+  margin-top: -30px; /* slightly overlap hero for visual continuity */
+  /* ensure contrast with background */
+  background: linear-gradient(to bottom, rgba(0,0,0,0.15), rgba(0,0,0,0.35));
+}
+
+.features-section .container {
+  position: relative;
+  z-index: 2;
+}
+
+.section-title {
+  font-size: 32px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 36px;
+  color: #f8fff9;
+}
+
+/* grid */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* card */
+.card {
+  padding: 26px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.05);
+  backdrop-filter: blur(4px);
+  text-align: center;
+  transition: transform .28s ease, box-shadow .28s ease, border-color .28s ease;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(74,222,128,0.4);
+  box-shadow: 0 14px 30px rgba(0,0,0,0.55), 0 6px 18px rgba(74,222,128,0.08);
+}
+
+.card-icon {
+  width: 60px;
+  height: 60px;
+  margin-bottom: 12px;
+  background: rgba(74,222,128,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+}
+
+.card-icon svg {
+  width: 28px;
+  height: 28px;
+  color: #4ade80;
+}
+
+.card h3 {
+  margin-top: 8px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #f7fff7;
+}
+
+.card p {
+  margin-top: 10px;
+  font-size: 15px;
+  color: #cbd5c6;
+  line-height: 1.6;
+}
+
+/* ================= CTA SECTION ================= */
+.cta-section {
+  position: relative;
+  z-index: 2;
+  padding: 96px 0;
+  margin-top: 28px;
+  /* darken the underlying image for CTA prominence */
+  background: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0.7));
+}
+
+/* decorative subtle overlay (keeps background but prevents "tràn" visual) */
+.cta-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 40%, rgba(74,222,128,0.06), transparent 35%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.cta-box {
+  position: relative;
+  z-index: 2;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 46px;
+  border-radius: 16px;
+  background: rgba(0,0,0,0.78); /* stronger dark bg so it appears as panel */
+  border: 1px solid rgba(255,255,255,0.06);
+  backdrop-filter: blur(8px);
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+}
+
+.cta-box h2 {
+  font-size: 36px;
+  margin-bottom: 12px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.cta-box p {
+  font-size: 17px;
+  color: #cfe9d8;
+  margin-bottom: 28px;
+}
+
+.btn-cta {
+  display: inline-block;
+  background: #4ade80;
+  color: black;
+  font-weight: 700;
+  padding: 14px 28px;
+  font-size: 16px;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: transform .2s ease, background-color .2s ease;
+}
+
+.btn-cta:hover {
+  transform: translateY(-4px);
+  background: #22c55e;
 }
 
 /* ================= FOOTER ================= */
 .footer {
   text-align: center;
-  padding: 12px 0;
+  padding: 18px 0;
   font-size: 15px;
-  background-color: rgba(0, 0, 0, 0.55);
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: rgba(0, 0, 0, 0.6);
+  position: relative;
+  z-index: 3;
+  color: #d8e9dc;
 }
 
-/* ================= PROFILE USER ================= */
+/* ================= PROFILE DROPDOWN ================= */
 .profile-container {
   position: relative;
-  display: flex;
-  align-items: center;
 }
 
-.account-avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: 2px solid #4ade80;
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-
-.account-avatar:hover {
-  transform: scale(1.08);
-  box-shadow: 0 0 8px #4ade80;
-}
-
-/* Dropdown */
 .profile-dropdown {
   position: absolute;
   right: 0;
@@ -256,56 +412,62 @@ html, body, #root {
   background: rgba(0, 0, 0, 0.85);
   border-radius: 16px;
   padding: 20px;
-  box-shadow: 0 0 12px rgba(0, 255, 128, 0.3);
+  box-shadow: 0 0 12px rgba(0, 255, 128, 0.22);
   text-align: center;
   animation: fadeIn 0.3s ease;
   backdrop-filter: blur(6px);
+  z-index: 50;
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.profile-avatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  border: 3px solid #4ade80;
-  margin-bottom: 10px;
-}
-
-.profile-name {
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.profile-id {
-  font-size: 14px;
-  color: #bbb;
-  margin-bottom: 16px;
+  from {opacity: 0; transform: translateY(-8px);}
+  to {opacity: 1; transform: translateY(0);}
 }
 
 .profile-menu button {
   width: 100%;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255,255,255,0.06);
   border: none;
   border-radius: 8px;
   color: white;
   padding: 10px;
   margin: 6px 0;
-  font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: 0.18s;
 }
 
 .profile-menu button:hover {
-  background: #4ade80;
+  background-color: #4ade80;
   color: black;
+}
+.profile-menu hr {
+  border: none;
+  border-top: 1px solid rgba(255,255,255,0.12);
+  margin: 12px 0;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 1024px) {
+  .hero-text h1 { font-size: 48px; }
+  .hero-text .description { font-size: 18px; }
+  .features-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .main-content { padding: 60px 18px; }
+  .header { padding: 12px 28px; }
+}
+
+@media (max-width: 768px) {
+  .menu-list { gap: 16px; flex-wrap: wrap; justify-content: center; }
+  .hero-text h1 { font-size: 34px; line-height: 1.08; }
+  .hero-text .description { font-size: 16px; }
+  .features-grid { grid-template-columns: 1fr; gap: 18px; }
+  .card { min-height: auto; padding: 20px; }
+  .cta-box { padding: 28px; margin: 0 12px; }
+  .home-container::after { background: linear-gradient(to bottom, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.85) 100%); }
+}
+
+@media (max-width: 420px) {
+  .hero-text h1 { font-size: 28px; }
+  .btn-find, .btn-premium, .btn-cta { width: 100%; justify-content: center; padding: 14px; }
+  .menu-list { gap: 10px; font-size: 15px; }
+  .header { padding: 10px 14px; }
 }

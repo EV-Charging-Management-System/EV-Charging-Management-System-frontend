@@ -29,7 +29,7 @@ const Blog: React.FC = () => {
       <nav className="menu-bar">
         <ul className="menu-list">
           <li onClick={() => navigate("/")}>About</li>
-          <li onClick={() => navigate("/booking-online-station")}>Booking</li>
+          <li onClick={() => navigate("/booking-online-station")}>Booking Online Station</li>
           <li className="menu-active">Blog</li>
           <li onClick={() => navigate("/payment")}>Payment</li>
           <li onClick={() => navigate("/contact")}>Contact</li>

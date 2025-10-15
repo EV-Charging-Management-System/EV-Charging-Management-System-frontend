@@ -27,7 +27,7 @@ const Payment: React.FC = () => {
       <nav className="menu-bar">
         <ul className="menu-list">
           <li onClick={() => navigate("/")}>About</li>
-          <li onClick={() => navigate("/booking-online-station")}>Booking</li>
+          <li onClick={() => navigate("/booking-online-station")}>Booking Online Station</li>
           <li onClick={() => navigate("/blog")}>Blog</li>
           <li className="menu-active">Payment</li>
           <li onClick={() => navigate("/contact")}>Contact</li>

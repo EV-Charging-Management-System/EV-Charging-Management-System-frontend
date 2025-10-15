@@ -8,14 +8,17 @@ import { useNavigate } from "react-router-dom";
 const BookingOnlineStation: React.FC = () => {
   const navigate = useNavigate();
 
+  // Hàm xử lý khi click vào "Tìm vị trí của tôi"
+  const handleFindLocation = () => {
+    alert("📍 Đang lấy vị trí của bạn... (sẽ xử lý sau)");
+  };
+
   return (
     <div className="booking-container">
       {/* ===== HEADER ===== */}
       <header className="header">
         <div className="header-left">
-          <span className="slogan">
-            Optimising your journey, Powering your life
-          </span>
+          <span className="slogan">Optimising your journey, Powering your life</span>
         </div>
 
         <div className="header-center">
@@ -34,7 +37,7 @@ const BookingOnlineStation: React.FC = () => {
         <ul className="menu-list">
           <li onClick={() => navigate("/")}>About</li>
           <li className="menu-active">Booking Online Station</li>
-        <li onClick={() => navigate("/blog")}>Blog</li>
+          <li onClick={() => navigate("/blog")}>Blog</li>
           <li onClick={() => navigate("/payment")}>Payment</li>
           <li onClick={() => navigate("/contact")}>Contact</li>
           <li onClick={() => navigate("/membership")}>Membership</li>
@@ -54,7 +57,10 @@ const BookingOnlineStation: React.FC = () => {
             Chỉ cần vài cú nhấp chuột, bạn có thể đặt chỗ trước để đảm bảo trạm luôn sẵn sàng.
           </p>
 
-          <button className="booking-btn">Đặt Trạm Ngay</button>
+          {/* ✅ Nút tìm vị trí */}
+          <div className="select-station-box" onClick={handleFindLocation}>
+            🔍 Tìm vị trí của tôi
+          </div>
         </div>
       </main>
 
