@@ -1,7 +1,6 @@
-
 import React, { useState } from "react";
 import "./BookingOnlineStation.css";
-import { FaPhoneAlt, FaMapMarkerAlt } from "react-icons/fa";
+import { FaPhoneAlt, FaMapMarkerAlt, FaBolt } from "react-icons/fa";
 import Notification from "./Notification";
 import ProfileUser from "./ProfileUser";
 import { useNavigate } from "react-router-dom";
@@ -84,16 +83,21 @@ const BookingOnlineStation: React.FC = () => {
                   onClick={() => setActiveStation(station.id)}
                 />
               ))}
-              <p className="map-label">
-                Bản đồ mô phỏng vị trí các trạm sạc
-              </p>
+              <p className="map-label">Bản đồ mô phỏng vị trí các trạm sạc</p>
             </div>
           </div>
 
           {/* ==== STATION LIST ==== */}
           <div className="station-list-section">
             <h2 className="station-header">Trạm Sạc Gần Bạn</h2>
-            <button className="location-btn">📍 Xem Lịch Đặt</button>
+
+            {/* Nút Xem Lịch Đặt */}
+            <button
+              className="location-btn"
+              onClick={() => navigate("/charging-schedule")}
+            >
+              📍 Xem Lịch Đặt
+            </button>
 
             {stations.map((s) => (
               <div
@@ -127,7 +131,7 @@ const BookingOnlineStation: React.FC = () => {
                   <span className="empty-count">{s.empty}/{s.total} trống</span>
                   <button
                     className="detail-btn"
-                    onClick={() => navigate(`/booking-detail/${s.id}`)} // ✅ chuyển đúng trang
+                    onClick={() => navigate(`/booking-detail/${s.id}`)}
                   >
                     Xem Chi Tiết & Đặt Lịch
                   </button>
@@ -144,4 +148,4 @@ const BookingOnlineStation: React.FC = () => {
   );
 };
 
-export default BookingOnlineStation;  
+export default BookingOnlineStation;

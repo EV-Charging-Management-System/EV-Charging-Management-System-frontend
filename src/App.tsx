@@ -11,6 +11,7 @@ import Contact from "./components/Auth/Contact";
 import Business from "./components/Auth/Business";
 import Blog from "./components/Auth/Blog";
 import BookingDetail from "./components/Auth/BookingDetail";
+import ChargingSchedule from "./components/Auth/ChargingSchedule";
 const App: React.FC = () => {
   return (
     <BrowserRouter>
@@ -42,6 +43,9 @@ const App: React.FC = () => {
 
         {/* Trang chi tiết đặt chỗ */}
         <Route path="/booking-detail/:id" element={<BookingDetail />} />
+
+        {/* Trang lịch sạc */}
+        <Route path="/charging-schedule" element={<ChargingSchedule />} />
       </Routes>
     </BrowserRouter>
   );
