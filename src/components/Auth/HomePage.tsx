@@ -122,7 +122,7 @@ const HomePage: React.FC = () => {
 
           <div className="hero-buttons">
             <button className="btn-find">
-              <FaLocationDot className="icon" /> Tìm Trạm Sạc
+              <FaLocationDot className="icon" /> Xem Lịch Đặt
             </button>
             <button className="btn-premium">
               Gói Premium

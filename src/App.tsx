@@ -10,7 +10,7 @@ import Payment from "./components/Auth/Payment";
 import Contact from "./components/Auth/Contact";
 import Business from "./components/Auth/Business";
 import Blog from "./components/Auth/Blog";
-
+import BookingDetail from "./components/Auth/BookingDetail";
 const App: React.FC = () => {
   return (
     <BrowserRouter>
@@ -39,6 +39,9 @@ const App: React.FC = () => {
 
         {/* Trang doanh nghiệp */}
         <Route path="/business" element={<Business />} />
+
+        {/* Trang chi tiết đặt chỗ */}
+        <Route path="/booking-detail/:id" element={<BookingDetail />} />
       </Routes>
     </BrowserRouter>
   );

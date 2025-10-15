@@ -1,7 +1,7 @@
+
 import React, { useState } from "react";
 import "./BookingOnlineStation.css";
-import { FaPhoneAlt } from "react-icons/fa";
-import { FaMapMarkerAlt } from "react-icons/fa";
+import { FaPhoneAlt, FaMapMarkerAlt } from "react-icons/fa";
 import Notification from "./Notification";
 import ProfileUser from "./ProfileUser";
 import { useNavigate } from "react-router-dom";
@@ -10,7 +10,6 @@ const BookingOnlineStation: React.FC = () => {
   const navigate = useNavigate();
   const [activeStation, setActiveStation] = useState<number | null>(null);
 
-  // Danh sách trạm sạc mẫu
   const stations = [
     {
       id: 1,
@@ -43,16 +42,12 @@ const BookingOnlineStation: React.FC = () => {
       {/* ===== HEADER ===== */}
       <header className="header">
         <div className="header-left">
-          <span className="slogan">
-            Optimising your journey, Powering your life
-          </span>
+          <span className="slogan">Optimising your journey, Powering your life</span>
         </div>
-
         <div className="header-center">
           <FaPhoneAlt className="phone-icon" />
           <span className="hotline-text">Hotline: 0112 334 567</span>
         </div>
-
         <div className="header-right" style={{ display: "flex", gap: "16px" }}>
           <Notification />
           <ProfileUser />
@@ -68,19 +63,16 @@ const BookingOnlineStation: React.FC = () => {
           <li onClick={() => navigate("/payment")}>Payment</li>
           <li onClick={() => navigate("/contact")}>Contact</li>
           <li onClick={() => navigate("/membership")}>Membership</li>
-          <li onClick={() => navigate("/business")}>Business</li>
         </ul>
       </nav>
 
       {/* ===== BODY ===== */}
       <main className="booking-body">
         <h1 className="booking-title">Booking Online Station</h1>
-        <p className="booking-subtitle">
-          Chọn trạm sạc gần bạn và đặt lịch ngay
-        </p>
+        <p className="booking-subtitle">Chọn trạm sạc gần bạn và đặt lịch ngay</p>
 
         <div className="station-layout">
-          {/* ==== BẢN ĐỒ ==== */}
+          {/* ==== MAP ==== */}
           <div className="map-section">
             <div className="map-placeholder">
               {stations.map((station) => (
@@ -93,15 +85,15 @@ const BookingOnlineStation: React.FC = () => {
                 />
               ))}
               <p className="map-label">
-                Bản đồ tích hợp<br />Google Maps / Mapbox
+                Bản đồ mô phỏng vị trí các trạm sạc
               </p>
             </div>
           </div>
 
-          {/* ==== DANH SÁCH TRẠM ==== */}
+          {/* ==== STATION LIST ==== */}
           <div className="station-list-section">
             <h2 className="station-header">Trạm Sạc Gần Bạn</h2>
-            <button className="location-btn">📍 Vị trí của tôi</button>
+            <button className="location-btn">📍 Xem Lịch Đặt</button>
 
             {stations.map((s) => (
               <div
@@ -130,13 +122,12 @@ const BookingOnlineStation: React.FC = () => {
                     ></div>
                   </div>
                 </div>
+
                 <div className="station-footer">
-                  <span className="empty-count">
-                    {s.empty}/{s.total} trống
-                  </span>
+                  <span className="empty-count">{s.empty}/{s.total} trống</span>
                   <button
                     className="detail-btn"
-                    onClick={() => alert(`Xem chi tiết ${s.name}`)}
+                    onClick={() => navigate(`/booking-detail/${s.id}`)} // ✅ chuyển đúng trang
                   >
                     Xem Chi Tiết & Đặt Lịch
                   </button>
@@ -153,4 +144,4 @@ const BookingOnlineStation: React.FC = () => {
   );
 };
 
-export default BookingOnlineStation;
+export default BookingOnlineStation;  
