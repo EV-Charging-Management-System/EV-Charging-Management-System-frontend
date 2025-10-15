@@ -1,13 +1,19 @@
 /* =============== TOÀN TRANG =============== */
 .booking-container {
-  background-image: url("/mapbooking.jpg"); /* ảnh từ thư mục public */
+  background-image: linear-gradient(
+      rgba(0, 0, 0, 0.5),
+      rgba(0, 0, 0, 0.5)
+    ),
+    url("/mapbooking.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  color: #f5f5f5;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  color: #f5f5f5;
+  font-family: "Segoe UI", sans-serif;
+  transition: background 0.5s ease-in-out;
 }
 
 /* =============== HEADER =============== */
@@ -16,14 +22,15 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px 40px;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.6);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
 .slogan {
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 700;
   color: #ffffff;
-  text-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
+  text-shadow: 0 0 12px rgba(0, 255, 255, 0.6);
 }
 
 .phone-icon {
@@ -38,8 +45,9 @@
 
 /* =============== MENU =============== */
 .menu-bar {
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.7);
   padding: 12px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .menu-list {
@@ -63,7 +71,7 @@
 }
 
 .menu-active {
-  color: #32cd32; /* ✅ Xanh lá */
+  color: #32cd32;
   border-bottom: 2px solid #32cd32;
   padding-bottom: 4px;
   font-weight: 600;
@@ -72,129 +80,214 @@
 /* =============== BODY =============== */
 .booking-body {
   flex: 1;
+  padding: 40px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  padding: 40px 20px;
+  gap: 20px;
   backdrop-filter: blur(2px);
 }
 
 .booking-title {
-  font-size: 40px;
+  font-size: 36px;
   font-weight: 700;
-  margin-bottom: 24px;
   color: #ffffff;
-  text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  margin-bottom: 4px;
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
 }
 
-.booking-content {
-  max-width: 650px;
-  font-size: 18px;
-  line-height: 1.6;
-  color: #e8e8e8;
+.booking-subtitle {
+  font-size: 16px;
+  color: #d0d0d0;
+  margin-bottom: 24px;
 }
 
-.booking-btn {
-  margin-top: 32px;
-  background-color: #32cd32;
-  color: white;
-  border: none;
-  padding: 12px 28px;
-  border-radius: 10px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.3s, transform 0.3s;
+/* =============== LAYOUT =============== */
+.station-layout {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 20px;
 }
 
-.booking-btn:hover {
-  background-color: #2db82d;
-  transform: translateY(-2px);
+/* =============== MAP SECTION =============== */
+.map-section {
+  background: #1f1f1f;
+  border-radius: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
+  box-shadow: 0 0 25px rgba(0, 255, 255, 0.05);
 }
 
-/* =============== MODAL CHỌN TRẠM =============== */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
+.map-placeholder {
+  position: relative;
   width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.7);
+  height: 400px;
+  background: #2c2c2c;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: fadeIn 0.3s ease;
-  z-index: 100;
-}
-
-.modal-box {
-  background: #ffffff;
-  color: #000;
-  width: 450px;
-  max-width: 95%;
-  border-radius: 12px;
-  padding: 24px;
+  color: #aaa;
+  font-size: 14px;
   text-align: center;
-  animation: popupZoom 0.35s ease;
 }
 
-.station-list {
-  list-style: none;
-  margin-top: 16px;
-  padding: 0;
-  max-height: 260px;
-  overflow-y: auto;
+.map-marker {
+  font-size: 28px;
+  position: absolute;
 }
 
-.station-item {
-  padding: 12px;
-  margin: 8px 0;
-  background: #f5f5f5;
+.map-marker.orange {
+  color: #ff7a00;
+  top: 30%;
+  left: 25%;
+}
+
+.map-marker.green {
+  color: #00d66b;
+  bottom: 25%;
+  right: 40%;
+}
+
+.map-marker.gray {
+  color: #aaa;
+  bottom: 35%;
+  left: 50%;
+}
+
+.map-label {
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+/* =============== DANH SÁCH TRẠM =============== */
+.station-list-section {
+  background: #121212;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 0 25px rgba(0, 255, 255, 0.05);
+}
+
+.station-header {
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+
+.location-btn {
+  background-color: #1f1f1f;
+  border: 1px solid #32cd32;
+  color: #32cd32;
+  padding: 8px 14px;
+  border-radius: 8px;
+  align-self: flex-end;
   cursor: pointer;
-  border-radius: 6px;
+  transition: all 0.3s;
+  font-size: 14px;
+}
+
+.location-btn:hover {
+  background-color: #32cd32;
+  color: #000;
+  transform: translateY(-2px);
+}
+
+/* =============== TRẠM CARD =============== */
+.station-card {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   transition: 0.3s;
 }
 
-.station-item:hover {
-  background: #32cd32;
-  color: white;
-  transform: translateX(6px);
+.station-card:hover {
+  border-color: #ff7a00;
+  box-shadow: 0 0 12px rgba(255, 122, 0, 0.5);
 }
 
-.close-btn {
-  margin-top: 18px;
+.station-info h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: #ffffff;
+}
+
+.address {
+  font-size: 14px;
+  color: #b0b0b0;
+  margin-bottom: 8px;
+}
+
+.status-bar {
+  display: flex;
+  gap: 10px;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 10px;
   background: #333;
-  color: white;
-  border: none;
-  padding: 10px 18px;
   border-radius: 6px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #ff7a00;
+  border-radius: 6px 0 0 6px;
+}
+
+.station-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.empty-count {
+  font-size: 13px;
+  color: #32cd32;
+}
+
+.detail-btn {
+  background-color: #ff7a00;
+  color: #fff;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
   cursor: pointer;
   transition: 0.3s;
 }
 
-.close-btn:hover {
-  background: #555;
+.detail-btn:hover {
+  background-color: #ff8c1a;
+  transform: translateY(-2px);
 }
 
-@keyframes popupZoom {
-  from {
-    transform: scale(0.7);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
+/* ==== Hiệu ứng khi marker được click ==== */
+.marker-active {
+  transform: scale(1.4);
+  filter: drop-shadow(0 0 10px #ff7a00);
+  transition: all 0.3s ease;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+/* ==== Khi ô trạm sạc được chọn ==== */
+.station-card-active {
+  border: 2px solid #ff7a00;
+  background-color: rgba(255, 122, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
 /* =============== FOOTER =============== */
@@ -202,20 +295,7 @@
   text-align: center;
   padding: 18px;
   font-size: 14px;
-  color: #ddd;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
-}
-
-.footer a {
-  color: #32cd32;
-  text-decoration: none;
-}
-
-.footer a:hover {
-  text-decoration: underline;
-}
-
-.footer p {
-  margin: 6px 0;
+  color: #bbb;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(6px);
 }

@@ -1,24 +1,51 @@
-import React from "react";
+import React, { useState } from "react";
 import "./BookingOnlineStation.css";
 import { FaPhoneAlt } from "react-icons/fa";
+import { FaMapMarkerAlt } from "react-icons/fa";
 import Notification from "./Notification";
 import ProfileUser from "./ProfileUser";
 import { useNavigate } from "react-router-dom";
 
 const BookingOnlineStation: React.FC = () => {
   const navigate = useNavigate();
+  const [activeStation, setActiveStation] = useState<number | null>(null);
 
-  // Hàm xử lý khi click vào "Tìm vị trí của tôi"
-  const handleFindLocation = () => {
-    alert("📍 Đang lấy vị trí của bạn... (sẽ xử lý sau)");
-  };
+  // Danh sách trạm sạc mẫu
+  const stations = [
+    {
+      id: 1,
+      name: "Trạm Sạc Trung Tâm Quận 1",
+      address: "123 Nguyễn Huệ, Quận 1, TP.HCM",
+      empty: 3,
+      total: 6,
+      color: "orange",
+    },
+    {
+      id: 2,
+      name: "Trạm Sạc Phú Mỹ Hưng",
+      address: "456 Nguyễn Văn Linh, Quận 7, TP.HCM",
+      empty: 5,
+      total: 6,
+      color: "green",
+    },
+    {
+      id: 3,
+      name: "Trạm Sạc Thủ Đức",
+      address: "789 Võ Văn Ngân, TP. Thủ Đức, TP.HCM",
+      empty: 4,
+      total: 6,
+      color: "gray",
+    },
+  ];
 
   return (
     <div className="booking-container">
       {/* ===== HEADER ===== */}
       <header className="header">
         <div className="header-left">
-          <span className="slogan">Optimising your journey, Powering your life</span>
+          <span className="slogan">
+            Optimising your journey, Powering your life
+          </span>
         </div>
 
         <div className="header-center">
@@ -47,19 +74,75 @@ const BookingOnlineStation: React.FC = () => {
 
       {/* ===== BODY ===== */}
       <main className="booking-body">
-        <h1 className="booking-title">
-          Đặt chỗ trạm sạc nhanh chóng <br /> Tiết kiệm thời gian – Dễ dàng di chuyển
-        </h1>
+        <h1 className="booking-title">Booking Online Station</h1>
+        <p className="booking-subtitle">
+          Chọn trạm sạc gần bạn và đặt lịch ngay
+        </p>
 
-        <div className="booking-content">
-          <p>
-            Hệ thống cho phép bạn tìm, đặt và quản lý trạm sạc gần nhất.
-            Chỉ cần vài cú nhấp chuột, bạn có thể đặt chỗ trước để đảm bảo trạm luôn sẵn sàng.
-          </p>
+        <div className="station-layout">
+          {/* ==== BẢN ĐỒ ==== */}
+          <div className="map-section">
+            <div className="map-placeholder">
+              {stations.map((station) => (
+                <FaMapMarkerAlt
+                  key={station.id}
+                  className={`map-marker ${station.color} ${
+                    activeStation === station.id ? "marker-active" : ""
+                  }`}
+                  onClick={() => setActiveStation(station.id)}
+                />
+              ))}
+              <p className="map-label">
+                Bản đồ tích hợp<br />Google Maps / Mapbox
+              </p>
+            </div>
+          </div>
 
-          {/* ✅ Nút tìm vị trí */}
-          <div className="select-station-box" onClick={handleFindLocation}>
-            🔍 Tìm vị trí của tôi
+          {/* ==== DANH SÁCH TRẠM ==== */}
+          <div className="station-list-section">
+            <h2 className="station-header">Trạm Sạc Gần Bạn</h2>
+            <button className="location-btn">📍 Vị trí của tôi</button>
+
+            {stations.map((s) => (
+              <div
+                key={s.id}
+                className={`station-card ${
+                  activeStation === s.id ? "station-card-active" : ""
+                }`}
+                onMouseEnter={() => setActiveStation(s.id)}
+                onMouseLeave={() => setActiveStation(null)}
+              >
+                <div className="station-info">
+                  <h3>{s.name}</h3>
+                  <p className="address">📍 {s.address}</p>
+                  <div className="status-bar">
+                    <span>🟢 Trống</span>
+                    <span>🔴 Đã đặt</span>
+                    <span>🟡 Bảo trì</span>
+                  </div>
+                  <div className="progress-bar">
+                    <div
+                      className="progress-fill"
+                      style={{
+                        width: `${(s.empty / s.total) * 100}%`,
+                        backgroundColor: "#ff7a00",
+                      }}
+                    ></div>
+                  </div>
+                </div>
+                <div className="station-footer">
+                  <span className="empty-count">
+                    {s.empty}/{s.total} trống
+                  </span>
+                  <button
+                    className="detail-btn"
+                    onClick={() => alert(`Xem chi tiết ${s.name}`)}
+                  >
+                    Xem Chi Tiết & Đặt Lịch
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </main>
