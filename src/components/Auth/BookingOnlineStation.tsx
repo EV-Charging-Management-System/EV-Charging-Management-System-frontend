@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./BookingOnlineStation.css";
-import { FaPhoneAlt, FaMapMarkerAlt, FaBolt } from "react-icons/fa";
+import { FaPhoneAlt, FaMapMarkerAlt } from "react-icons/fa";
 import Notification from "./Notification";
 import ProfileUser from "./ProfileUser";
 import { useNavigate } from "react-router-dom";
@@ -61,7 +61,8 @@ const BookingOnlineStation: React.FC = () => {
           <li onClick={() => navigate("/blog")}>Blog</li>
           <li onClick={() => navigate("/payment")}>Payment</li>
           <li onClick={() => navigate("/contact")}>Contact</li>
-          <li onClick={() => navigate("/membership")}>Membership</li>
+          <li onClick={() => navigate("/premium")}>Premium</li>
+          <li onClick={() => navigate("/business")}>Business</li>
         </ul>
       </nav>
 
@@ -71,9 +72,17 @@ const BookingOnlineStation: React.FC = () => {
         <p className="booking-subtitle">Chọn trạm sạc gần bạn và đặt lịch ngay</p>
 
         <div className="station-layout">
-          {/* ==== MAP ==== */}
+          {/* ==== MAP SECTION ==== */}
           <div className="map-section">
-            <div className="map-placeholder">
+            <div
+              className="map-placeholder"
+              style={{
+                backgroundImage: `url("/ggmap.jpg")`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+              }}
+            >
               {stations.map((station) => (
                 <FaMapMarkerAlt
                   key={station.id}
@@ -83,11 +92,10 @@ const BookingOnlineStation: React.FC = () => {
                   onClick={() => setActiveStation(station.id)}
                 />
               ))}
-              <p className="map-label">Bản đồ mô phỏng vị trí các trạm sạc</p>
             </div>
           </div>
 
-          {/* ==== STATION LIST ==== */}
+          {/* ==== STATION LIST SECTION ==== */}
           <div className="station-list-section">
             <h2 className="station-header">Trạm Sạc Gần Bạn</h2>
 

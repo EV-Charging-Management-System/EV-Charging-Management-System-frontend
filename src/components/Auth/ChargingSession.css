@@ -1,0 +1,267 @@
+/* ========== TOÀN TRANG ========== */
+.session-container {
+  min-height: 100vh;
+  background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)),
+    url("/ChargingSchedule.jpg") center/cover no-repeat;
+  color: #f5f5f5;
+  font-family: "Segoe UI", sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ========== HEADER ========== */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 40px;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.back-btn {
+  background: none;
+  border: 2px solid #ffb347;
+  color: #ffb347;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.back-btn:hover {
+  background: #ffb347;
+  color: #1a1a1a;
+}
+
+.header-center {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ffb347;
+}
+
+.header-right {
+  display: flex;
+  gap: 16px;
+}
+
+/* ========== BODY ========== */
+.session-body {
+  width: 90%;
+  max-width: 1100px;
+  margin: 40px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.session-title {
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.session-subtitle {
+  color: #aaa;
+}
+
+/* ========== KHỐI CHÍNH ========== */
+.charging-card {
+  background: rgba(25, 25, 25, 0.85);
+  border-radius: 14px;
+  padding: 30px 40px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+/* ========== THANH TRẠNG THÁI ========== */
+.charge-status {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.status-tag {
+  background: #1e3a1e;
+  color: #00ff7f;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+/* ========== THANH TIẾN TRÌNH SẠC ========== */
+.progress-bar {
+  width: 80%;
+  height: 25px;
+  background: #222;
+  border-radius: 12px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.5);
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00ff7f, #00cc66);
+  transition: width 0.4s ease-in-out;
+  border-radius: 12px 0 0 12px;
+}
+
+.battery-level {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.7);
+  z-index: 2;
+}
+
+/* Ẩn chữ % pin cũ nếu có */
+.battery-text {
+  display: none;
+}
+
+/* ========== NÚT BẮT ĐẦU / DỪNG / THANH TOÁN ========== */
+.start-btn {
+  background: linear-gradient(90deg, #ff7a00, #ffb347);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  padding: 12px 30px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(255, 122, 0, 0.3);
+  transition: all 0.3s ease;
+  width: 200px;
+  margin: 0 auto;
+}
+
+.start-btn:hover {
+  transform: scale(1.05);
+}
+
+.stop-btn {
+  background: linear-gradient(90deg, #ff3b3b, #ff6b6b);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 40px;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(255, 59, 59, 0.25);
+  transition: transform 0.18s ease;
+}
+.stop-btn:hover {
+  transform: translateY(-3px) scale(1.02);
+}
+
+.pay-btn {
+  background: linear-gradient(90deg, #00c851, #00e676);
+  color: #111;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 40px;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(0, 200, 81, 0.25);
+  transition: transform 0.18s ease;
+}
+.pay-btn:hover {
+  transform: translateY(-3px) scale(1.02);
+}
+
+/* ========== HAI Ô THÔNG TIN ========== */
+.session-info {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.info-box {
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: 16px;
+  padding: 25px 35px;
+  flex: 1;
+  min-width: 300px;
+  max-width: 400px;
+  box-shadow: 0 3px 10px rgba(255, 255, 255, 0.05);
+}
+
+.info-box h3 {
+  color: #ffb347;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.info-box p {
+  margin: 6px 0;
+  color: #ccc;
+}
+
+/* ========== TRẠNG THÁI ========== */
+.status-pill {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 13px;
+}
+.status-pill.waiting {
+  background: #333;
+  color: #aaa;
+}
+.status-pill.running {
+  background: #004d1a;
+  color: #00ff7f;
+}
+.status-pill.done {
+  background: #222266;
+  color: #6fa8dc;
+}
+
+/* ========== BẢNG THANH TOÁN ========== */
+.payment-box {
+  margin-top: 25px;
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: 14px;
+  padding: 20px;
+  color: #fff;
+  text-align: center;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+}
+
+.payment-box h3 {
+  color: #00e676;
+  margin-bottom: 8px;
+}
+
+.payment-total {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 18px;
+  margin: 10px 0 18px 0;
+}
+
+/* ========== FOOTER ========== */
+.footer {
+  text-align: center;
+  padding: 15px 0;
+  color: #777;
+}

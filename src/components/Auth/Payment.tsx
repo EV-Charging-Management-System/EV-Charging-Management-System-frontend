@@ -31,7 +31,7 @@ const Payment: React.FC = () => {
           <li onClick={() => navigate("/blog")}>Blog</li>
           <li className="menu-active">Payment</li>
           <li onClick={() => navigate("/contact")}>Contact</li>
-          <li onClick={() => navigate("/membership")}>Membership</li>
+          <li onClick={() => navigate("/premium")}>Premium</li>
           <li onClick={() => navigate("/business")}>Business</li>
         </ul>
       </nav>

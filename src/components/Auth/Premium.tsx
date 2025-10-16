@@ -1,11 +1,11 @@
 import React from "react";
-import "./Membership.css";
+import "./Premium.css";
 import { FaPhoneAlt } from "react-icons/fa";
 import Notification from "./Notification";
 import ProfileUser from "./ProfileUser";
 import { useNavigate } from "react-router-dom";
 
-const Membership: React.FC = () => {
+const Premium: React.FC = () => {
   const navigate = useNavigate();
 
   return (
@@ -37,7 +37,7 @@ const Membership: React.FC = () => {
           <li onClick={() => navigate("/blog")}>Blog</li>
           <li onClick={() => navigate("/payment")}>Payment</li>
           <li onClick={() => navigate("/contact")}>Contact</li>
-          <li className="menu-active">Membership</li>
+          <li className="menu-active">Premium</li>
           <li onClick={() => navigate("/business")}>Business</li>
         </ul>
       </nav>
@@ -55,7 +55,7 @@ const Membership: React.FC = () => {
             <p>100.000 VND</p>
             <button
               className="buy-btn"
-              onClick={() => navigate("/membership/1month")}
+              onClick={() => navigate("/Premium/1month")}
             >
               Mua Ngay
             </button>
@@ -67,7 +67,7 @@ const Membership: React.FC = () => {
             <p>200.000 VND</p>
             <button
               className="buy-btn"
-              onClick={() => navigate("/membership/6month")}
+              onClick={() => navigate("/Premium/6month")}
             >
               Mua Ngay
             </button>
@@ -79,7 +79,7 @@ const Membership: React.FC = () => {
             <p>500.000 VND</p>
             <button
               className="buy-btn"
-              onClick={() => navigate("/membership/1year")}
+              onClick={() => navigate("/Premium/1year")}
             >
               Mua Ngay
             </button>
@@ -97,4 +97,4 @@ const Membership: React.FC = () => {
   );
 };
 
-export default Membership;
+export default Premium;

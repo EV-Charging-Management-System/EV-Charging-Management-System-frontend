@@ -33,7 +33,7 @@ const Blog: React.FC = () => {
           <li className="menu-active">Blog</li>
           <li onClick={() => navigate("/payment")}>Payment</li>
           <li onClick={() => navigate("/contact")}>Contact</li>
-          <li onClick={() => navigate("/membership")}>Membership</li>
+          <li onClick={() => navigate("/premium")}>Premium</li>
           <li onClick={() => navigate("/business")}>Business</li>
         </ul>
       </nav>

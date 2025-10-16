@@ -18,11 +18,40 @@ const Navbar = () => {
         booking Online Station
       </NavLink>
 
-      <NavLink
-        to="/membership"
+       <NavLink
+        to="/Blog"
         className={({ isActive }) => (isActive ? "active" : "inactive")}
       >
-        Membership
+        Blog
+      </NavLink>
+
+       <NavLink
+        to="/Payment"
+        className={({ isActive }) => (isActive ? "active" : "inactive")}
+      >
+        Payment
+      </NavLink>
+
+      <NavLink
+        to="/Contact"
+        className={({ isActive }) => (isActive ? "active" : "inactive")}
+      >
+        Contact
+      </NavLink>
+
+      <NavLink
+        to="/Business"
+        className={({ isActive }) => (isActive ? "active" : "inactive")}
+      >
+        Business
+      </NavLink>
+
+
+      <NavLink
+        to="/premium"
+        className={({ isActive }) => (isActive ? "active" : "inactive")}
+      >
+        Premium
       </NavLink>
 
       <NavLink

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import "./MembershipDetail.css";
+import "./PremiumDetail.css";
 
-const MembershipDetail: React.FC = () => {
+const PremiumDetail: React.FC = () => {
   const { type } = useParams<{ type: string }>();
   const navigate = useNavigate();
   const [error, setError] = useState<string>("");
@@ -73,7 +73,8 @@ const MembershipDetail: React.FC = () => {
         {/* gom 2 nút vào 1 nhóm để đảm bảo thứ tự & spacing */}
         <div className="action-group">
           <button className="confirm-btn" onClick={handleConfirm}>
-            Xác nhận và Thanh toán</button>
+            Xác nhận và Thanh toán
+          </button>
           <button className="back-btn" onClick={() => navigate("/membership")}>
             ← Quay lại
           </button>
@@ -83,4 +84,4 @@ const MembershipDetail: React.FC = () => {
   );
 };
 
-export default MembershipDetail;
+export default PremiumDetail;
