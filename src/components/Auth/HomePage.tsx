@@ -129,7 +129,9 @@ const HomePage: React.FC = () => {
         <div className="cta-box">
           <h2>Sẵn Sàng Trải Nghiệm?</h2>
           <p>Đăng ký ngay để nhận ưu đãi sạc miễn phí lần đầu!</p>
-          <a href="/register" className="btn-cta">Đăng Ký Miễn Phí</a>
+         <button className="btn-cta" onClick={() => navigate("/staff")}>
+           Đăng Ký Miễn Phí
+          </button>
         </div>
       </section>
 

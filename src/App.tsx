@@ -14,6 +14,16 @@ import BookingDetail from "./components/Auth/BookingDetail";
 import ChargingSchedule from "./components/Auth/ChargingSchedule";
 import ChargingSession from "./components/Auth/ChargingSession";
 import Pay from "./components/Auth/Pay";
+import HomePageStaff from "./components/Auth/HomePageStaff";
+import ProfileStaff from "./components/Auth/ProfileStaff";
+
+// ✅ Thêm các trang STAFF
+import Location from "./components/Auth/Location";
+import Sessions from "./components/Auth/Sessions";
+import Transactions from "./components/Auth/Transactions";
+import ReportToAdmin from "./components/Auth/ReporttoAdmin";
+import Settings from "./components/Auth/Settings";
+
 const App: React.FC = () => {
   return (
     <BrowserRouter>
@@ -49,11 +59,22 @@ const App: React.FC = () => {
         {/* Trang lịch sạc */}
         <Route path="/charging-schedule" element={<ChargingSchedule />} />
 
-
+        {/* Phiên sạc */}
         <Route path="/charging-session" element={<ChargingSession />} />
 
+        {/* Thanh toán Pay */}
         <Route path="/pay" element={<Pay />} />
 
+        {/* Trang chủ nhân viên */}
+        <Route path="/staff" element={<HomePageStaff />} />
+        <Route path="/staff/profile" element={<ProfileStaff />} />
+
+        {/* Các trang nhân viên khác */}
+        <Route path="/staff/location" element={<Location />} />
+        <Route path="/staff/sessions" element={<Sessions />} />
+        <Route path="/staff/transactions" element={<Transactions />} />
+        <Route path="/staff/report-to-admin" element={<ReportToAdmin />} />
+        <Route path="/staff/settings" element={<Settings />} />
       </Routes>
     </BrowserRouter>
   );
