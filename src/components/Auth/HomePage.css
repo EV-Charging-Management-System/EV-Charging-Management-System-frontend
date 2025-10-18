@@ -1,4 +1,4 @@
-/* ================= RESET & FIX WHITE BORDER ================= */
+viết lại /* ================= RESET & FIX WHITE BORDER ================= */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -36,11 +36,9 @@ a {
   background-repeat: no-repeat;
   display: flex;
   flex-direction: column;
-  /* overlay layer so sections have clear contrast */
   position: relative;
 }
 
-/* optional dark overlay for readability */
 .home-container::after {
   content: "";
   position: absolute;
@@ -157,7 +155,7 @@ a {
   padding: 80px 20px;
   text-align: center;
   position: relative;
-  z-index: 2; /* above background overlay */
+  z-index: 2;
   min-height: 60vh;
 }
 
@@ -233,7 +231,6 @@ a {
   transform: translateY(-3px);
 }
 
-/* small icon inside button */
 .btn-find .icon {
   width: 18px;
   height: 18px;
@@ -244,8 +241,7 @@ a {
   position: relative;
   z-index: 2;
   padding: 72px 0;
-  margin-top: -30px; /* slightly overlap hero for visual continuity */
-  /* ensure contrast with background */
+  margin-top: -30px;
   background: linear-gradient(to bottom, rgba(0,0,0,0.15), rgba(0,0,0,0.35));
 }
 
@@ -285,6 +281,7 @@ a {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
+  cursor: pointer;
 }
 
 .card:hover {
@@ -324,17 +321,71 @@ a {
   line-height: 1.6;
 }
 
+/* ================= ACTIVE FEATURE ================= */
+.active-feature {
+  grid-column: 1 / -1;
+  background: rgba(74,222,128,0.1);
+  border: 1px solid rgba(74,222,128,0.3);
+  padding: 32px;
+  border-radius: 14px;
+  text-align: left;
+  max-height: 500px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  cursor: default;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.55);
+  transition: all 0.3s ease;
+}
+
+.active-feature h3 {
+  font-size: 26px;
+  color: #ffffff;
+  margin-bottom: 12px;
+}
+
+.active-feature p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #e0f7da;
+}
+
+.btn-back {
+  align-self: flex-start;
+  padding: 10px 22px;
+  background-color: #4ade80;
+  border: none;
+  border-radius: 8px;
+  color: black;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.btn-back:hover {
+  background-color: #22c55e;
+  transform: translateY(-2px);
+}
+
+.active-feature::-webkit-scrollbar {
+  width: 6px;
+}
+
+.active-feature::-webkit-scrollbar-thumb {
+  background-color: rgba(74,222,128,0.5);
+  border-radius: 3px;
+}
+
 /* ================= CTA SECTION ================= */
 .cta-section {
   position: relative;
   z-index: 2;
   padding: 96px 0;
   margin-top: 28px;
-  /* darken the underlying image for CTA prominence */
   background: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0.7));
 }
 
-/* decorative subtle overlay (keeps background but prevents "tràn" visual) */
 .cta-section::before {
   content: "";
   position: absolute;
@@ -351,7 +402,7 @@ a {
   margin: 0 auto;
   padding: 46px;
   border-radius: 16px;
-  background: rgba(0,0,0,0.78); /* stronger dark bg so it appears as panel */
+  background: rgba(0,0,0,0.78);
   border: 1px solid rgba(255,255,255,0.06);
   backdrop-filter: blur(8px);
   text-align: center;
@@ -440,6 +491,7 @@ a {
   background-color: #4ade80;
   color: black;
 }
+
 .profile-menu hr {
   border: none;
   border-top: 1px solid rgba(255,255,255,0.12);
@@ -461,6 +513,7 @@ a {
   .hero-text .description { font-size: 16px; }
   .features-grid { grid-template-columns: 1fr; gap: 18px; }
   .card { min-height: auto; padding: 20px; }
+  .active-feature { max-height: 400px; padding: 24px; }
   .cta-box { padding: 28px; margin: 0 12px; }
   .home-container::after { background: linear-gradient(to bottom, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.85) 100%); }
 }
@@ -470,4 +523,5 @@ a {
   .btn-find, .btn-premium, .btn-cta { width: 100%; justify-content: center; padding: 14px; }
   .menu-list { gap: 10px; font-size: 15px; }
   .header { padding: 10px 14px; }
+  .active-feature { max-height: 350px; padding: 18px; }
 }
