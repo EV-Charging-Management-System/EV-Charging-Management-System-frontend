@@ -19,10 +19,10 @@ import ProfileStaff from "./components/Auth/ProfileStaff";
 
 // ✅ Thêm các trang STAFF
 import Location from "./components/Auth/Location";
-import Sessions from "./components/Auth/Sessions";
-import Transactions from "./components/Auth/Transactions";
-import ReportToAdmin from "./components/Auth/ReporttoAdmin";
-import Settings from "./components/Auth/Settings";
+//import Sessions from "./components/Auth/Sessions";
+//import Transactions from "./components/Auth/Transactions";
+//import ReportToAdmin from "./components/Auth/ReporttoAdmin";
+//import Settings from "./components/Auth/Settings";
 
 const App: React.FC = () => {
   return (
@@ -71,10 +71,6 @@ const App: React.FC = () => {
 
         {/* Các trang nhân viên khác */}
         <Route path="/staff/location" element={<Location />} />
-        <Route path="/staff/sessions" element={<Sessions />} />
-        <Route path="/staff/transactions" element={<Transactions />} />
-        <Route path="/staff/report-to-admin" element={<ReportToAdmin />} />
-        <Route path="/staff/settings" element={<Settings />} />
       </Routes>
     </BrowserRouter>
   );

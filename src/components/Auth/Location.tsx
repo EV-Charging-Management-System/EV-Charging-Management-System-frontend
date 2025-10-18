@@ -8,7 +8,7 @@ const Location: React.FC = () => {
 
   return (
     <div className="staff-wrapper">
-      {/* Sidebar giữ nguyên */}
+      {/* Sidebar */}
       <aside className="staff-sidebar">
         <div className="staff-logo">⚡ EV STAFF</div>
         <nav className="staff-menu">
@@ -24,20 +24,26 @@ const Location: React.FC = () => {
         <button className="logout-btn" onClick={() => navigate("/")}>← Exit</button>
       </aside>
 
-      {/* Header giữ nguyên */}
-      <main className="staff-main">
-        <header className="staff-header">
-          <h1>📍 Manage Locations</h1>
-          <div className="staff-header-actions">
-            <ProfileStaff />
-          </div>
-        </header>
+      {/* Main + Footer Wrapper */}
+      <div className="staff-main-wrapper">
+        <main className="staff-main">
+          {/* Header */}
+          <header className="staff-header">
+            <h1>📍 Manage Locations</h1>
+            <div className="staff-header-actions">
+              <ProfileStaff />
+            </div>
+          </header>
 
-        {/* Content riêng của trang */}
-        <section className="staff-content">
-          <p>This is Location Page. Content will be added later.</p>
-        </section>
-      </main>
+          {/* Content */}
+          <section className="staff-content">
+            <p>This is Location Page. Content will be added later.</p>
+          </section>
+        </main>
+
+        {/* Footer */}
+        <footer className="footer">@SWP Staff Fall 2025</footer>
+      </div>
     </div>
   );
 };
