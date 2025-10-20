@@ -1,5 +1,4 @@
-
-viết lại /* ================= RESET & FIX WHITE BORDER ================= */
+/* ================= RESET & FIX WHITE BORDER ================= */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -165,6 +164,20 @@ a {
   margin: 0 auto;
   padding: 20px;
   position: relative;
+  opacity: 0;
+  transform: translateY(40px);
+  animation: fadeSlideUp 1.2s ease forwards;
+}
+
+@keyframes fadeSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .hero-text h1 {
@@ -185,6 +198,10 @@ a {
   color: #d7dedb;
   margin-bottom: 36px;
   line-height: 1.6;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeSlideUp 1.4s ease forwards;
+  animation-delay: 0.4s;
 }
 
 .hero-buttons {
@@ -192,6 +209,10 @@ a {
   gap: 24px;
   justify-content: center;
   flex-wrap: wrap;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeSlideUp 1.5s ease forwards;
+  animation-delay: 0.8s;
 }
 
 .btn-find {
@@ -525,28 +546,6 @@ a {
   .menu-list { gap: 10px; font-size: 15px; }
   .header { padding: 10px 14px; }
   .active-feature { max-height: 350px; padding: 18px; }
-}
-/* ================= SLIDER SECTION ================= */
-.slider-section {
-  position: relative;
-  width: 100%;
-  height: 460px;
-  overflow: hidden;
-  z-index: 1;
-}
-
-.slide {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  opacity: 0;
-  transition: opacity 1s ease-in-out;
-}
-
-.slide.active {
-  opacity: 1;
-  z-index: 2;
 }
 
 /* ================= SLIDER SECTION ================= */

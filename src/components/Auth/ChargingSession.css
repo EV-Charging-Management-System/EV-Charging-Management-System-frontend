@@ -29,7 +29,6 @@
   cursor: pointer;
   transition: all 0.25s ease;
 }
-
 .back-btn:hover {
   background: #ffb347;
   color: #1a1a1a;
@@ -41,7 +40,6 @@
   gap: 8px;
   color: #ffb347;
 }
-
 .header-right {
   display: flex;
   gap: 16px;
@@ -61,7 +59,6 @@
   font-size: 32px;
   font-weight: 700;
 }
-
 .session-subtitle {
   color: #aaa;
 }
@@ -84,7 +81,6 @@
   flex-direction: column;
   gap: 16px;
 }
-
 .status-tag {
   background: #1e3a1e;
   color: #00ff7f;
@@ -95,42 +91,72 @@
 }
 
 /* ========== THANH TIẾN TRÌNH SẠC ========== */
+.charge-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
 .progress-bar {
-  width: 80%;
-  height: 25px;
-  background: #222;
-  border-radius: 12px;
+  width: 95%;
+  height: 45px;
+  background: #111;
+  border-radius: 20px;
   margin: 0 auto;
   position: relative;
   overflow: hidden;
-  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.5);
+  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.8),
+              0 0 20px rgba(0, 255, 80, 0.3);
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #00ff7f, #00cc66);
+  background: linear-gradient(90deg, #00ff99, #00cc66, #00b359);
   transition: width 0.4s ease-in-out;
-  border-radius: 12px 0 0 12px;
+  border-radius: 20px 0 0 20px;
+  box-shadow: 0 0 25px rgba(0, 255, 100, 0.8);
+  position: relative;
+  overflow: hidden;
 }
 
-.battery-level {
+.progress-fill::after {
+  content: "";
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 1rem;
+  top: 0;
+  left: -50%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: shine 2s infinite linear;
+}
+
+@keyframes shine {
+  from {
+    left: -50%;
+  }
+  to {
+    left: 120%;
+  }
+}
+
+/* ✅ Hiển thị % pin rõ ràng */
+.battery-level {
+  position: relative;
+  margin-top: 10px;
+  font-size: 1.3rem;
   font-weight: 700;
   color: #fff;
-  text-shadow: 0 0 6px rgba(0, 0, 0, 0.7);
-  z-index: 2;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 1);
+  text-align: center;
 }
 
-/* Ẩn chữ % pin cũ nếu có */
-.battery-text {
-  display: none;
-}
-
-/* ========== NÚT BẮT ĐẦU / DỪNG / THANH TOÁN ========== */
+/* ========== Giữ nguyên từ đây trở xuống ========== */
 .start-btn {
   background: linear-gradient(90deg, #ff7a00, #ffb347);
   border: none;
@@ -145,7 +171,6 @@
   width: 200px;
   margin: 0 auto;
 }
-
 .start-btn:hover {
   transform: scale(1.05);
 }
@@ -182,7 +207,6 @@
   transform: translateY(-3px) scale(1.02);
 }
 
-/* ========== HAI Ô THÔNG TIN ========== */
 .session-info {
   display: flex;
   justify-content: center;
@@ -213,7 +237,6 @@
   color: #ccc;
 }
 
-/* ========== TRẠNG THÁI ========== */
 .status-pill {
   display: inline-block;
   padding: 6px 14px;
@@ -235,7 +258,6 @@
   color: #6fa8dc;
 }
 
-/* ========== BẢNG THANH TOÁN ========== */
 .payment-box {
   margin-top: 25px;
   background: rgba(0, 0, 0, 0.55);
@@ -250,7 +272,6 @@
   color: #00e676;
   margin-bottom: 8px;
 }
-
 .payment-total {
   background: rgba(255, 255, 255, 0.08);
   border-radius: 10px;
@@ -259,7 +280,6 @@
   margin: 10px 0 18px 0;
 }
 
-/* ========== FOOTER ========== */
 .footer {
   text-align: center;
   padding: 15px 0;

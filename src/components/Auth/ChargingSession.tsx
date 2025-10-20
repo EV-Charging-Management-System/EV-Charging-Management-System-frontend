@@ -20,24 +20,20 @@ const ChargingSession: React.FC = () => {
   const booking: Booking | undefined = location.state?.booking;
 
   const [battery, setBattery] = useState<number>(45);
-  const [time, setTime] = useState<number>(0); // minutes
+  const [time, setTime] = useState<number>(0);
   const [cost, setCost] = useState<number>(0);
   const [isCharging, setIsCharging] = useState<boolean>(false);
   const [finished, setFinished] = useState<boolean>(false);
 
-  // Track start time to include in transaction
   const [startTimestamp, setStartTimestamp] = useState<string | null>(null);
 
-  // ===== Mô phỏng sạc =====
   useEffect(() => {
     let interval: number | null = null;
 
     if (isCharging && !finished) {
       interval = window.setInterval(() => {
         setTime((prev) => prev + 1);
-
         setBattery((prev) => (prev < 100 ? prev + 1 : prev));
-
         setCost((prev) => {
           if (battery < 100) return prev + 10000;
           else return prev + 12000;
@@ -50,7 +46,6 @@ const ChargingSession: React.FC = () => {
     };
   }, [isCharging, finished, battery]);
 
-  // ===== Xử lý hành động =====
   const handleStart = () => {
     setIsCharging(true);
     setStartTimestamp(new Date().toISOString());
@@ -61,13 +56,10 @@ const ChargingSession: React.FC = () => {
     setFinished(true);
   };
 
-  // nếu muốn giữ handlePay cũ, nhưng ở đây ta điều hướng sang Pay và truyền full chi tiết
   const handleNavigateToPay = () => {
-    // compute kWh estimate (same as your display): (battery - 45) * 0.2
     const kwh = Math.max(0, (battery - 45) * 0.2);
     const endTimestamp = new Date().toISOString();
 
-    // Build payload to Pay
     const payload = {
       totalCost: cost,
       stationName: booking?.stationName || "Trạm Sạc",
@@ -85,12 +77,10 @@ const ChargingSession: React.FC = () => {
   };
 
   const statusText = finished ? "Đã hoàn tất" : isCharging ? "Đang sạc" : "Đang chờ sạc";
-
   const statusClass = finished ? "done" : isCharging ? "running" : "waiting";
 
   return (
     <div className="session-container">
-      {/* ===== HEADER ===== */}
       <header className="header">
         <div className="header-left">
           <span className="slogan">Optimising your journey, Powering your life</span>
@@ -105,12 +95,13 @@ const ChargingSession: React.FC = () => {
         </div>
       </header>
 
-      {/* ===== BODY ===== */}
       <main className="session-body">
         <div className="session-header">
           <div>
             <h1 className="session-title">Phiên Sạc</h1>
-            <p className="session-subtitle">{booking ? booking.stationName : "Trạm Sạc Trung Tâm Quận 1"}</p>
+            <p className="session-subtitle">
+              {booking ? booking.stationName : "Trạm Sạc Trung Tâm Quận 1"}
+            </p>
           </div>
 
           <div style={{ marginLeft: "auto" }}>
@@ -121,16 +112,17 @@ const ChargingSession: React.FC = () => {
         <div className="charging-card">
           <div className="top-line">
             <p className="port-info-text">
-              Cổng {booking?.port || "M"} – {booking?.power || "80kW"} – Mã: <strong>{booking?.code || "ABC123"}</strong>
+              Cổng {booking?.port || "M"} – {booking?.power || "80kW"} – Mã:{" "}
+              <strong>{booking?.code || "ABC123"}</strong>
             </p>
           </div>
 
-          {/* ===== THANH PIN ===== */}
+          {/* ✅ Thanh pin đã sửa đúng yêu cầu */}
           <div className="charge-progress">
             <div className="progress-bar">
               <div className="progress-fill" style={{ width: `${battery}%` }} />
-              <span className="battery-level">{battery}%</span>
             </div>
+            <span className="battery-level">{battery}%</span>
 
             <div
               style={{
@@ -156,7 +148,6 @@ const ChargingSession: React.FC = () => {
             </div>
           </div>
 
-          {/* ===== THÔNG TIN ===== */}
           <div className="session-info">
             <div className="info-box">
               <h3>
@@ -166,14 +157,11 @@ const ChargingSession: React.FC = () => {
                 Mức pin hiện tại: <strong>{battery}%</strong>
               </p>
               <p>
-                Năng lượng tiêu thụ: <strong>{Math.max(0, (battery - 45) * 0.2)} kWh</strong>
+                Năng lượng tiêu thụ:{" "}
+                <strong>{Math.max(0, (battery - 45) * 0.2)} kWh</strong>
               </p>
               <p>
                 Công suất: <strong>{booking?.power || "80 kW"}</strong>
-              </p>
-              <div style={{ flex: 1 }} />
-              <p style={{ fontSize: 12, color: "#9aa" }}>
-                Mã: <strong>{booking?.code || "ABC123"}</strong>
               </p>
             </div>
 
@@ -187,34 +175,22 @@ const ChargingSession: React.FC = () => {
               <p>
                 Chi phí sạc: <strong>{cost.toLocaleString()}đ</strong>
               </p>
-              {battery >= 100 && isCharging && <p style={{ color: "red" }}>Phí quá giờ: +12.000đ/phút</p>}
-              <p>
-                Tổng cộng:{" "}
-                <strong style={{ color: "#00ff7f" }}>
-                  {cost.toLocaleString()}đ
-                </strong>
-              </p>
-              <div style={{ flex: 1 }} />
-              <p style={{ fontSize: 12, color: "#9aa" }}>
-                Trạng thái: <strong>{statusText}</strong>
-              </p>
+              {battery >= 100 && isCharging && (
+                <p style={{ color: "red" }}>Phí quá giờ: +12.000đ/phút</p>
+              )}
             </div>
           </div>
 
-          {/* ===== THANH TOÁN ===== */}
           {finished && (
             <div className="payment-box">
               <h3>
                 <FaDollarSign /> Thanh Toán
               </h3>
               <p>Vui lòng thanh toán để hoàn tất phiên sạc</p>
-              <div className="payment-total">Tổng thanh toán: <strong>{cost.toLocaleString()}đ</strong></div>
-
-              {/* Điều hướng sang Pay và truyền chi tiết phiên sạc để Pay lưu vào ví trả sau */}
-              <button
-                className="pay-btn"
-                onClick={handleNavigateToPay}
-              >
+              <div className="payment-total">
+                Tổng thanh toán: <strong>{cost.toLocaleString()}đ</strong>
+              </div>
+              <button className="pay-btn" onClick={handleNavigateToPay}>
                 Thanh Toán Ngay
               </button>
             </div>
