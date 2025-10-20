@@ -16,7 +16,7 @@ import ChargingSession from "./components/Auth/ChargingSession";
 import Pay from "./components/Auth/Pay";
 import HomePageStaff from "./components/Auth/HomePageStaff";
 import ProfileStaff from "./components/Auth/ProfileStaff";
-
+import LocationDetail from "./components/Auth/LocationDetail";
 // ✅ Thêm các trang STAFF
 import Location from "./components/Auth/Location";
 //import Sessions from "./components/Auth/Sessions";
@@ -71,6 +71,9 @@ const App: React.FC = () => {
 
         {/* Các trang nhân viên khác */}
         <Route path="/staff/location" element={<Location />} />
+
+        <Route path="/staff/location/:id" element={<LocationDetail />} />
+
       </Routes>
     </BrowserRouter>
   );

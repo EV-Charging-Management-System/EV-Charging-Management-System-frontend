@@ -1,12 +1,12 @@
-/* RESET */
+/* ===== RESET ===== */
 * {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
   font-family: "Poppins", sans-serif;
 }
 
-/* PAGE WRAPPER */
+/* ===== PAGE LAYOUT ===== */
 .staff-wrapper {
   display: flex;
   min-height: 100vh;
@@ -14,119 +14,274 @@
   color: #e5e7eb;
 }
 
-/* SIDEBAR */
+/* ===== SIDEBAR ===== */
 .staff-sidebar {
-  width: 250px;
+  width: 240px;
   background: linear-gradient(180deg, #111827, #0b0f14);
   border-right: 1px solid #1f2937;
   display: flex;
   flex-direction: column;
-  padding: 24px;
-  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.4);
+  justify-content: space-between;
+  padding: 22px 18px;
+  gap: 10px;
 }
 
 .staff-logo {
-  font-size: 22px;
-  font-weight: bold;
   color: #3df26f;
-  margin-bottom: 32px;
+  font-weight: 700;
+  font-size: 20px;
+  margin-bottom: 12px;
 }
 
-/* MENU */
+/* menu: make items evenly spaced visually */
 .staff-menu ul {
   list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-left: 0;
 }
 
 .staff-menu li {
-  padding: 12px 16px;
-  border-radius: 8px;
-  margin-bottom: 10px;
-  cursor: pointer;
-  transition: 0.3s ease;
   color: #d1d5db;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
   font-size: 15px;
+  transition: background 0.12s;
 }
 
 .staff-menu li:hover {
-  background: rgba(61, 242, 111, 0.15);
+  background: rgba(61, 242, 111, 0.12);
   color: #3df26f;
 }
 
-.staff-menu .active {
+.staff-menu li.active,
+.staff-menu li.active:hover {
   background: #3df26f;
   color: #0f172a;
   font-weight: 600;
 }
 
-/* LOGOUT BUTTON */
+/* bottom of sidebar */
+.sidebar-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .logout-btn {
-  margin-top: auto;
   background: #ff4747;
+  color: #fff;
   border: none;
-  padding: 12px;
-  border-radius: 6px;
+  padding: 10px;
+  border-radius: 8px;
   cursor: pointer;
-  color: white;
-  font-weight: 500;
-  transition: 0.3s;
 }
 
-.logout-btn:hover {
-  background: #e63939;
+.sidebar-footer {
+  color: #cbd5e1;
+  font-size: 13px;
+  text-align: center;
 }
 
-/* MAIN + FOOTER WRAPPER */
+/* ===== MAIN WRAPPER ===== */
 .staff-main-wrapper {
   flex: 1;
-  display: flex;
-  flex-direction: column; /* flex column để footer luôn dưới cùng */
-}
-
-/* MAIN */
-.staff-main {
-  flex: 1; /* chiếm hết không gian còn lại */
   display: flex;
   flex-direction: column;
 }
 
-/* HEADER */
+/* header */
 .staff-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   background: #111827;
-  padding: 20px 30px;
+  padding: 16px 28px;
   border-bottom: 1px solid #1f2937;
 }
 
-.staff-header h1 {
-  font-size: 22px;
-  font-weight: 500;
+/* main content area with centered box */
+.staff-main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 18px 0 24px 0;
+  background: transparent;
 }
 
-.staff-header-actions {
+/* centered content container */
+.location-center {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* box that contains map + station list, centered and constrained */
+.location-box {
+  display: flex;
+  gap: 20px;
+  width: 92%;
+  max-width: 1200px; /* centered narrow layout as requested */
+  background: rgba(7, 10, 16, 0.75);
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.45);
+}
+
+/* map left */
+.map-section {
+  flex: 1.6; /* map larger than list but not huge */
   display: flex;
   align-items: center;
-  gap: 18px;
+  justify-content: center;
 }
 
-/* CONTENT */
-.staff-content {
-  padding: 32px;
+.map-view {
+  position: relative; /* IMPORTANT: markers positioned relative to this */
+  width: 100%;
+  height: 360px; /* reduced size to be compact like your sample */
+  background-size: cover;
+  background-position: center;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 4px solid rgba(0,0,0,0.25);
+}
+
+/* map markers */
+.map-marker {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  font-size: 18px;
+  cursor: pointer;
+  transition: transform 0.12s ease, color 0.12s ease;
+  z-index: 20;
+}
+
+.map-marker.marker-highlight {
+  /* highlighted by hover/select */
+  color: #ffcc00 !important;
+  transform: translate(-50%, -100%) scale(1.25);
+  z-index: 40;
+}
+
+/* station list right */
+.station-list {
   flex: 1;
+  background: rgba(12,18,30,0.7);
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
-.staff-content p {
-  color: #9ca3af;
-  line-height: 1.6;
+.station-list h2 {
+  color: #00d66b;
+  margin: 4px 0 6px 0;
+  font-size: 18px;
 }
 
-/* FOOTER (giống HomePageStaff) */
-.footer {
+/* scroll area */
+.station-scroll {
+  overflow-y: auto;
+  max-height: 360px; /* match map height */
+  padding-right: 6px;
+}
+
+/* cards */
+.station-card {
+  background: rgba(0,0,0,0.35);
+  padding: 12px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-left: 4px solid transparent;
+  transition: box-shadow 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+}
+
+/* hover highlight (temporary) */
+.station-card-hover {
+  border-left-color: #ffcc00;
+  box-shadow: 0 6px 18px rgba(255, 204, 0, 0.08);
+}
+
+/* selected card (persistent) */
+.station-card-selected {
+  border-left-color: #ffcc00;
+  box-shadow: 0 8px 20px rgba(255, 204, 0, 0.14);
+  background: rgba(255, 204, 0, 0.02);
+}
+
+.station-info h3 {
+  color: #e6eef0;
+  margin-bottom: 4px;
+  font-size: 16px;
+}
+
+.station-info p {
+  color: #aab3bd;
+  font-size: 13px;
+  margin: 0;
+}
+
+/* progress */
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  transition: width 0.2s ease;
+}
+
+/* status + actions */
+.station-status {
+  display: flex;
+  justify-content: space-between;
+  color: #9fb7a9;
+  font-size: 13px;
+}
+
+.station-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.btn-action,
+.btn-report {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.btn-action {
+  background: #00d66b;
+  color: #072116;
+}
+
+.btn-report {
+  background: #ff8a00;
+  color: #fff;
+}
+
+/* footer full width at bottom */
+.staff-footer {
+  width: 100%;
   text-align: center;
-  padding: 18px 0;
-  font-size: 15px;
-  background-color: rgba(0, 0, 0, 0.6);
+  padding: 12px 0;
+  background: rgba(0,0,0,0.6);
   color: #d8e9dc;
-  flex-shrink: 0;
+  border-top: 1px solid rgba(255,255,255,0.02);
+  font-size: 14px;
 }

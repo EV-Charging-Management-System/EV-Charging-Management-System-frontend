@@ -1,31 +1,39 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./HomePageStaff.css";
 import ProfileStaff from "./ProfileStaff";
 
 const HomePageStaff: React.FC = () => {
   const navigate = useNavigate();
+  const [showContent, setShowContent] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowContent(true), 100); // fade-in
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="staff-wrapper">
-      {/* ============ SIDEBAR ============ */}
-      <aside className="staff-sidebar">
-        <div className="staff-logo">⚡ EV STAFF</div>
-        <nav className="staff-menu">
-          <ul>
-            <li className="active" onClick={() => navigate("/staff")}>About</li>
-            <li onClick={() => navigate("/staff/location")}>Location</li>
-            <li onClick={() => navigate("/staff/sessions")}>Sessions</li>
-            <li onClick={() => navigate("/staff/transactions")}>Transactions</li>
-            <li onClick={() => navigate("/staff/report")}>Report To Admin</li>
-            <li onClick={() => navigate("/staff/settings")}>Settings</li>
-          </ul>
-        </nav>
-        <button className="logout-btn" onClick={() => navigate("/")}>← Exit</button>
+      {/* ===== SIDEBAR HOVER ===== */}
+      <aside className="staff-sidebar-hover">
+        <div className="staff-sidebar">
+          <div className="staff-logo">⚡ EV STAFF</div>
+          <nav className="staff-menu">
+            <ul>
+              <li className="active" onClick={() => navigate("/staff")}>About</li>
+              <li onClick={() => navigate("/staff/location")}>Location</li>
+              <li onClick={() => navigate("/staff/sessions")}>Sessions</li>
+              <li onClick={() => navigate("/staff/invoice")}>Invoice</li>
+              <li onClick={() => navigate("/staff/report")}>Report To Admin</li>
+              <li onClick={() => navigate("/staff/settings")}>Settings</li>
+            </ul>
+          </nav>
+          <button className="logout-btn" onClick={() => navigate("/")}>← Exit</button>
+        </div>
       </aside>
 
-      {/* ============ MAIN + FOOTER WRAPPER ============ */}
-      <div className="staff-main-wrapper">
+      {/* ===== MAIN WRAPPER ===== */}
+      <div className={`staff-main-wrapper ${showContent ? "fade-in" : "hidden"}`}>
         <main className="staff-main">
           {/* Header */}
           <header className="staff-header">
@@ -35,7 +43,7 @@ const HomePageStaff: React.FC = () => {
             </div>
           </header>
 
-          {/* ========= HERO SECTION ========= */}
+          {/* Hero */}
           <section className="staff-hero">
             <div className="hero-content">
               <h1 className="hi-staff-text">Hi Staff</h1>
@@ -51,28 +59,8 @@ const HomePageStaff: React.FC = () => {
               </button>
             </div>
           </section>
-
-          {/* ========= ABOUT SYSTEM ========= */}
-          <section className="staff-content">
-            <h2>About System</h2>
-            <p>
-              This system is built to support EV charging station management. Staff can monitor
-              stations, track transactions, check charging sessions and verify user activities.
-            </p>
-            <p>
-              Our goal is to deliver fast and safe charging operations with smart management tools.
-              The system is being improved every day to reach high performance and better experience.
-            </p>
-
-            <div className="about-box">
-              <div className="about-card">⚙️ Real-time Station Control</div>
-              <div className="about-card">🔐 Role-based Security Access</div>
-              <div className="about-card">⚡ Energy Optimisation</div>
-            </div>
-          </section>
         </main>
 
-        {/* Footer */}
         <footer className="footer">@SWP Staff Fall 2025</footer>
       </div>
     </div>

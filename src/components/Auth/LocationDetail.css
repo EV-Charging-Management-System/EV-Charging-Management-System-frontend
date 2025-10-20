@@ -1,0 +1,261 @@
+/* Location.css */
+
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+.staff-wrapper {
+  display: flex;
+  min-height: 100vh;
+  background: #0c0f16;
+  color: #e5e7eb;
+}
+
+/* SIDEBAR */
+.staff-sidebar {
+  width: 260px;
+  background-color: #1f2330;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+.staff-logo {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 40px;
+}
+
+.staff-menu ul {
+  list-style: none;
+}
+
+.staff-menu li {
+  padding: 12px 10px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: 0.2s;
+}
+
+.staff-menu li:hover,
+.staff-menu li.active {
+  background-color: #ff7a00;
+  color: #fff;
+}
+
+.sidebar-bottom {
+  margin-top: 20px;
+}
+
+.logout-btn {
+  width: 100%;
+  padding: 10px;
+  background: #ff4747;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  opacity: 0.9;
+}
+
+/* MAIN WRAPPER */
+.staff-main-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.staff-header {
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #111318;
+  padding: 0 20px;
+  border-bottom: 1px solid #222533;
+}
+
+.staff-header h1 {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.staff-main {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.location-center {
+  display: flex;
+  flex-direction: column;
+}
+
+.location-box {
+  display: flex;
+  gap: 20px;
+}
+
+/* MAP SECTION */
+.map-section {
+  flex: 2;
+  position: relative;
+  min-height: 500px;
+}
+
+.map-view {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  border-radius: 12px;
+  position: relative;
+}
+
+.map-marker {
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+
+/* STATION LIST */
+.station-list {
+  flex: 1;
+  background: #1f2330;
+  padding: 12px;
+  border-radius: 12px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.station-list h2 {
+  margin-bottom: 12px;
+}
+
+.station-card {
+  background: #111318;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.station-card:hover {
+  background: #222533;
+}
+
+.station-card-selected {
+  border: 2px solid #ff7a00;
+}
+
+.station-info h3 {
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.station-info p {
+  font-size: 14px;
+  color: #aaa;
+  margin-bottom: 4px;
+}
+
+.station-status {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+/* STATION ACTIONS */
+.station-actions {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid #333;
+}
+
+.port-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.port-list button {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  background: #333;
+  color: white;
+  transition: 0.2s;
+}
+
+.port-list button:hover:not(:disabled) {
+  background: #ff7a00;
+}
+
+.port-list button:disabled {
+  background: #555;
+  cursor: not-allowed;
+}
+
+.port-selected {
+  background: #00d66b !important;
+}
+
+/* GUEST INFO FORM */
+.station-actions input {
+  width: 100%;
+  padding: 6px 10px;
+  margin-bottom: 6px;
+  border-radius: 6px;
+  border: 1px solid #333;
+  background: #111318;
+  color: #fff;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 8px;
+  background: #ff7a00;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: white;
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+.submit-btn:hover {
+  opacity: 0.9;
+}
+
+/* CURRENT CHARGING */
+.current-charging {
+  margin-top: 20px;
+}
+
+.current-charging h3 {
+  margin-bottom: 10px;
+}
+
+.charging-card {
+  background: #111318;
+  padding: 8px 10px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}

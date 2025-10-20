@@ -109,6 +109,7 @@
 }
 
 /* =============== MAP SECTION =============== */
+/* giữ nguyên layout - nhưng làm map sáng hơn bằng filter áp vào element của Google Map */
 .map-section {
   background: #1f1f1f;
   border-radius: 16px;
@@ -117,8 +118,10 @@
   align-items: center;
   padding: 30px;
   box-shadow: 0 0 25px rgba(0, 255, 255, 0.05);
+  overflow: hidden;
 }
 
+/* nếu bạn dùng .map-placeholder (dự phòng) */
 .map-placeholder {
   position: relative;
   width: 100%;
@@ -133,32 +136,23 @@
   text-align: center;
 }
 
-.map-marker {
-  font-size: 28px;
-  position: absolute;
+/* --- LỜI NHẮC: Google Map thực tế sẽ render các phần tử .gm-style,
+   .gm-style > div, iframe hoặc canvas. Ta áp filter lên chúng để
+   làm "sáng" map lên mà không thay đổi khung ngoài. --- */
+
+/* tăng sáng & contrast nhẹ cho map tiles (áp dụng cho iframe, canvas và class gm-style) */
+.map-section .gm-style,
+.map-section iframe,
+.map-section canvas,
+.map-section .gm-style > div {
+  /* tăng nhẹ brightness và contrast để map sáng lên */
+  filter: brightness(1.12) contrast(1.06) saturate(1.02);
+  -webkit-filter: brightness(1.12) contrast(1.06) saturate(1.02);
 }
 
-.map-marker.orange {
-  color: #ff7a00;
-  top: 30%;
-  left: 25%;
-}
-
-.map-marker.green {
-  color: #00d66b;
-  bottom: 25%;
-  right: 40%;
-}
-
-.map-marker.gray {
-  color: #aaa;
-  bottom: 35%;
-  left: 50%;
-}
-
-.map-label {
-  font-size: 13px;
-  opacity: 0.8;
+/* nếu Google chèn svg/canvas khác */
+.map-section svg {
+  filter: brightness(1.05) contrast(1.03);
 }
 
 /* =============== DANH SÁCH TRẠM =============== */
@@ -170,6 +164,8 @@
   flex-direction: column;
   gap: 16px;
   box-shadow: 0 0 25px rgba(0, 255, 255, 0.05);
+  height: 500px; /* giữ kích thước cố định */
+  overflow: hidden;
 }
 
 .station-header {
@@ -195,6 +191,26 @@
   background-color: #32cd32;
   color: #000;
   transform: translateY(-2px);
+}
+
+/* cuộn trong danh sách (giữ nguyên kích thước ô như bạn yêu cầu) */
+.station-scroll {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #ff7a00 #1a1a1a;
+  max-height: calc(100% - 60px);
+  padding-right: 6px;
+}
+
+.station-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.station-scroll::-webkit-scrollbar-thumb {
+  background: #ff7a00;
+  border-radius: 6px;
+}
+.station-scroll::-webkit-scrollbar-track {
+  background: #1a1a1a;
 }
 
 /* =============== TRẠM CARD =============== */
@@ -298,4 +314,87 @@
   color: #bbb;
   background: rgba(0, 0, 0, 0.65);
   backdrop-filter: blur(6px);
+}
+
+/* =============== INFO WINDOW (CUSTOM STYLES) =============== */
+/* Thay đổi phong cách InfoWindow (ô bật khi click marker) để nền tối + chữ sáng dễ đọc.
+   Lưu ý: Google tạo markup riêng cho InfoWindow; selector .gm-style .gm-style-iw được sử dụng rộng rãi. */
+.gm-style .gm-style-iw {
+  background: rgba(24, 24, 24, 0.95) !important;
+  color: #fff !important;
+  padding: 12px 14px !important;
+  border-radius: 10px !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.45) !important;
+  font-family: "Segoe UI", sans-serif;
+  max-width: 260px !important;
+}
+
+/* Nội dung bên trong info window */
+.gm-style .gm-style-iw * {
+  color: #fff !important;
+}
+
+.gm-style .gm-style-iw h3 {
+  margin: 0 0 6px 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff !important;
+}
+
+.gm-style .gm-style-iw p {
+  margin: 4px 0;
+  font-size: 13px;
+  color: #e6e6e6 !important;
+}
+
+/* Nút trong InfoWindow */
+.gm-style .gm-style-iw .detail-btn {
+  display: inline-block;
+  margin-top: 8px;
+  background: linear-gradient(180deg,#ff7a00,#ff9500);
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+/* style cho arrow/pointer (nếu Google dùng lớp mặc định) */
+.gm-style .gm-style-iw:after,
+.gm-style .gm-style-iw::after {
+  /* cố gắng làm mảnh tam giác nền tối trông đẹp */
+  content: "" !important;
+}
+
+/* small tweak để close button nhìn rõ */
+.gm-style .gm-style-iw > button[title] {
+  color: #fff !important;
+  background: transparent !important;
+  border: none !important;
+  font-size: 18px !important;
+  opacity: 0.9 !important;
+}
+
+/* Khi InfoWindow có shadow của chính nó, đảm bảo text vẫn rõ */
+.gm-style .gm-style-iw + div {
+  filter: none !important;
+}
+
+/* Nếu Google chèn lớp nội bộ khác (thường có .gm-ui-hover-effect), style để không làm mờ text */
+.gm-style .gm-ui-hover-effect {
+  opacity: 1 !important;
+}
+
+/* Responsive nhỏ: giữ map kích thước, danh sách vẫn cuộn*/
+@media (max-width: 900px) {
+  .station-layout {
+    grid-template-columns: 1fr;
+  }
+  .station-list-section {
+    height: 360px;
+  }
+  .map-section {
+    padding: 16px;
+  }
 }

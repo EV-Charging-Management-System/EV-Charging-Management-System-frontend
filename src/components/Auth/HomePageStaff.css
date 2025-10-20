@@ -1,4 +1,4 @@
-/* RESET */
+/* ================= RESET ================= */
 * {
   margin: 0;
   padding: 0;
@@ -6,35 +6,87 @@
   font-family: "Poppins", sans-serif;
 }
 
-/* PAGE WRAPPER */
+body {
+  background-color: #0c0f16;
+  color: #e5e7eb;
+  overflow-x: hidden;
+}
+
+/* ================= PAGE WRAPPER ================= */
 .staff-wrapper {
   display: flex;
   min-height: 100vh;
-  background: #0c0f16;
-  color: #e5e7eb;
+  width: 100%;
+  position: relative;
 }
 
-/* SIDEBAR */
+/* ================= BACKGROUND ================= */
+.staff-wrapper::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url("/HomePageStaff.jpg") center/cover no-repeat;
+  z-index: -1;
+  opacity: 0.35;
+}
+
+/* ================= HOVER AREA FOR SIDEBAR ================= */
+.staff-sidebar-hover {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 60px; /* vùng nhạy để hover */
+  height: 100%;
+  z-index: 100;
+}
+
+/* ================= SIDEBAR ================= */
 .staff-sidebar {
+  position: fixed;
+  top: 0;
+  left: -250px; /* ẩn ngoài màn hình */
   width: 250px;
+  height: 100%;
   background: linear-gradient(180deg, #111827, #0b0f14);
   border-right: 1px solid #1f2937;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  padding: 24px;
   box-shadow: 4px 0 15px rgba(0, 0, 0, 0.4);
+  transition: left 0.3s ease;
+  z-index: 101;
 }
 
+.staff-sidebar-hover:hover .staff-sidebar {
+  left: 0;
+}
+
+/* LOGO */
 .staff-logo {
   font-size: 22px;
   font-weight: bold;
   color: #3df26f;
   margin-bottom: 32px;
+  opacity: 0;
+  transition: opacity 0.3s ease 0.3s;
+}
+
+.staff-sidebar-hover:hover .staff-logo {
+  opacity: 1;
 }
 
 /* MENU */
 .staff-menu ul {
   list-style: none;
+  opacity: 0;
+  transition: opacity 0.3s ease 0.3s;
+}
+
+.staff-sidebar-hover:hover .staff-menu ul {
+  opacity: 1;
 }
 
 .staff-menu li {
@@ -69,39 +121,56 @@
   color: white;
   font-weight: 500;
   transition: 0.3s;
+  opacity: 0;
+}
+
+.staff-sidebar-hover:hover .logout-btn {
+  opacity: 1;
 }
 
 .logout-btn:hover {
   background: #e63939;
 }
 
-/* MAIN + FOOTER WRAPPER */
+/* ================= MAIN + FOOTER WRAPPER ================= */
 .staff-main-wrapper {
   flex: 1;
   display: flex;
   flex-direction: column;
+  width: 100%;
+  padding-left: 0;
+  transition: margin-left 0.3s ease; /* để trượt theo sidebar */
 }
 
-/* MAIN LAYOUT */
-.staff-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+.staff-sidebar-hover:hover ~ .staff-main-wrapper {
+  margin-left: 250px; /* dịch cả main + header + footer sang phải */
 }
 
-/* HEADER */
+/* ================= HEADER ================= */
 .staff-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  background: #111827;
-  padding: 20px 30px;
+  background: rgba(17, 24, 39, 0.9);
+  padding: 0 20px;
   border-bottom: 1px solid #1f2937;
+  z-index: 50;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  transition: left 0.3s ease; /* header cũng dịch */
+}
+
+.staff-sidebar-hover:hover ~ .staff-main-wrapper .staff-header {
+  left: 250px;
 }
 
 .staff-header h1 {
   font-size: 22px;
   font-weight: 500;
+  color: #e5e7eb;
 }
 
 .staff-header span {
@@ -113,23 +182,48 @@
   display: flex;
   align-items: center;
   gap: 18px;
+  margin-left: auto;
+  margin-right: 12px;
+}
+
+/* ================= MAIN ================= */
+.staff-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding-top: 64px; /* tránh header */
+  transition: margin-left 0.3s ease; /* main cũng dịch */
+}
+
+.staff-sidebar-hover:hover ~ .staff-main-wrapper .staff-main {
+  margin-left: 0; /* main không cần offset riêng vì wrapper đã dịch */
 }
 
 /* HERO SECTION */
 .staff-hero {
   position: relative;
-  background: url("/HomePageStaff.jpg") center/cover no-repeat;
+  width: 100%;
   min-height: 70vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 40px;
+  padding: 50px;
   color: white;
+  text-align: center;
 }
 
 .hero-content {
   max-width: 800px;
-  text-align: center;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: heroFadeIn 1s ease forwards 0.5s;
+}
+
+@keyframes heroFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .hi-staff-text {
@@ -137,17 +231,16 @@
   font-weight: 700;
   color: #3df26f;
   margin-bottom: 20px;
-  text-shadow: 2px 2px 15px rgba(0,0,0,0.7);
+  text-shadow: 2px 2px 15px rgba(0, 0, 0, 0.7);
 }
 
 .hero-content p {
   font-size: 18px;
   line-height: 1.6;
   margin-bottom: 30px;
-  text-shadow: 1px 1px 10px rgba(0,0,0,0.6);
+  text-shadow: 1px 1px 10px rgba(0, 0, 0, 0.6);
 }
 
-/* Nút Bắt đầu sạc */
 .start-charge-btn {
   background-color: #3df26f;
   color: #0f172a;
@@ -166,47 +259,7 @@
   box-shadow: 0 8px 18px rgba(61, 242, 111, 0.3);
 }
 
-/* CONTENT */
-.staff-content {
-  padding: 32px;
-}
-
-.staff-content h2 {
-  font-size: 22px;
-  margin-bottom: 12px;
-  color: white;
-}
-
-.staff-content p {
-  margin-bottom: 15px;
-  color: #9ca3af;
-  line-height: 1.6;
-}
-
-/* ABOUT BOX */
-.about-box {
-  margin-top: 24px;
-  display: flex;
-  gap: 18px;
-}
-
-.about-card {
-  flex: 1;
-  background: #111827;
-  border-radius: 10px;
-  padding: 20px;
-  text-align: center;
-  border: 1px solid #1f2937;
-  transition: 0.3s;
-}
-
-.about-card:hover {
-  border-color: #3df26f;
-  transform: translateY(-4px);
-  box-shadow: 0 8px 18px rgba(61, 242, 111, 0.15);
-}
-
-/* FOOTER */
+/* ================= FOOTER ================= */
 .footer {
   text-align: center;
   padding: 18px 0;
@@ -214,4 +267,11 @@
   background-color: rgba(0, 0, 0, 0.6);
   color: #d8e9dc;
   flex-shrink: 0;
+  width: 100%;
+  margin-top: 24px;
+  transition: margin-left 0.3s ease; /* footer cũng dịch */
+}
+
+.staff-sidebar-hover:hover ~ .staff-main-wrapper .footer {
+  margin-left: 0;
 }
