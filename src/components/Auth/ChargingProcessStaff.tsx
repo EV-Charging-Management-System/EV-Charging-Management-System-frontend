@@ -65,9 +65,24 @@ const ChargingProcessStaff: React.FC = () => {
   };
 
   const handlePayment = () => {
-    alert("Thanh toán thành công!");
-    navigate("/staff/sessions"); // quay về trang Sessions
-  };
+    // Lưu dữ liệu session vừa thanh toán để Invoice đọc
+    const invoiceData = {
+      sessionId: session?.id,
+      customer: session?.customer,
+      phone: session?.phone,
+      carBrand: session?.carBrand,
+      startTime,
+      endTime,
+      cost,
+      stationName: session?.stationName,
+      chargerName: session?.chargerName,
+      power: session?.power,
+    };
+    localStorage.setItem("currentInvoice", JSON.stringify(invoiceData));
+
+    // Chuyển sang trang Invoice
+    navigate(`/staff/invoice/`);
+};
 
   const statusText =
     status === "waiting" ? "Đang chờ sạc" : status === "charging" ? "Đang sạc" : "Đã sạc xong";
@@ -194,7 +209,6 @@ const ChargingProcessStaff: React.FC = () => {
             </div>
           )}
         </main>
-
       </div>
     </div>
   );

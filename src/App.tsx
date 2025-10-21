@@ -21,6 +21,7 @@ import LocationDetail from "./components/Auth/LocationDetail";
 import Location from "./components/Auth/Location";
 import Sessions from "./components/Auth/Sessions";
 import ChargingProcessStaff from "./components/Auth/ChargingProcessStaff";
+import Invoice from "./components/Auth/Invoice";
 
 const App: React.FC = () => {
   return (
@@ -75,6 +76,8 @@ const App: React.FC = () => {
         <Route path="/staff/sessions/*" element={<Sessions />} />
 
         <Route path="/staff/charging-process-staff/:id" element={<ChargingProcessStaff />} />
+
+        <Route path="/staff/invoice/" element={<Invoice />} />
 
       </Routes>
     </BrowserRouter>

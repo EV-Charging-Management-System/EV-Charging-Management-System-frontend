@@ -23,7 +23,7 @@ const HomePageStaff: React.FC = () => {
               <li className="active" onClick={() => navigate("/staff")}>About</li>
               <li onClick={() => navigate("/staff/location")}>Location</li>
               <li onClick={() => navigate("/staff/sessions")}>Sessions</li>
-              <li onClick={() => navigate("/staff/invoice")}>Invoice</li>
+              <li onClick={() => navigate("/staff/invoice")} >Invoice</li>
               <li onClick={() => navigate("/staff/report")}>Report To Admin</li>
               <li onClick={() => navigate("/staff/settings")}>Settings</li>
             </ul>

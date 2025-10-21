@@ -1,0 +1,190 @@
+/* ================= RESET ================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body.invoice-body-page {
+  background-color: #f9fafb;
+  color: #0f172a;
+  overflow-x: hidden;
+}
+
+/* ================= PAGE WRAPPER ================= */
+.invoice-wrapper {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+}
+
+/* ================= HOVER AREA FOR SIDEBAR ================= */
+.charging-sidebar-hover {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 60px;
+  height: 100%;
+  z-index: 100;
+}
+
+/* ================= SIDEBAR ================= */
+.charging-sidebar {
+  position: fixed;
+  top: 0;
+  left: -250px;
+  width: 250px;
+  height: 100%;
+  background: linear-gradient(180deg, #111827, #0b0f14);
+  border-right: 1px solid #1f2937;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 4px 0 15px rgba(0,0,0,0.4);
+  transition: left 0.3s ease;
+  z-index: 101;
+}
+
+.charging-sidebar-hover:hover .charging-sidebar {
+  left: 0;
+}
+
+.charging-logo {
+  font-size: 22px;
+  font-weight: bold;
+  color: #3df26f;
+  margin-bottom: 32px;
+  opacity: 0;
+  transition: opacity 0.3s ease 0.3s;
+}
+
+.charging-sidebar-hover:hover .charging-logo {
+  opacity: 1;
+}
+
+/* ================= MENU ================= */
+.charging-menu ul {
+  list-style: none;
+  opacity: 0;
+  transition: opacity 0.3s ease 0.3s;
+}
+
+.charging-sidebar-hover:hover .charging-menu ul {
+  opacity: 1;
+}
+
+.charging-menu li {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s;
+  color: #d1d5db;
+  font-size: 15px;
+}
+
+.charging-menu li:hover {
+  background: rgba(61,242,111,0.15);
+  color: #3df26f;
+}
+
+.charging-menu .active {
+  background: #3df26f;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+/* ================= LOGOUT BUTTON ================= */
+.logout-btn {
+  margin-top: auto;
+  background: #ff4747;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: white;
+  font-weight: 500;
+  transition: background 0.3s, opacity 0.3s;
+  opacity: 0;
+}
+
+.charging-sidebar-hover:hover .logout-btn {
+  opacity: 1;
+}
+
+.logout-btn:hover {
+  background-color: #e63939;
+}
+
+/* ================= MAIN WRAPPER ================= */
+.invoice-main-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding-left: 0;
+  transition: margin-left 0.3s ease;
+  min-height: 100vh;
+}
+
+.charging-sidebar-hover:hover ~ .invoice-main-wrapper {
+  margin-left: 250px;
+}
+
+/* ================= HEADER ================= */
+.charging-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(17,24,39,0.9);
+  padding: 0 20px;
+  border-bottom: 1px solid #1f2937;
+  z-index: 50;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  transition: left 0.3s ease;
+}
+
+.charging-sidebar-hover:hover ~ .invoice-main-wrapper .charging-header {
+  left: 250px;
+}
+
+.charging-header h1 {
+  font-size: 22px;
+  font-weight: 500;
+  color: #e5e7eb;
+}
+
+/* ================= BODY ================= */
+.invoice-body {
+  flex: 1;
+  padding: 100px 60px 60px 60px;
+  background-color: #f9fafb;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: calc(100vh - 64px - 60px);
+}
+
+/* ================= FOOTER ================= */
+.footer {
+  text-align: center;
+  padding: 18px 0;
+  font-size: 15px;
+  background-color: rgba(0,0,0,0.6);
+  color: #d8e9dc;
+  flex-shrink: 0;
+  width: 100%;
+  margin-top: auto;
+  transition: margin-left 0.3s ease;
+}
+
+.charging-sidebar-hover:hover ~ .invoice-main-wrapper .footer {
+  margin-left: 0;
+}
