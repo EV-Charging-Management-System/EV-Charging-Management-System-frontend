@@ -1,0 +1,119 @@
+/* =============== TOÀN TRANG =============== */
+.detail-container {
+  background: linear-gradient(180deg, #0b132b, #1b2a41);
+  color: #f5f5f5;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+/* =============== KHUNG GÓI =============== */
+.detail-card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(74, 222, 128, 0.6);
+  border-radius: 20px;
+  padding: 40px;
+  width: 400px;
+  text-align: center;
+  box-shadow: 0 0 30px rgba(74, 222, 128, 0.4);
+  backdrop-filter: blur(10px);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Các phần tử trong card */
+.detail-card > * {
+  margin-bottom: 12px;
+}
+
+/* Tiêu đề */
+.detail-card h2 {
+  color: #4ade80;
+  font-size: 28px;
+  margin-bottom: 20px;
+  text-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
+}
+
+/* Văn bản */
+.detail-card p {
+  font-size: 16px;
+  color: #e0e0e0;
+  margin: 4px 0;
+}
+
+/* QR */
+.qr-image {
+  width: 220px;
+  height: 220px;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(74, 222, 128, 0.4);
+  margin: 20px 0;
+}
+
+/* =============== NHÓM NÚT HÀNH ĐỘNG =============== */
+.action-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px; /* tách 2 nút rõ ràng */
+  margin-top: 25px; /* tạo khoảng cách với QR */
+  width: 100%;
+}
+
+/* =============== NÚT XÁC NHẬN =============== */
+.confirm-btn {
+  width: 85%;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #4ade80, #22c55e);
+  color: #000;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.confirm-btn:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 15px rgba(74, 222, 128, 0.7);
+}
+
+/* =============== NÚT QUAY LẠI =============== */
+.back-btn {
+  width: 85%;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #ccc;
+  cursor: pointer;
+  font-size: 15px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+  color: #4ade80;
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(74, 222, 128, 0.4);
+}
+
+/* Lỗi */
+.error-text {
+  color: #ff5252;
+  font-weight: 600;
+  margin-top: 10px;
+  animation: shake 0.3s ease-in-out;
+}
+
+/* Keyframes */
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+  75% { transform: translateX(-4px); }
+  100% { transform: translateX(0); }
+}

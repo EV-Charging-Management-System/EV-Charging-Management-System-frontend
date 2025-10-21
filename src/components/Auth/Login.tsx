@@ -20,6 +20,8 @@ const Login: React.FC = () => {
   const { login } = useAuth()
   const navigate = useNavigate()
 
+  console.log('[Login] current user in localStorage:', localStorage.getItem('user'))
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData((prev: LoginRequest) => ({
@@ -34,13 +36,30 @@ const Login: React.FC = () => {
     setError('')
 
     try {
-      await login(formData)
-      navigate('/dashboard')
+    const resp = await login(formData)
+    console.log('[Login] login response:', resp)
+        // on success, go to home page
+        if (resp && resp.success !== false) {
+          navigate('/home')
+          return
+        }
     } catch (err) {
       console.error('Login attempt failed:', err)
       // If network error or backend not available, try local fallback
       const isNetworkError = !(err as any)?.response
       if (isNetworkError) {
+        // Try to use persisted 'user' first (set by Register fallback or previous login)
+        const persistedUserRaw = localStorage.getItem('user')
+        if (persistedUserRaw) {
+          const u = JSON.parse(persistedUserRaw)
+          // naive check: if emails match
+          if (u.email === formData.Email || u.phoneNumber === formData.Email) {
+            navigate('/')
+            return
+          }
+        }
+
+        // Then try local_users fallback
         const localUsersRaw = localStorage.getItem('local_users')
         const localUsers = localUsersRaw ? JSON.parse(localUsersRaw) : []
         const credential = formData.Email
@@ -48,9 +67,12 @@ const Login: React.FC = () => {
         if (matched) {
           // Emulate successful login
           localStorage.setItem('user', JSON.stringify({ name: matched.fullName, email: matched.emailAddress }))
-          navigate('/dashboard')
+          navigate('/')
           return
         }
+
+        setError('Network Error: cannot reach authentication server. You can use local/demo account if available.')
+        return
       }
 
       setError('Invalid email or password')

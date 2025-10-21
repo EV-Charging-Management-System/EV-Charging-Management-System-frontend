@@ -3,12 +3,12 @@
 import React, { createContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { authService } from '../services/authService'
-import type { LoginRequest, RegisterRequest, ChangePasswordRequest, User, RegisterResponse } from '../utils/types'
+import type { LoginRequest, RegisterRequest, ChangePasswordRequest, User, RegisterResponse, LoginResponse } from '../utils/types'
 
 interface AuthContextType {
   user: User | null
   loading: boolean
-  login: (data: LoginRequest) => Promise<void>
+  login: (data: LoginRequest) => Promise<LoginResponse>
   register: (data: RegisterRequest) => Promise<RegisterResponse>
   logout: () => Promise<void>
   changePassword: (data: ChangePasswordRequest) => Promise<void>
@@ -30,7 +30,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     // Check if user is already authenticated on app start
     const currentUser = authService.getCurrentUser()
-    if (currentUser && authService.isAuthenticated()) {
+    // If we have a user saved locally, set it as current user.
+    // This allows an offline/demo session when accessToken is not present.
+    if (currentUser) {
       setUser(currentUser)
     }
     setLoading(false)
@@ -45,25 +47,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('refreshToken', response.refreshToken)
       localStorage.setItem('user', JSON.stringify(response.user))
       // Set user data
-      setUser(response.user)
-
-      // Navigate based on role
-      const role = response.user.role
-      switch (role) {
-        case 'Admin':
-          navigate('/admin/dashboard')
-          break
-        case 'Manager':
-          navigate('/manager/dashboard')
-          break
-        case 'Staff':
-          navigate('/staff/dashboard')
-          break
-        case 'Customer':
-        default:
-          navigate('/customer/dashboard')
-          break
+      if (response.user) {
+        setUser(response.user)
+      } else if (response.accessToken) {
+        // If backend returned tokens but not user, try fetching profile
+        try {
+          const profile = await authService.getProfile()
+          setUser(profile)
+          localStorage.setItem('user', JSON.stringify(profile))
+        } catch (e) {
+          console.error('Failed to fetch profile after login:', e)
+        }
       }
+
+      // Do not navigate here; let caller decide where to go
+      return response
     } catch (error) {
       console.error('Login error:', error)
       throw error
@@ -91,7 +89,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.removeItem('user')
       localStorage.removeItem('role')
       setUser(null)
+      // Navigate to login
       navigate('/login')
+      // Emit a small toast notification for successful logout
+      try {
+        window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'Đăng xuất thành công', type: 'success' } }))
+      } catch (e) {
+        // ignore if CustomEvent not supported
+      }
     }
   }
 

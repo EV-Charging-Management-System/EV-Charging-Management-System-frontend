@@ -1,0 +1,414 @@
+/* =============== TOÀN TRANG =============== */
+.booking-container {
+  position: relative;
+  background-image: linear-gradient(
+      rgba(0, 0, 0, 0.5),
+      rgba(0, 0, 0, 0.5)
+    ),
+    url("/BookingDetail.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: #f5f5f5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: "Segoe UI", sans-serif;
+  transition: background 0.5s ease-in-out;
+}
+
+/* =============== HEADER & MENU =============== */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 16px 40px;
+}
+.slogan {
+  font-size: 24px;
+  font-weight: 700;
+  color: #fff;
+}
+.phone-icon {
+  color: #00e5ff;
+  margin-right: 6px;
+}
+.menu-bar {
+  background: rgba(0, 0, 0, 0.7);
+  padding: 12px 0;
+  text-align: center;
+}
+.menu-list {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  padding: 0;
+  margin: 0;
+}
+.menu-list li {
+  cursor: pointer;
+  transition: 0.3s;
+}
+.menu-list li:hover,
+.menu-active {
+  color: #32cd32;
+}
+
+/* =============== BODY =============== */
+.booking-detail-body {
+  flex: 1;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* =============== LAYOUT =============== */
+.detail-layout {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 20px;
+}
+
+/* =============== MAP =============== */
+.map-detail {
+  background: rgba(31, 31, 31, 0.85);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.map-image {
+  width: 100%;
+  height: 400px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+/* =============== FORM =============== */
+.form-section {
+  background: rgba(18, 18, 18, 0.9);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+}
+.empty-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #888;
+}
+.empty-icon {
+  font-size: 40px;
+  margin-bottom: 10px;
+  color: #888;
+}
+.booking-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.booking-form h2 {
+  font-size: 22px;
+  color: #ff7a00;
+}
+.booking-form label {
+  font-size: 14px;
+  margin-top: 6px;
+}
+.booking-form input,
+.booking-form select {
+  padding: 8px;
+  border: none;
+  border-radius: 6px;
+  background: #1f1f1f;
+  color: #fff;
+}
+.form-inline {
+  display: flex;
+  gap: 10px;
+}
+.form-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+.cancel-btn {
+  background: #333;
+  color: #ccc;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+}
+.submit-btn {
+  background: #ff7a00;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  transition: 0.3s;
+}
+.submit-btn:hover {
+  background: #ff932e;
+}
+
+/* =============== QR SECTION =============== */
+.qr-section {
+  text-align: center;
+}
+.qr-section h2 {
+  color: #ff7a00;
+}
+.qr-box {
+  margin: 20px auto;
+  width: 180px;
+  height: 180px;
+  border-radius: 12px;
+  background: #fff;
+  padding: 10px;
+}
+.qr-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.qr-info {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #ccc;
+  text-align: left;
+  line-height: 1.6;
+}
+
+/* =============== GIAO DIỆN THÀNH CÔNG =============== */
+.payment-success {
+  text-align: center;
+  color: #fff;
+  animation: fadeIn 0.5s ease;
+}
+.success-icon {
+  color: #32cd32;
+  font-size: 70px;
+  margin-bottom: 12px;
+  animation: pop 0.6s ease;
+}
+.booking-code {
+  background: #111;
+  color: #ffb347;
+  font-size: 24px;
+  letter-spacing: 3px;
+  border: 1px solid #ff7a00;
+  border-radius: 10px;
+  padding: 8px 16px;
+  margin: 10px auto;
+  display: inline-block;
+}
+.success-info {
+  margin-top: 15px;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 16px;
+  line-height: 1.6;
+}
+.success-info p {
+  margin: 4px 0;
+  font-size: 15px;
+}
+.success-message {
+  margin-top: 12px;
+  color: #ccc;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Hiệu ứng cho dấu tích và mã code */
+@keyframes pop {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =============== TRẠM GRID =============== */
+.station-grid {
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 16px;
+  padding: 20px;
+}
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 12px;
+}
+.station-box {
+  background: #1a1a1a;
+  border-radius: 12px;
+  padding: 14px;
+  text-align: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.station-box.available:hover {
+  border: 2px solid #32cd32;
+}
+.station-box.booked:hover {
+  border: 2px solid #ff4d4d;
+  background: rgba(255, 0, 0, 0.15);
+}
+.station-box.maintenance:hover {
+  border: 2px solid #ffcc00;
+  background: rgba(255, 200, 0, 0.15);
+}
+.station-box.active {
+  border: 2px solid #ff7a00;
+  background: rgba(255, 122, 0, 0.15);
+}
+.station-box h4 {
+  margin-bottom: 6px;
+  color: #fff;
+}
+.port {
+  background: #222;
+  padding: 2px 6px;
+  border-radius: 6px;
+  display: inline-block;
+  color: #32cd32;
+}
+.status-text {
+  font-size: 13px;
+  color: #ccc;
+  margin-top: 4px;
+}
+
+/* =============== LEGEND =============== */
+.legend {
+  margin-top: 16px;
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+.legend-item {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+.legend-item.available {
+  background: #1f1f1f;
+  color: #32cd32;
+  border: 1px solid #32cd32;
+}
+.legend-item.booked {
+  background: #1f1f1f;
+  color: #ff4d4d;
+  border: 1px solid #ff4d4d;
+}
+.legend-item.maintenance {
+  background: #1f1f1f;
+  color: #ffcc00;
+  border: 1px solid #ffcc00;
+}
+
+/* =============== FOOTER =============== */
+.footer {
+  text-align: center;
+  padding: 18px;
+  font-size: 14px;
+  color: #bbb;
+  background: rgba(0, 0, 0, 0.65);
+}
+
+/* =============== BỔ SUNG HÌNH RIÊNG CHO MỖI TRẠM =============== */
+.station-image {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.station-box:hover .station-image {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+/* =============== HIỆU ỨNG CHUYỂN TRANG =============== */
+.fade-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.fade-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+/* =============== NÚT QUAY LẠI =============== */
+.back-button {
+  background: linear-gradient(90deg, #ff7a00, #ffb347);
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+.back-button:hover {
+  background: linear-gradient(90deg, #ff932e, #ffd280);
+  transform: scale(1.05);
+}
+
+/* =============== LOAD API =============== */
+.loading-text {
+  text-align: center;
+  color: #ccc;
+  font-size: 16px;
+  margin-top: 40px;
+}
+.error-text {
+  text-align: center;
+  color: #ff4d4d;
+  font-size: 16px;
+  margin-top: 40px;
+}
+
+/* =============== HOVER THẺ =============== */
+.station-box:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(255, 122, 0, 0.3);
+}
+
+/* =============== LỚP MỜ TOÀN TRANG =============== */
+.booking-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(10, 10, 10, 0.3);
+  z-index: -1;
+}
