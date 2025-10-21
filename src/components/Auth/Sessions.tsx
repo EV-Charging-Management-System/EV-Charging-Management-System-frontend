@@ -1,45 +1,175 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Location.css";
 import ProfileStaff from "./ProfileStaff";
+import "./Sessions.css";
 
-const Section: React.FC = () => {
+interface Session {
+  id: number;
+  stationName: string;
+  chargerName: string;
+  power: string;
+  customer: string;
+  phone: string;
+  carBrand: string;
+  status: "pending" | "charging" | "completed";
+}
+
+const Sessions: React.FC = () => {
   const navigate = useNavigate();
+  const [showContent, setShowContent] = useState(false);
+
+  // ===============================
+  // LẤY DỮ LIỆU LƯU TẠM TRONG LOCALSTORAGE
+  // ===============================
+  const [sessions, setSessions] = useState<Session[]>(() => {
+    const saved = localStorage.getItem("offlineSessions");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  // ===============================
+  // LƯU MỖI KHI CẬP NHẬT
+  // ===============================
+  useEffect(() => {
+    localStorage.setItem("offlineSessions", JSON.stringify(sessions));
+  }, [sessions]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowContent(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // ===============================
+  // XỬ LÝ NÚT HÀNH ĐỘNG
+  // ===============================
+  const handleStart = (id: number) => {
+    setSessions((prev) =>
+      prev.map((s) =>
+        s.id === id ? { ...s, status: "charging" } : s
+      )
+    );
+  };
+
+  const handleCancel = (id: number) => {
+    const confirmed = window.confirm("Hủy phiên sạc này?");
+    if (confirmed) {
+      setSessions((prev) => prev.filter((s) => s.id !== id));
+    }
+  };
+
+  const handleComplete = (id: number) => {
+    setSessions((prev) =>
+      prev.map((s) =>
+        s.id === id ? { ...s, status: "completed" } : s
+      )
+    );
+  };
 
   return (
-    <div className="staff-wrapper">
-      {/* Sidebar giữ nguyên */}
-      <aside className="staff-sidebar">
-        <div className="staff-logo">⚡ EV STAFF</div>
-        <nav className="staff-menu">
-          <ul>
-            <li onClick={() => navigate("/staff")}>About</li>
-            <li className="active">Location</li>
-            <li onClick={() => navigate("/staff/sessions")}>Sessions</li>
-            <li onClick={() => navigate("/staff/transactions")}>Transactions</li>
-            <li onClick={() => navigate("/staff/report")}>Report To Admin</li>
-            <li onClick={() => navigate("/staff/settings")}>Settings</li>
-          </ul>
-        </nav>
-        <button className="logout-btn" onClick={() => navigate("/")}>← Exit</button>
+    <div className="sessions-wrapper">
+      <aside className="sessions-sidebar-hover">
+        <div className="sessions-sidebar">
+          <div className="sessions-logo">⚡ EV STAFF</div>
+          <nav className="sessions-menu">
+            <ul>
+              <li onClick={() => navigate("/staff")}>About</li>
+              <li onClick={() => navigate("/staff/location")}>Location</li>
+              <li onClick={() => navigate("/staff/locationdetail/1")}>Location Detail</li>
+              <li className="active">Sessions</li>
+              <li onClick={() => navigate("/staff/invoice")}>Invoice</li>
+              <li onClick={() => navigate("/staff/report")}>Report To Admin</li>
+              <li onClick={() => navigate("/staff/settings")}>Settings</li>
+            </ul>
+          </nav>
+          <button className="logout-btn" onClick={() => navigate("/")}>
+            ← Exit
+          </button>
+        </div>
       </aside>
 
-      {/* Header giữ nguyên */}
-      <main className="staff-main">
-        <header className="staff-header">
-          <h1>📍 Manage Locations</h1>
-          <div className="staff-header-actions">
-            <ProfileStaff />
-          </div>
-        </header>
+      <div
+        className={`sessions-main-wrapper ${
+          showContent ? "fade-in" : "hidden"
+        }`}
+      >
+        <main className="sessions-main">
+          <header className="sessions-header">
+            <h1>Offline Charging Sessions</h1>
+            <div className="sessions-header-actions">
+              <ProfileStaff />
+            </div>
+          </header>
 
-        {/* Content riêng của trang */}
-        <section className="staff-content">
-          <p>This is Location Page. Content will be added later.</p>
-        </section>
-      </main>
+          <section className="sessions-body">
+            {sessions.length === 0 ? (
+              <p className="no-sessions">Hiện chưa có phiên sạc offline nào.</p>
+            ) : (
+              sessions.map((session) => (
+                <div
+                  key={session.id}
+                  className={`session-card ${session.status}`}
+                >
+                  <div className="session-left">
+                    <h3>{session.stationName}</h3>
+                    <p>{session.chargerName}</p>
+                  </div>
+
+                  <div className="session-center">
+                    <p>
+                      <strong>Khách:</strong> {session.customer}
+                    </p>
+                    <p>
+                      <strong>Xe:</strong> {session.carBrand} –{" "}
+                      {session.power}
+                    </p>
+                    <p>
+                      <strong>SĐT:</strong> {session.phone}
+                    </p>
+                  </div>
+
+                  <div className="session-right">
+                    {session.status === "pending" && (
+                      <>
+                        <button
+                          className="start-btn"
+                          onClick={() => handleStart(session.id)}
+                        >
+                          Bắt đầu sạc
+                        </button>
+                        <button
+                          className="cancel-btn"
+                          onClick={() => handleCancel(session.id)}
+                        >
+                          Hủy
+                        </button>
+                      </>
+                    )}
+
+                    {session.status === "charging" && (
+                      <>
+                        <span className="charging-status">Đang sạc...</span>
+                        <button
+                          className="complete-btn"
+                          onClick={() => handleComplete(session.id)}
+                        >
+                          Hoàn tất
+                        </button>
+                      </>
+                    )}
+
+                    {session.status === "completed" && (
+                      <span className="completed-status">Hoàn thành ✅</span>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </section>
+        </main>
+
+        <footer className="footer">@SWP Staff Fall 2025</footer>
+      </div>
     </div>
   );
 };
 
-export default Section;
+export default Sessions;

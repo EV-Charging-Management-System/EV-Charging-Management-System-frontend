@@ -1,227 +1,274 @@
-import React, { useState } from "react";
-import { FaMapMarkerAlt, FaBolt } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import ProfileStaff from "./ProfileStaff";
 import "./LocationDetail.css";
 
-interface Port {
+interface Charger {
   id: number;
-  port: string;
+  name: string;
   power: string;
-  status: "available" | "maintenance";
+  status: "available" | "booked" | "maintenance";
 }
 
-interface Station {
+interface OfflineSession {
   id: number;
-  name: string;
-  address: string;
-  top: string;
-  left: string;
-  ports: Port[];
-}
-
-interface GuestInfo {
-  name: string;
-  phone: string;
-  email: string;
-  carBrand: string;
-}
-
-interface ChargingInfo {
   stationName: string;
-  port: string;
+  chargerName: string;
   power: string;
-  guest: GuestInfo;
+  customer: string;
+  phone: string;
+  carBrand: string;
+  status: string;
 }
 
 const LocationDetail: React.FC = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const [showContent, setShowContent] = useState(false);
+  const [selectedCharger, setSelectedCharger] = useState<Charger | null>(null);
+  const [chargersData, setChargersData] = useState<Charger[]>([]);
 
-  const stations: Station[] = [
-    {
-      id: 1,
-      name: "Trạm Q.1 - Nguyễn Huệ",
-      address: "123 Nguyễn Huệ, Q.1",
-      top: "40%",
-      left: "48%",
-      ports: [
-        { id: 1, port: "M", power: "80 kW", status: "available" },
-        { id: 2, port: "N", power: "110 kW", status: "maintenance" },
-        { id: 3, port: "D", power: "150 kW", status: "available" },
-      ],
-    },
-    {
-      id: 2,
-      name: "Trạm Phú Mỹ Hưng",
-      address: "456 Nguyễn Văn Linh, Q.7",
-      top: "62%",
-      left: "54%",
-      ports: [
-        { id: 1, port: "M", power: "80 kW", status: "available" },
-        { id: 2, port: "N", power: "110 kW", status: "available" },
-      ],
-    },
-  ];
+  const stationId = Number(id);
 
-  const [selectedStation, setSelectedStation] = useState<number | null>(null);
-  const [selectedPort, setSelectedPort] = useState<number | null>(null);
-  const [guestInfo, setGuestInfo] = useState<GuestInfo>({
-    name: "",
+  // =====================
+  // DANH SÁCH TÊN TRẠM
+  // =====================
+  const stationNames: Record<number, string> = {
+    1: "Trạm SCG Q1",
+    2: "Trạm VinFast Q3",
+    3: "Trạm EVN Q1",
+    4: "Trạm Tesla Q1",
+    5: "Trạm Shell Q1",
+    6: "Trạm Total Q3",
+    7: "Trạm Circle K Q1",
+    8: "Trạm EVN Q3",
+    9: "Trạm VinFast Q1",
+    10: "Trạm Tesla Q3",
+    11: "Trạm SCG Q3",
+    12: "Trạm Shell Q3",
+    13: "Trạm Circle K Q3",
+    14: "Trạm EVN Q1",
+    15: "Trạm VinFast Q1",
+  };
+
+  const stationName = stationNames[stationId] || "Trạm không xác định";
+
+  // =====================
+  // SINH TRẠNG THÁI NGẪU NHIÊN KHÔNG ĐỒNG NHẤT
+  // =====================
+  const getRandomStatus = (index: number, seed: number) => {
+    const random = Math.abs(Math.sin(seed * (index + 2) * 3.14)) * 10;
+    if (random < 3) return "available";
+    if (random < 6.5) return "booked";
+    return "maintenance";
+  };
+
+  useEffect(() => {
+    const initial: Charger[] = Array.from({ length: 6 }, (_, i) => ({
+      id: i + 1,
+      name: `Cổng ${String.fromCharCode(65 + i)}`,
+      power: `${80 + i * 10} kW`,
+      status: getRandomStatus(i, stationId),
+    }));
+    setChargersData(initial);
+  }, [stationId]);
+
+  // =====================
+  // FORM STATE
+  // =====================
+  const [formData, setFormData] = useState({
+    fullName: "",
     phone: "",
-    email: "",
-    carBrand: "",
+    carBrand: "VinFast",
   });
-  const [currentCharging, setCurrentCharging] = useState<ChargingInfo[]>([]);
 
-  const handleSelectStation = (stationId: number) => {
-    setSelectedStation(stationId);
-    setSelectedPort(null);
-    setGuestInfo({ name: "", phone: "", email: "", carBrand: "" });
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSelectPort = (portId: number) => setSelectedPort(portId);
+  // =====================
+  // XỬ LÝ SUBMIT FORM
+  // =====================
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedCharger) return;
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setGuestInfo({ ...guestInfo, [e.target.name]: e.target.value });
+    const newSession: OfflineSession = {
+      id: Date.now(),
+      stationName,
+      chargerName: selectedCharger.name,
+      power: selectedCharger.power,
+      customer: formData.fullName,
+      phone: formData.phone,
+      carBrand: formData.carBrand,
+      status: "pending",
+    };
+
+    const existing =
+      JSON.parse(localStorage.getItem("offlineSessions") || "[]") || [];
+    localStorage.setItem(
+      "offlineSessions",
+      JSON.stringify([...existing, newSession])
+    );
+
+    // Cập nhật trạng thái trụ sạc thành "booked" (màu đỏ)
+    setChargersData((prev) =>
+      prev.map((c) =>
+        c.id === selectedCharger.id ? { ...c, status: "booked" } : c
+      )
+    );
+
+    alert("✅ Phiên sạc offline đã được thêm vào Sessions!");
+
+    // Reset form
+    setSelectedCharger(null);
+    setFormData({ fullName: "", phone: "", carBrand: "VinFast" });
   };
 
-  const handleStartCharging = () => {
-    if (!selectedStation || !selectedPort) return alert("Vui lòng chọn trạm và cổng!");
-    const station = stations.find((s) => s.id === selectedStation)!;
-    const port = station.ports.find((p) => p.id === selectedPort)!;
-    setCurrentCharging((prev) => [
-      ...prev,
-      { stationName: station.name, port: port.port, power: port.power, guest: guestInfo },
-    ]);
-    alert(`Bắt đầu sạc tại ${station.name} - cổng ${port.port} cho khách ${guestInfo.name}`);
-    setSelectedStation(null);
-    setSelectedPort(null);
-  };
+  // =====================
+  // HIỆU ỨNG HIỆN TRANG
+  // =====================
+  useEffect(() => {
+    const timer = setTimeout(() => setShowContent(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
 
+  // =====================
+  // JSX GIAO DIỆN
+  // =====================
   return (
-    <div className="staff-wrapper">
-      {/* SIDEBAR */}
-      <aside className="staff-sidebar">
-        <div>
-          <div className="staff-logo">⚡ EV Staff</div>
-          <nav className="staff-menu">
+    <div className="location-wrapper">
+      {/* ===== SIDEBAR ===== */}
+      <aside className="location-sidebar-hover">
+        <div className="location-sidebar">
+          <div className="location-logo">⚡ EV STAFF</div>
+          <nav className="location-menu">
             <ul>
               <li onClick={() => navigate("/staff")}>About</li>
-              <li className="active" onClick={() => navigate("/staff/location")}>Location</li>
+              <li onClick={() => navigate("/staff/location")}>Location</li>
+              <li className="active">Location Detail</li>
               <li onClick={() => navigate("/staff/sessions")}>Sessions</li>
-              <li onClick={() => navigate("/staff/report")}>Report</li>
+              <li onClick={() => navigate("/staff/invoice")}>Invoice</li>
+              <li onClick={() => navigate("/staff/report")}>Report To Admin</li>
+              <li onClick={() => navigate("/staff/settings")}>Settings</li>
             </ul>
           </nav>
+          <button className="logout-btn" onClick={() => navigate("/")}>
+            ← Exit
+          </button>
         </div>
       </aside>
 
-      {/* MAIN */}
-      <div className="staff-main-wrapper">
-        <header className="staff-header">
-          <h1>📍 Quản Lý Trạm Sạc</h1>
-          <div className="staff-header-actions">
-            <ProfileStaff />
-          </div>
-        </header>
+      {/* ===== MAIN CONTENT ===== */}
+      <div
+        className={`location-main-wrapper ${
+          showContent ? "fade-in" : "hidden"
+        }`}
+      >
+        <main className="location-main">
+          <header className="location-header">
+            <h1>Location Detail</h1>
+            <div className="location-header-actions">
+              <ProfileStaff />
+            </div>
+          </header>
 
-        <main className="staff-main">
-          <div className="map-section">
-            <div className="map-view" style={{ backgroundImage: `url("/ggmap.jpg")` }}>
-              {stations.map((station) => (
-                <FaMapMarkerAlt
-                  key={station.id}
-                  className={`map-marker ${selectedStation === station.id ? "selected" : ""}`}
-                  style={{ top: station.top, left: station.left }}
-                  onClick={() => handleSelectStation(station.id)}
-                />
+          <section className="detail-body">
+            <h2 className="detail-title">{stationName}</h2>
+            <p className="detail-sub">
+              Chọn ô còn trống (màu trắng viền xanh) để tiến hành sạc
+            </p>
+
+            {/* ===== DANH SÁCH CỔNG SẠC ===== */}
+            <div className="charger-grid">
+              {chargersData.map((charger) => (
+                <div
+                  key={charger.id}
+                  className={`charger-card ${charger.status}`}
+                  onClick={() =>
+                    charger.status === "available" &&
+                    setSelectedCharger(charger)
+                  }
+                >
+                  <h3>#{charger.id}</h3>
+                  <p className="charger-name">{charger.name}</p>
+                  <p className="charger-power">{charger.power}</p>
+                  <p className="charger-status">
+                    {charger.status === "available"
+                      ? "Còn trống"
+                      : charger.status === "booked"
+                      ? "Đã đặt"
+                      : "Bảo trì"}
+                  </p>
+                </div>
               ))}
             </div>
-          </div>
 
-          {selectedStation && (
-            <div className="station-detail">
-              <h2>Chi Tiết Trạm</h2>
-              <p>
-                <strong>Tên:</strong> {stations.find((s) => s.id === selectedStation)?.name}
-              </p>
-              <p>
-                <strong>Địa chỉ:</strong> {stations.find((s) => s.id === selectedStation)?.address}
-              </p>
-
-              <div className="ports">
-                <h3>Chọn Cổng Sạc</h3>
-                {stations
-                  .find((s) => s.id === selectedStation)!
-                  .ports.map((port) => (
-                    <button
-                      key={port.id}
-                      className={selectedPort === port.id ? "port-selected" : ""}
-                      disabled={port.status === "maintenance"}
-                      onClick={() => handleSelectPort(port.id)}
-                    >
-                      {port.port} - {port.power} {port.status === "maintenance" ? "(Bảo trì)" : ""}
-                    </button>
-                  ))}
-              </div>
-
-              <div className="guest-info">
-                <h3>Thông Tin Khách</h3>
-                <input
-                  type="text"
-                  name="name"
-                  placeholder="Họ và tên"
-                  value={guestInfo.name}
-                  onChange={handleInputChange}
-                />
-                <input
-                  type="text"
-                  name="phone"
-                  placeholder="Số điện thoại"
-                  value={guestInfo.phone}
-                  onChange={handleInputChange}
-                />
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Email"
-                  value={guestInfo.email}
-                  onChange={handleInputChange}
-                />
-                <select name="carBrand" value={guestInfo.carBrand} onChange={handleInputChange}>
-                  <option value="">Chọn hãng xe</option>
-                  <option>VinFast</option>
-                  <option>Tesla</option>
-                  <option>Hyundai</option>
-                </select>
-              </div>
-
-              <button className="start-btn" onClick={handleStartCharging}>
-                🚀 Bắt Đầu Sạc
-              </button>
+            {/* ===== CHÚ GIẢI ===== */}
+            <div className="status-legend">
+              <span className="legend available">Còn trống</span>
+              <span className="legend booked">Đã đặt</span>
+              <span className="legend maintenance">Bảo trì</span>
             </div>
-          )}
-
-          <div className="current-charging">
-            <h2>Đang Sạc</h2>
-            {currentCharging.length === 0 && <p>Chưa có khách nào đang sạc</p>}
-            {currentCharging.map((c, idx) => (
-              <div key={idx} className="charging-card">
-                <p>
-                  <strong>Trạm:</strong> {c.stationName}
-                </p>
-                <p>
-                  <strong>Cổng:</strong> {c.port} - {c.power}
-                </p>
-                <p>
-                  <strong>Khách:</strong> {c.guest.name} ({c.guest.phone})
-                </p>
-              </div>
-            ))}
-          </div>
+          </section>
         </main>
 
-        <footer className="staff-footer">@SWP Fall 2025</footer>
+        <footer className="footer">@SWP Staff Fall 2025</footer>
       </div>
+
+      {/* ===== FORM POPUP ===== */}
+      {selectedCharger && (
+        <div className="form-overlay">
+          <div className="form-popup">
+            <h2>Thông tin khách hàng</h2>
+            <form onSubmit={handleSubmit}>
+              <label>Họ và tên</label>
+              <input
+                type="text"
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleChange}
+                required
+              />
+
+              <label>Số điện thoại</label>
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                required
+              />
+
+              <label>Hãng xe</label>
+              <select
+                name="carBrand"
+                value={formData.carBrand}
+                onChange={handleChange}
+              >
+                <option value="VinFast">VinFast</option>
+                <option value="Hyundai">Hyundai</option>
+                <option value="Tesla">Tesla</option>
+              </select>
+
+              <label>Cổng sạc</label>
+              <input type="text" value={selectedCharger.name} disabled />
+
+              <label>Công suất</label>
+              <input type="text" value={selectedCharger.power} disabled />
+
+              <div className="form-buttons">
+                <button type="button" onClick={() => setSelectedCharger(null)}>
+                  Hủy
+                </button>
+                <button type="submit">Tiếp tục</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

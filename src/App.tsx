@@ -19,6 +19,7 @@ import ProfileStaff from "./components/Auth/ProfileStaff";
 import LocationDetail from "./components/Auth/LocationDetail";
 // ✅ Thêm các trang STAFF
 import Location from "./components/Auth/Location";
+import Sessions from "./components/Auth/Sessions";
 //import Sessions from "./components/Auth/Sessions";
 //import Transactions from "./components/Auth/Transactions";
 //import ReportToAdmin from "./components/Auth/ReporttoAdmin";
@@ -72,7 +73,10 @@ const App: React.FC = () => {
         {/* Các trang nhân viên khác */}
         <Route path="/staff/location" element={<Location />} />
 
-        <Route path="/staff/location/:id" element={<LocationDetail />} />
+        <Route path="/staff/locationdetail/:id" element={<LocationDetail />} />
+
+        <Route path="/staff/sessions" element={<Sessions />} />
+
 
       </Routes>
     </BrowserRouter>

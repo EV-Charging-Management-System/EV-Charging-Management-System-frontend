@@ -116,7 +116,7 @@ const Location: React.FC = () => {
                             <p><strong>{station.name}</strong></p>
                             <p>Địa chỉ: {station.address}</p>
                             <p>Trạng thái: {station.status}</p>
-                            <button onClick={() => navigate(`/staff/location/${station.id}`)}>
+                            <button onClick={() => navigate(`/staff/locationDetail/${station.id}`)}>
                               Xem chi tiết
                             </button>
                           </div>
