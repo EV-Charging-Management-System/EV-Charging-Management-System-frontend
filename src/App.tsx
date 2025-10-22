@@ -20,10 +20,8 @@ import LocationDetail from "./components/Auth/LocationDetail";
 // ✅ Thêm các trang STAFF
 import Location from "./components/Auth/Location";
 import Sessions from "./components/Auth/Sessions";
-//import Sessions from "./components/Auth/Sessions";
-//import Transactions from "./components/Auth/Transactions";
-//import ReportToAdmin from "./components/Auth/ReporttoAdmin";
-//import Settings from "./components/Auth/Settings";
+import ChargingProcessStaff from "./components/Auth/ChargingProcessStaff";
+import Invoice from "./components/Auth/Invoice";
 
 const App: React.FC = () => {
   return (
@@ -75,8 +73,11 @@ const App: React.FC = () => {
 
         <Route path="/staff/locationdetail/:id" element={<LocationDetail />} />
 
-        <Route path="/staff/sessions" element={<Sessions />} />
+        <Route path="/staff/sessions/*" element={<Sessions />} />
 
+        <Route path="/staff/charging-process-staff/:id" element={<ChargingProcessStaff />} />
+
+        <Route path="/staff/invoice/" element={<Invoice />} />
 
       </Routes>
     </BrowserRouter>

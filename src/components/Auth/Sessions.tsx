@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Routes, Route, useLocation } from "react-router-dom";
 import ProfileStaff from "./ProfileStaff";
+import ChargingProcessStaff from "./ChargingProcessStaff";
 import "./Sessions.css";
 
 interface Session {
@@ -16,19 +17,14 @@ interface Session {
 
 const Sessions: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [showContent, setShowContent] = useState(false);
 
-  // ===============================
-  // LẤY DỮ LIỆU LƯU TẠM TRONG LOCALSTORAGE
-  // ===============================
   const [sessions, setSessions] = useState<Session[]>(() => {
     const saved = localStorage.getItem("offlineSessions");
     return saved ? JSON.parse(saved) : [];
   });
 
-  // ===============================
-  // LƯU MỖI KHI CẬP NHẬT
-  // ===============================
   useEffect(() => {
     localStorage.setItem("offlineSessions", JSON.stringify(sessions));
   }, [sessions]);
@@ -42,11 +38,13 @@ const Sessions: React.FC = () => {
   // XỬ LÝ NÚT HÀNH ĐỘNG
   // ===============================
   const handleStart = (id: number) => {
+    // Cập nhật trạng thái sang "charging"
     setSessions((prev) =>
-      prev.map((s) =>
-        s.id === id ? { ...s, status: "charging" } : s
-      )
+      prev.map((s) => (s.id === id ? { ...s, status: "charging" } : s))
     );
+
+    // Chuyển sang trang con (chi tiết sạc)
+    navigate(`/staff/sessions/${id}`);
   };
 
   const handleCancel = (id: number) => {
@@ -58,12 +56,13 @@ const Sessions: React.FC = () => {
 
   const handleComplete = (id: number) => {
     setSessions((prev) =>
-      prev.map((s) =>
-        s.id === id ? { ...s, status: "completed" } : s
-      )
+      prev.map((s) => (s.id === id ? { ...s, status: "completed" } : s))
     );
   };
 
+  // ===============================
+  // GIAO DIỆN CHÍNH
+  // ===============================
   return (
     <div className="sessions-wrapper">
       <aside className="sessions-sidebar-hover">
@@ -87,9 +86,7 @@ const Sessions: React.FC = () => {
       </aside>
 
       <div
-        className={`sessions-main-wrapper ${
-          showContent ? "fade-in" : "hidden"
-        }`}
+        className={`sessions-main-wrapper ${showContent ? "fade-in" : "hidden"}`}
       >
         <main className="sessions-main">
           <header className="sessions-header">
@@ -99,71 +96,75 @@ const Sessions: React.FC = () => {
             </div>
           </header>
 
-          <section className="sessions-body">
-            {sessions.length === 0 ? (
-              <p className="no-sessions">Hiện chưa có phiên sạc offline nào.</p>
-            ) : (
-              sessions.map((session) => (
-                <div
-                  key={session.id}
-                  className={`session-card ${session.status}`}
-                >
-                  <div className="session-left">
-                    <h3>{session.stationName}</h3>
-                    <p>{session.chargerName}</p>
-                  </div>
+          {/* ===============================
+              NESTED ROUTE: danh sách hoặc trang con
+          =============================== */}
+          <Routes>
+            <Route
+              index
+              element={
+                <section className="sessions-body">
+                  {sessions.length === 0 ? (
+                    <p className="no-sessions">Hiện chưa có phiên sạc offline nào.</p>
+                  ) : (
+                    sessions.map((session) => (
+                      <div
+                        key={session.id}
+                        className={`session-card ${session.status}`}
+                      >
+                        <div className="session-left">
+                          <h3>{session.stationName}</h3>
+                          <p>{session.chargerName}</p>
+                        </div>
 
-                  <div className="session-center">
-                    <p>
-                      <strong>Khách:</strong> {session.customer}
-                    </p>
-                    <p>
-                      <strong>Xe:</strong> {session.carBrand} –{" "}
-                      {session.power}
-                    </p>
-                    <p>
-                      <strong>SĐT:</strong> {session.phone}
-                    </p>
-                  </div>
+                        <div className="session-center">
+                          <p><strong>Khách:</strong> {session.customer}</p>
+                          <p><strong>Xe:</strong> {session.carBrand} – {session.power}</p>
+                          <p><strong>SĐT:</strong> {session.phone}</p>
+                        </div>
 
-                  <div className="session-right">
-                    {session.status === "pending" && (
-                      <>
-                        <button
-                          className="start-btn"
-                          onClick={() => handleStart(session.id)}
-                        >
-                          Bắt đầu sạc
-                        </button>
-                        <button
-                          className="cancel-btn"
-                          onClick={() => handleCancel(session.id)}
-                        >
-                          Hủy
-                        </button>
-                      </>
-                    )}
+                        <div className="session-right">
+                          {session.status === "pending" && (
+                            <>
+                              <button
+                                className="start-btn"
+                                onClick={() => handleStart(session.id)}
+                              >
+                                Bắt đầu sạc
+                              </button>
+                              <button
+                                className="cancel-btn"
+                                onClick={() => handleCancel(session.id)}
+                              >
+                                Hủy
+                              </button>
+                            </>
+                          )}
 
-                    {session.status === "charging" && (
-                      <>
-                        <span className="charging-status">Đang sạc...</span>
-                        <button
-                          className="complete-btn"
-                          onClick={() => handleComplete(session.id)}
-                        >
-                          Hoàn tất
-                        </button>
-                      </>
-                    )}
+                          {session.status === "charging" && (
+                            <>
+                              <span className="charging-status">Đang sạc...</span>
+                              <button
+                                className="complete-btn"
+                                onClick={() => handleComplete(session.id)}
+                              >
+                                Hoàn tất
+                              </button>
+                            </>
+                          )}
 
-                    {session.status === "completed" && (
-                      <span className="completed-status">Hoàn thành ✅</span>
-                    )}
-                  </div>
-                </div>
-              ))
-            )}
-          </section>
+                          {session.status === "completed" && (
+                            <span className="completed-status">Hoàn thành ✅</span>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </section>
+              }
+            />
+            <Route path=":id" element={<ChargingProcessStaff />} />
+          </Routes>
         </main>
 
         <footer className="footer">@SWP Staff Fall 2025</footer>
