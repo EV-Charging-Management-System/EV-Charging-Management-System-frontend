@@ -33,7 +33,9 @@ const Premium: React.FC = () => {
       <nav className="menu-bar">
         <ul className="menu-list">
           <li onClick={() => navigate("/")}>About</li>
-          <li onClick={() => navigate("/booking-online-station")}>Booking Online Station</li>
+          <li onClick={() => navigate("/booking-online-station")}>
+            Booking Online Station
+          </li>
           <li onClick={() => navigate("/blog")}>Blog</li>
           <li onClick={() => navigate("/payment")}>Payment</li>
           <li onClick={() => navigate("/contact")}>Contact</li>
@@ -45,49 +47,56 @@ const Premium: React.FC = () => {
       {/* ===== BODY ===== */}
       <main className="member-body">
         <h1 className="member-title">
-          Quyền Lợi Tối Ưu - Tiến Hành <br /> Nâng Cấp Hội Viên - Mua Ngay
+          Trải Nghiệm Đặc Quyền - Nâng Tầm Hội Viên <br /> Chọn Gói Phù Hợp Cho
+          Bạn
         </h1>
 
         <div className="member-cards">
-          {/* Gói 1 tháng */}
+          {/* Gói Premium */}
           <div className="member-card">
-            <h3>Gói 1 Tháng</h3>
-            <p>100.000 VND</p>
+            <h3>Gói Premium</h3>
+            <p className="price">299.000 VND / tháng</p>
+            <ul className="benefits">
+              <li>⚡ Truy cập không giới hạn vào toàn bộ hệ thống trạm sạc</li>
+              <li>⭐ Hỗ trợ ưu tiên 24/7 và hotline riêng cho hội viên</li>
+              <li>🚗 Nhận thông báo sớm về trạm sạc trống và khuyến mãi</li>
+              <li>🎁 Ưu đãi đặc biệt từ các đối tác độc quyền</li>
+              <li>💡 Tự động lưu lịch sử giao dịch và vị trí trạm yêu thích</li>
+            </ul>
             <button
               className="buy-btn"
-              onClick={() => navigate("/Premium/1month")}
+              onClick={() => navigate("/Premium/plan-premium")}
             >
               Mua Ngay
             </button>
           </div>
 
-          {/* Gói 6 tháng */}
+          {/* Gói Business */}
           <div className="member-card">
-            <h3>Gói 6 Tháng</h3>
-            <p>200.000 VND</p>
+            <h3>Tài Khoản Doanh Nghiệp</h3>
+            <p className="price">Liên hệ để được tư vấn</p>
+            <ul className="benefits">
+              <li>🏢 Quản lý nhiều phương tiện và tài khoản nhân viên</li>
+              <li>📊 Theo dõi hiệu suất sử dụng sạc chi tiết theo thời gian thực</li>
+              <li>🧾 Báo cáo tổng hợp doanh thu và giao dịch định kỳ</li>
+              <li>
+                💰 Toàn bộ khoản thanh toán của khách hàng được tổng kết và
+                chuyển về doanh nghiệp vào cuối chu kỳ thanh toán
+              </li>
+              <li>🔒 Ưu tiên hỗ trợ kỹ thuật và bảo mật nâng cao</li>
+            </ul>
             <button
               className="buy-btn"
-              onClick={() => navigate("/Premium/6month")}
+              onClick={() => navigate("/Premium/plan-business")}
             >
-              Mua Ngay
-            </button>
-          </div>
-
-          {/* Gói 1 năm */}
-          <div className="member-card">
-            <h3>Gói 1 Năm</h3>
-            <p>500.000 VND</p>
-            <button
-              className="buy-btn"
-              onClick={() => navigate("/Premium/1year")}
-            >
-              Mua Ngay
+              Nâng Cấp Ngay
             </button>
           </div>
         </div>
 
         <p className="note">
-          *Các điều khoản và nội dung chi tiết. Vui lòng xem thêm thông tin.
+          *Chi tiết quyền lợi và điều khoản sử dụng được cập nhật trong mục
+          thông tin chi tiết của từng gói.
         </p>
       </main>
 

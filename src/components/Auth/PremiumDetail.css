@@ -1,57 +1,61 @@
-/* =============== TOÀN TRANG =============== */
+/* =============== NỀN TOÀN TRANG =============== */
 .detail-container {
-  background: linear-gradient(180deg, #0b132b, #1b2a41);
+  background: radial-gradient(circle at top, #0b132b, #1b2a41);
   color: #f5f5f5;
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px;
+  padding: 40px 20px;
 }
 
-/* =============== KHUNG GÓI =============== */
+/* =============== KHUNG GÓI PREMIUM =============== */
 .detail-card {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.07);
   border: 1px solid rgba(74, 222, 128, 0.6);
   border-radius: 20px;
-  padding: 40px;
+  padding: 40px 30px;
   width: 400px;
   text-align: center;
-  box-shadow: 0 0 30px rgba(74, 222, 128, 0.4);
-  backdrop-filter: blur(10px);
+  box-shadow: 0 0 35px rgba(74, 222, 128, 0.35);
+  backdrop-filter: blur(12px);
 
   display: flex;
   flex-direction: column;
   align-items: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Các phần tử trong card */
-.detail-card > * {
-  margin-bottom: 12px;
+.detail-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 45px rgba(74, 222, 128, 0.55);
 }
 
-/* Tiêu đề */
+/* =============== TIÊU ĐỀ GÓI =============== */
 .detail-card h2 {
   color: #4ade80;
   font-size: 28px;
-  margin-bottom: 20px;
-  text-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
+  margin-bottom: 18px;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 12px rgba(74, 222, 128, 0.5);
 }
 
-/* Văn bản */
+/* =============== THÔNG TIN GÓI =============== */
 .detail-card p {
   font-size: 16px;
-  color: #e0e0e0;
+  color: #e6e6e6;
   margin: 4px 0;
+  line-height: 1.5;
 }
 
-/* QR */
+/* =============== QR CODE =============== */
 .qr-image {
   width: 220px;
   height: 220px;
-  border-radius: 10px;
-  box-shadow: 0 0 20px rgba(74, 222, 128, 0.4);
-  margin: 20px 0;
+  border-radius: 12px;
+  box-shadow: 0 0 25px rgba(74, 222, 128, 0.4);
+  margin: 22px 0;
+  object-fit: cover;
 }
 
 /* =============== NHÓM NÚT HÀNH ĐỘNG =============== */
@@ -59,8 +63,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px; /* tách 2 nút rõ ràng */
-  margin-top: 25px; /* tạo khoảng cách với QR */
+  gap: 14px;
+  margin-top: 25px;
   width: 100%;
 }
 
@@ -69,17 +73,19 @@
   width: 85%;
   padding: 14px;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   background: linear-gradient(90deg, #4ade80, #22c55e);
-  color: #000;
+  color: #0b132b;
   font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.3px;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .confirm-btn:hover {
-  transform: scale(1.03);
-  box-shadow: 0 0 15px rgba(74, 222, 128, 0.7);
+  transform: scale(1.05);
+  box-shadow: 0 0 18px rgba(74, 222, 128, 0.7);
 }
 
 /* =============== NÚT QUAY LẠI =============== */
@@ -87,11 +93,11 @@
   width: 85%;
   padding: 10px;
   background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: #ccc;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #d1d1d1;
   cursor: pointer;
   font-size: 15px;
-  border-radius: 8px;
+  border-radius: 10px;
   transition: all 0.3s ease;
 }
 
@@ -101,19 +107,18 @@
   border-color: rgba(74, 222, 128, 0.4);
 }
 
-/* Lỗi */
+/* =============== THÔNG BÁO LỖI =============== */
 .error-text {
-  color: #ff5252;
+  color: #ff4b4b;
   font-weight: 600;
   margin-top: 10px;
   animation: shake 0.3s ease-in-out;
 }
 
-/* Keyframes */
+/* =============== HIỆU ỨNG RUNG LỖI =============== */
 @keyframes shake {
-  0% { transform: translateX(0); }
+  0%, 100% { transform: translateX(0); }
   25% { transform: translateX(-4px); }
   50% { transform: translateX(4px); }
   75% { transform: translateX(-4px); }
-  100% { transform: translateX(0); }
 }
