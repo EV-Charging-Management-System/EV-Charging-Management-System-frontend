@@ -1,0 +1,196 @@
+.detail-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: start;
+  padding: 100px 40px 60px;
+  background-color: #ffffff;
+  min-height: calc(100vh - 100px);
+}
+
+.detail-title {
+  font-size: 26px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 10px;
+}
+
+.detail-sub {
+  color: #6b7280;
+  font-size: 15px;
+  margin-bottom: 30px;
+}
+
+/* ===== LƯỚI CÁC TRẠM ===== */
+.charger-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+  width: 100%;
+  max-width: 1000px;
+}
+
+/* ===== THẺ TRẠM ===== */
+.charger-card {
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  transition: 0.3s;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+}
+
+.charger-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* ===== MÀU TRẠNG THÁI ===== */
+.charger-card.available {
+  border-color: #22c55e;
+}
+
+.charger-card.booked {
+  border-color: #ef4444;
+  background-color: #fee2e2;
+  cursor: not-allowed;
+}
+
+.charger-card.maintenance {
+  border-color: #eab308;
+  background-color: #fef9c3;
+  cursor: not-allowed;
+}
+
+/* ===== TEXT ===== */
+.charger-card h3 {
+  font-size: 18px;
+  color: #111827;
+  margin-bottom: 6px;
+}
+
+.charger-name {
+  font-weight: 600;
+  color: #3b82f6;
+}
+
+.charger-power {
+  font-size: 14px;
+  color: #374151;
+}
+
+.charger-status {
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+/* ===== CHÚ GIẢI ===== */
+.status-legend {
+  margin-top: 40px;
+  display: flex;
+  gap: 12px;
+  font-size: 14px;
+  align-items: center;
+}
+
+.legend {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.legend.available {
+  background-color: #22c55e;
+}
+
+.legend.booked {
+  background-color: #ef4444;
+}
+
+.legend.maintenance {
+  background-color: #eab308;
+}
+
+/* ===== POPUP FORM ===== */
+.form-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.form-popup {
+  background: #fff;
+  border-radius: 16px;
+  padding: 30px;
+  width: 380px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  animation: popupFade 0.3s ease;
+}
+
+@keyframes popupFade {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.form-popup h2 {
+  margin-bottom: 20px;
+  text-align: center;
+  color: #111827;
+}
+
+.form-popup form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-popup input,
+.form-popup select {
+  padding: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.form-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.form-buttons button {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.3s;
+}
+
+.form-buttons button[type="button"] {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.form-buttons button[type="submit"] {
+  background: #3b82f6;
+  color: #fff;
+}
+
+.form-buttons button:hover {
+  opacity: 0.85;
+}
