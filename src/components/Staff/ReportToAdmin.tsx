@@ -2,27 +2,14 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import ".../../css/Location.css";
 import ProfileStaff from "../../Customhooks/ProfileStaff";
+import StaffSideBar from "../../components/layouts/staffSidebar";
 
 const ReportToAdmin: React.FC = () => {
   const navigate = useNavigate();
 
   return (
     <div className="staff-wrapper">
-      {/* Sidebar giữ nguyên */}
-      <aside className="staff-sidebar">
-        <div className="staff-logo">⚡ EV STAFF</div>
-        <nav className="staff-menu">
-          <ul>
-            <li onClick={() => navigate("/staff")}>About</li>
-            <li className="active">Location</li>
-            <li onClick={() => navigate("/staff/sessions")}>Sessions</li>
-            <li onClick={() => navigate("/staff/transactions")}>Transactions</li>
-            <li onClick={() => navigate("/staff/report")}>Report To Admin</li>
-            <li onClick={() => navigate("/staff/settings")}>Settings</li>
-          </ul>
-        </nav>
-        <button className="logout-btn" onClick={() => navigate("/")}>← Exit</button>
-      </aside>
+      <StaffSideBar />
 
       {/* Header giữ nguyên */}
       <main className="staff-main">

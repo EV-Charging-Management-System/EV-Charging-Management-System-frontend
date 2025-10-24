@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ProfileStaff from "../../Customhooks/ProfileStaff";
 import "../../css/HomePageStaff.css";
+import StaffSideBar from "../../components/layouts/staffSidebar";
 
 const HomePageStaff: React.FC = () => {
   const navigate = useNavigate();
@@ -14,23 +15,7 @@ const HomePageStaff: React.FC = () => {
 
   return (
     <div className="staff-wrapper">
-      {/* ===== SIDEBAR HOVER ===== */}
-      <aside className="staff-sidebar-hover">
-        <div className="staff-sidebar">
-          <div className="staff-logo">⚡ EV STAFF</div>
-          <nav className="staff-menu">
-            <ul>
-              <li className="active" onClick={() => navigate("/staff")}>About</li>
-              <li onClick={() => navigate("/staff/location")}>Location</li>
-              <li onClick={() => navigate("/staff/sessions")}>Sessions</li>
-              <li onClick={() => navigate("/staff/invoice")} >Invoice</li>
-              <li onClick={() => navigate("/staff/report")}>Report To Admin</li>
-              <li onClick={() => navigate("/staff/settings")}>Settings</li>
-            </ul>
-          </nav>
-          <button className="logout-btn" onClick={() => navigate("/")}>← Exit</button>
-        </div>
-      </aside>
+      <StaffSideBar />
 
       {/* ===== MAIN WRAPPER ===== */}
       <div className={`staff-main-wrapper ${showContent ? "fade-in" : "hidden"}`}>

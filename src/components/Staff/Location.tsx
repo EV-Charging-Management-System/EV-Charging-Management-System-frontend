@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { GoogleMap, Marker, InfoWindow, useJsApiLoader } from "@react-google-maps/api";
 import ProfileStaff from "../../Customhooks/ProfileStaff";
 import "../../css/Location.css";
+import StaffSideBar from "../../components/layouts/staffSidebar";
 
 const stations = [
   { id: 1, name: "Trạm SCG Q1", lat: 10.7765, lng: 106.7009, address: "Quận 1", status: "active" },
@@ -48,22 +49,7 @@ const Location: React.FC = () => {
 
   return (
     <div className="location-wrapper">
-      <aside className="location-sidebar-hover">
-        <div className="location-sidebar">
-          <div className="location-logo">⚡ EV STAFF</div>
-          <nav className="location-menu">
-            <ul>
-              <li onClick={() => navigate("/staff")}>About</li>
-              <li className="active" onClick={() => navigate("/staff/location")}>Location</li>
-              <li onClick={() => navigate("/staff/sessions")}>Sessions</li>
-              <li onClick={() => navigate("/staff/invoice")}>Invoice</li>
-              <li onClick={() => navigate("/staff/report")}>Report To Admin</li>
-              <li onClick={() => navigate("/staff/settings")}>Settings</li>
-            </ul>
-          </nav>
-          <button className="logout-btn" onClick={() => navigate("/")}>← Exit</button>
-        </div>
-      </aside>
+      <StaffSideBar />
 
       <div className={`location-main-wrapper ${showContent ? "fade-in" : "hidden"}`}>
         <main className="location-main">

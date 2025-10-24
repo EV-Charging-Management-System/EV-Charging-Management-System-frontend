@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import ProfileStaff from "../../Customhooks/ProfileStaff";
 import "../../css/LocationDetail.css";
+import StaffSideBar from "../../components/layouts/staffSidebar";
 
 interface Charger {
   id: number;
@@ -140,26 +141,7 @@ const LocationDetail: React.FC = () => {
   // =====================
   return (
     <div className="location-wrapper">
-      {/* ===== SIDEBAR ===== */}
-      <aside className="location-sidebar-hover">
-        <div className="location-sidebar">
-          <div className="location-logo">⚡ EV STAFF</div>
-          <nav className="location-menu">
-            <ul>
-              <li onClick={() => navigate("/staff")}>About</li>
-              <li onClick={() => navigate("/staff/location")}>Location</li>
-              <li className="active">Location Detail</li>
-              <li onClick={() => navigate("/staff/sessions")}>Sessions</li>
-              <li onClick={() => navigate("/staff/invoice")}>Invoice</li>
-              <li onClick={() => navigate("/staff/report")}>Report To Admin</li>
-              <li onClick={() => navigate("/staff/settings")}>Settings</li>
-            </ul>
-          </nav>
-          <button className="logout-btn" onClick={() => navigate("/")}>
-            ← Exit
-          </button>
-        </div>
-      </aside>
+      <StaffSideBar />
 
       {/* ===== MAIN CONTENT ===== */}
       <div

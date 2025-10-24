@@ -3,6 +3,7 @@ import { useNavigate, Routes, Route, useLocation } from "react-router-dom";
 import ProfileStaff from "../../Customhooks/ProfileStaff";
 import ChargingProcessStaff from "./ChargingProcessStaff";
 import "../../css/Sessions.css";
+import StaffSideBar from "../../components/layouts/staffSidebar";
 
 interface Session {
   id: number;
@@ -65,25 +66,7 @@ const Sessions: React.FC = () => {
   // ===============================
   return (
     <div className="sessions-wrapper">
-      <aside className="sessions-sidebar-hover">
-        <div className="sessions-sidebar">
-          <div className="sessions-logo">⚡ EV STAFF</div>
-          <nav className="sessions-menu">
-            <ul>
-              <li onClick={() => navigate("/staff")}>About</li>
-              <li onClick={() => navigate("/staff/location")}>Location</li>
-              <li onClick={() => navigate("/staff/locationdetail/1")}>Location Detail</li>
-              <li className="active">Sessions</li>
-              <li onClick={() => navigate("/staff/invoice")}>Invoice</li>
-              <li onClick={() => navigate("/staff/report")}>Report To Admin</li>
-              <li onClick={() => navigate("/staff/settings")}>Settings</li>
-            </ul>
-          </nav>
-          <button className="logout-btn" onClick={() => navigate("/")}>
-            ← Exit
-          </button>
-        </div>
-      </aside>
+      <StaffSideBar />
 
       <div
         className={`sessions-main-wrapper ${showContent ? "fade-in" : "hidden"}`}

@@ -1,51 +1,27 @@
-import React from "react";
-import "../../css/Payment.css";
-import { FaPhoneAlt } from "react-icons/fa";
-import Notification from "../../Customhooks/Notification";
-import ProfileUser from "../../Customhooks/ProfileUser";
-import { useNavigate } from "react-router-dom";
+import React from 'react'
+import '../../css/Payment.css'
+import { useNavigate } from 'react-router-dom'
+import Header from '../../components/layouts/header'
+import Footer from '../../components/layouts/footer'
+import MenuBar from '../../components/layouts/menu-bar'
 
 const Payment: React.FC = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   return (
-    <div className="page-container">
-      <header className="header">
-        <div className="header-left">
-          <span className="slogan">Optimising your journey, Powering your life</span>
-        </div>
-        <div className="header-center">
-          <FaPhoneAlt className="phone-icon" />
-          <span className="hotline-text">Hotline: 0112334567</span>
-        </div>
-        <div className="header-right" style={{ display: "flex", gap: "16px" }}>
-          <Notification />
-          <ProfileUser />
-        </div>
-      </header>
+    <div className='page-container'>
+      <Header />
 
-      <nav className="menu-bar">
-        <ul className="menu-list">
-          <li onClick={() => navigate("/")}>About</li>
-          <li onClick={() => navigate("/booking-online-station")}>Booking Online Station</li>
-          <li onClick={() => navigate("/blog")}>Blog</li>
-          <li className="menu-active">Payment</li>
-          <li onClick={() => navigate("/contact")}>Contact</li>
-          <li onClick={() => navigate("/premium")}>Premium</li>
-          <li onClick={() => navigate("/business")}>Business</li>
-        </ul>
-      </nav>
+      <MenuBar />
 
-      <main className="page-body">
-        <h1 className="page-title">Phương Thức Thanh Toán</h1>
-        <p className="page-description">
-          Lựa chọn phương thức thanh toán tiện lợi và an toàn cho mỗi lần sạc của bạn.
-        </p>
+      <main className='page-body'>
+        <h1 className='page-title'>Phương Thức Thanh Toán</h1>
+        <p className='page-description'>Lựa chọn phương thức thanh toán tiện lợi và an toàn cho mỗi lần sạc của bạn.</p>
       </main>
 
-      <footer className="footer">@SWP Fall 2025</footer>
+      <Footer />
     </div>
-  );
-};
+  )
+}
 
-export default Payment;
+export default Payment
