@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import ProfileStaff from '../../Customhooks/ProfileStaff'
+import ProfileStaff from '../../components/ProfileStaff'
 import '../../css/ChargingProcessStaff.css'
-import StaffSidebar from '../../components/layouts/staffSidebar'
+import StaffSidebar from '../../pages/layouts/staffSidebar'
 
 interface Session {
   id: number

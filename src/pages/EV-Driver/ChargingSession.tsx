@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react'
 import '../../css//ChargingSession.css'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { FaInfoCircle, FaClock, FaDollarSign } from 'react-icons/fa'
-import Header from '../../components/layouts/header'
-import Footer from '../../components/layouts/footer'
+import Header from '../../pages/layouts/header'
+import Footer from '../../pages/layouts/footer'
 interface Booking {
   id?: number
   stationName: string
@@ -89,7 +89,7 @@ const ChargingSession: React.FC = () => {
             <p className='session-subtitle'>{booking ? booking.stationName : 'Trạm Sạc Trung Tâm Quận 1'}</p>
           </div>
 
-          <div style={{ marginLeft: 'auto' }}>
+          <div className='status-container'>
             <div className={`status-pill ${statusClass}`}>{statusText}</div>
           </div>
         </div>
@@ -109,14 +109,7 @@ const ChargingSession: React.FC = () => {
             </div>
             <span className='battery-level'>{battery}%</span>
 
-            <div
-              style={{
-                marginTop: 20,
-                display: 'flex',
-                justifyContent: 'center',
-                gap: '10px'
-              }}
-            >
+            <div className='charging-actions'>
               {!isCharging && !finished && (
                 <button className='start-btn' onClick={handleStart}>
                   ⚡ Bắt đầu sạc
@@ -159,7 +152,8 @@ const ChargingSession: React.FC = () => {
               <p>
                 Chi phí sạc: <strong>{cost.toLocaleString()}đ</strong>
               </p>
-              {battery >= 100 && isCharging && <p style={{ color: 'red' }}>Phí quá giờ: +12.000đ/phút</p>}
+              {battery >= 100 && isCharging && <p className="overtime-fee">Phí quá giờ: +12.000đ/phút</p>
+}
             </div>
           </div>
 

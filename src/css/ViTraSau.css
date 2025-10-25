@@ -1,5 +1,5 @@
 .vi-tra-sau-container {
-  background: url("/vitrasau.jpg") center/cover no-repeat;
+  background: url("../assets/vitrasau.jpg") center/cover no-repeat;
   min-height: 100vh;
   color: white;
   display: flex;
@@ -117,6 +117,12 @@
   margin-bottom: 20px;
   transition: transform 0.2s, opacity 0.2s;
 }
+
+.pay-btn-1 {
+  background: #4db6ac;
+}
+
+
 .pay-btn:hover {
   transform: scale(1.05);
   opacity: 0.9;

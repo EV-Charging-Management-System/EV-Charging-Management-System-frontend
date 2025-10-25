@@ -1,6 +1,6 @@
 import { FaPhoneAlt } from "react-icons/fa";
-import Notification from "../../Customhooks/Notification";
-import ProfileUser from "../../Customhooks/ProfileUser";
+import Notification from "../../components/Notification";
+import ProfileUser from "../../components/ProfileUser";
 
 const Header = () => {
   return (

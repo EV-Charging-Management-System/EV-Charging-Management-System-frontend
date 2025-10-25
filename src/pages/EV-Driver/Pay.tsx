@@ -111,7 +111,7 @@ const Pay: React.FC = () => {
           </div>
         </div>
 
-        <div className='session-details' style={{ textAlign: 'left', width: '100%', marginTop: 12 }}>
+        <div className='session-details'>
           <p>
             <strong>Trạm:</strong> {stationName}
           </p>

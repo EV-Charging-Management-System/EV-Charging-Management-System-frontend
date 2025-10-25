@@ -1,6 +1,6 @@
 .page-container {
   background: linear-gradient(180deg, #0b132b, #1c2541);
-  background-image: url("/contact.jpg");
+  background-image: url("../assets/contact.jpg");
   background-size: cover;
   background-position: center;
   min-height: 100vh;

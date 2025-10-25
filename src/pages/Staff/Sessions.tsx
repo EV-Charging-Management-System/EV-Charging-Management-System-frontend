@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Routes, Route, useLocation } from "react-router-dom";
-import ProfileStaff from "../../Customhooks/ProfileStaff";
+import ProfileStaff from "../../components/ProfileStaff";
 import ChargingProcessStaff from "./ChargingProcessStaff";
 import "../../css/Sessions.css";
-import StaffSideBar from "../../components/layouts/staffSidebar";
+import StaffSideBar from "../../pages/layouts/staffSidebar";
 
 interface Session {
   id: number;

@@ -1,6 +1,6 @@
 .page-container {
   background: linear-gradient(180deg, #142850, #27496d);
-  background-image: url("/business.jpg");
+  background-image: url("../assets/business.jpg");
   background-size: cover;
   background-position: center;
   min-height: 100vh;

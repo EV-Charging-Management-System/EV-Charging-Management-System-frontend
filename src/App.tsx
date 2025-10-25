@@ -1,27 +1,27 @@
 // src/App.tsx
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import HomePage from "./components/EV-Driver/HomePage";
-import BookingOnlineStation from "./components/EV-Driver/BookingOnlineStation";
-import Premium from "./components/EV-Driver/Premium";
-import PremiumDetail from "./components/EV-Driver/PremiumDetail";
-import ViTraSau from "./components/EV-Driver/ViTraSau";
-import Blog from "./components/EV-Driver/Blog";
-import Payment from "./components/EV-Driver/Payment";
-import Contact from "./components/EV-Driver/Contact";
-import Business from "./components/EV-Driver/Business";
-import BookingDetail from "./components/EV-Driver/BookingDetail";
-import ChargingSchedule from "./components/EV-Driver/ChargingSchedule";
-import ChargingSession from "./components/EV-Driver/ChargingSession";
-import Pay from "./components/EV-Driver/Pay";
+import HomePage from "./pages/EV-Driver/HomePage";
+import BookingOnlineStation from "./pages/EV-Driver/BookingOnlineStation";
+import Premium from "./pages/EV-Driver/Premium";
+import PremiumDetail from "./pages/EV-Driver/PremiumDetail";
+import ViTraSau from "./pages/EV-Driver/ViTraSau";
+import Blog from "./pages/EV-Driver/Blog";
+import Payment from "./pages/EV-Driver/Payment";
+import Contact from "./pages/EV-Driver/Contact";
+import Business from "./pages/EV-Driver/Business";
+import BookingDetail from "./pages/EV-Driver/BookingDetail";
+import ChargingSchedule from "./pages/EV-Driver/ChargingSchedule";
+import ChargingSession from "./pages/EV-Driver/ChargingSession";
+import Pay from "./pages/EV-Driver/Pay";
 
-import HomePageStaff from "./components/Staff/HomePageStaff";
-import ProfileStaff from "./Customhooks/ProfileStaff"; // ✅ Sửa lại đúng
-import Location from "./components/Staff/Location";
-import LocationDetail from "./components/Staff/LocationDetail";
-import Sessions from "./components/Staff/Sessions";
-import ChargingProcessStaff from "./components/Staff/ChargingProcessStaff";
-import Invoice from "./components/Staff/Invoice";
+import HomePageStaff from "./pages/Staff/HomePageStaff";
+import ProfileStaff from "./components/ProfileStaff"; // ✅ Sửa lại đúng
+import Location from "./pages/Staff/Location";
+import LocationDetail from "./pages/Staff/LocationDetail";
+import Sessions from "./pages/Staff/Sessions";
+import ChargingProcessStaff from "./pages/Staff/ChargingProcessStaff";
+import Invoice from "./pages/Staff/Invoice";
 
 const App: React.FC = () => {
   return (

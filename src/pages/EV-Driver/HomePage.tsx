@@ -5,9 +5,9 @@ import { useNavigate } from 'react-router-dom'
 import { authService } from '../../services/authService'
 import { FaLocationDot } from 'react-icons/fa6'
 import { MapPin, Clock, Zap, Star, Wallet, Shield } from 'lucide-react'
-import Header from '../../components/layouts/header'
-import Footer from '../../components/layouts/footer'
-import MenuBar from '../../components/layouts/menu-bar'
+import Header from '../../pages/layouts/header'
+import Footer from '../../pages/layouts/footer'
+import MenuBar from '../../pages/layouts/menu-bar'
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate()

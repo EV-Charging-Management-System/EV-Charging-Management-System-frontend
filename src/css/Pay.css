@@ -3,7 +3,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: url("/ChargingSchedule.jpg") center/cover no-repeat;
+  background: url("../assets/ChargingSchedule.jpg") center/cover no-repeat;
   color: white;
   font-family: "Poppins", sans-serif;
 }
@@ -92,4 +92,10 @@
 .confirm-btn:hover {
   transform: scale(1.05);
   opacity: 0.9;
+}
+
+.session-details {
+  text-align: left;
+  width: 100%;
+  margin-top: 12px;
 }

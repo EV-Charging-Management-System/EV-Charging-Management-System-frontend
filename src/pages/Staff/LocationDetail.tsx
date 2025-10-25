@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import ProfileStaff from "../../Customhooks/ProfileStaff";
+import ProfileStaff from "../../components/ProfileStaff";
 import "../../css/LocationDetail.css";
-import StaffSideBar from "../../components/layouts/staffSidebar";
+import StaffSideBar from "../../pages/layouts/staffSidebar";
 
 interface Charger {
   id: number;

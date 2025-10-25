@@ -2,9 +2,9 @@ import React, { useState } from 'react'
 import '../../css/ChargingSchedule.css'
 import { FaCalendarAlt, FaMapMarkerAlt, FaBolt, FaClock, FaHashtag } from 'react-icons/fa'
 import { useNavigate } from 'react-router-dom'
-import Header from '../../components/layouts/header'
-import Footer from '../../components/layouts/footer'
-import MenuBar from '../../components/layouts/menu-bar'
+import Header from '../../pages/layouts/header'
+import Footer from '../../pages/layouts/footer'
+import MenuBar from '../../pages/layouts/menu-bar'
 
 const ChargingSchedule: React.FC = () => {
   const navigate = useNavigate()
@@ -61,7 +61,7 @@ const ChargingSchedule: React.FC = () => {
             <p className='subtitle'>Quản lý các lịch đặt sạc của bạn</p>
           </div>
           <button className='new-booking-btn' onClick={() => navigate('/booking-online-station')}>
-            <FaCalendarAlt style={{ marginRight: '6px' }} />
+            <FaCalendarAlt className="calendar-icon" />
             Đặt Lịch Mới
           </button>
         </div>

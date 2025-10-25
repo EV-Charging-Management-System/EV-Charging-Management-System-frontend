@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import '../../css/Invoice.css'
-import ProfileStaff from '../../Customhooks/ProfileStaff'
+import ProfileStaff from '../../components/ProfileStaff'
 import { useNavigate } from 'react-router-dom'
-import StaffSideBar from '../../components/layouts/staffSidebar'
+import StaffSideBar from '../../pages/layouts/staffSidebar'
 
 interface InvoiceData {
   sessionId: number

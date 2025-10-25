@@ -28,7 +28,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: url("/HomePageStaff.jpg") center/cover no-repeat;
+  background: url("../assets/HomePageStaff.jpg") center/cover no-repeat;
   z-index: -1;
   opacity: 0.35;
 }
@@ -195,6 +195,8 @@ body {
   flex-direction: column;
   padding-top: 64px; /* tránh header */
   transition: margin-left 0.3s ease; /* main cũng dịch */
+  position: relative;
+  z-index: 1;
 }
 
 .staff-sidebar-hover:hover ~ .staff-main-wrapper .staff-main {
@@ -261,6 +263,16 @@ body {
   box-shadow: 0 8px 18px rgba(61, 242, 111, 0.3);
 }
 
+.staff-map {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  z-index: 0;
+}
+
 /* ================= FOOTER ================= */
 .footer {
   text-align: center;
@@ -272,6 +284,8 @@ body {
   width: 100%;
   margin-top: auto; /* footer ép xuống đáy */
   transition: margin-left 0.3s ease;
+  position: relative;
+  z-index: 1;
 }
 
 .staff-sidebar-hover:hover ~ .staff-main-wrapper .footer {

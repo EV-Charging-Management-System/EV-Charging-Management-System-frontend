@@ -20,7 +20,7 @@ const ProfileStaff: React.FC = () => {
   return (
     <div className="profile-staff" ref={menuRef}>
       <img
-        src="/Staff.jpg"
+        src="../assets//Staff.jpg"
         alt="Staff Avatar"
         className="profile-avatar"
         onClick={toggleMenu}

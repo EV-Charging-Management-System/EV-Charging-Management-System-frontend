@@ -1,7 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import '../../css/ViTraSau.css'
-import Footer from '../../components/layouts/footer'
+import Footer from '../../pages/layouts/footer'
 
 type Transaction = {
   id: string
@@ -159,7 +159,7 @@ const ViTraSau: React.FC = () => {
             Thanh toán ngay
           </button>
 
-          <button className='pay-btn' style={{ background: '#4db6ac' }} onClick={() => setShowInvoices(!showInvoices)}>
+          <button className='pay-btn-1' onClick={() => setShowInvoices(!showInvoices)}>
             {showInvoices ? 'Ẩn hóa đơn' : 'Xem chi tiết'}
           </button>
 

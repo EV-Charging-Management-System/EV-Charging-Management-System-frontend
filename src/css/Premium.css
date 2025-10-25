@@ -1,7 +1,7 @@
 /* =============== TOÀN TRANG =============== */
 .member-container {
   background: linear-gradient(180deg, #06121b, #0a1f2a);
-  background-image: url("/member.jpg");
+  background-image: url("../assets/member.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

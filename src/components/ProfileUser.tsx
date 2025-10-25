@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "../css/HomePage.css"; // dùng chung CSS
 import { useNavigate } from "react-router-dom";
 import { authService } from "../services/authService"; // import service logout
-
+import accountImg from "../assets/account.jpg";
 const ProfileUser: React.FC = () => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ const ProfileUser: React.FC = () => {
   return (
     <div className="profile-container" style={{ position: "relative" }}>
       <img
-        src="/account.jpg"
+        src={accountImg}
         alt="Account"
         className="account-avatar"
         onClick={() => setOpen(!open)}
@@ -63,7 +63,7 @@ const ProfileUser: React.FC = () => {
         >
           <div style={{ textAlign: "center" }}>
             <img
-              src="/account.jpg"
+              src={accountImg}
               alt="Account"
               style={{
                 width: "60px",

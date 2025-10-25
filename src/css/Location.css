@@ -270,3 +270,8 @@ body {
 .location-sidebar-hover:hover ~ .location-main-wrapper .footer {
   margin-left: 0;
 }
+
+.map-container {
+  width: 100%;
+  height: 100%;
+}

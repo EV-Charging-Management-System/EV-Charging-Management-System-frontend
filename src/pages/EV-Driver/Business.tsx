@@ -1,9 +1,9 @@
 import React from 'react'
 import '../../css/Business.css'
 import { useNavigate } from 'react-router-dom'
-import Header from '../../components/layouts/header'
-import Footer from '../../components/layouts/footer'
-import MenuBar from '../../components/layouts/menu-bar'
+import Header from '../../pages/layouts/header'
+import Footer from '../../pages/layouts/footer'
+import MenuBar from '../../pages/layouts/menu-bar'
 
 const Business: React.FC = () => {
   const navigate = useNavigate()

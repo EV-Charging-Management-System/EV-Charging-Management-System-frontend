@@ -1,8 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import ".../../css/Location.css";
-import ProfileStaff from "../../Customhooks/ProfileStaff";
-import StaffSideBar from "../../components/layouts/staffSidebar";
+import ProfileStaff from "../../components/ProfileStaff";
+import StaffSideBar from "../../pages/layouts/staffSidebar";
 
 const ReportToAdmin: React.FC = () => {
   const navigate = useNavigate();

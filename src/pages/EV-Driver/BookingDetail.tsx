@@ -2,9 +2,9 @@ import React, { useState } from 'react'
 import '../../css/BookingDetail.css'
 import { FaBolt, FaCheckCircle } from 'react-icons/fa'
 import { useNavigate, useParams } from 'react-router-dom'
-import Header from '../../components/layouts/header'
-import Footer from '../../components/layouts/footer'
-import MenuBar from '../../components/layouts/menu-bar'
+import Header from '../../pages/layouts/header'
+import Footer from '../../pages/layouts/footer'
+import MenuBar from '../../pages/layouts/menu-bar'
 const BookingDetail: React.FC = () => {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()

@@ -2,9 +2,9 @@ import React, { useState } from 'react'
 import '../../css//BookingOnlineStation.css'
 import { useNavigate } from 'react-router-dom'
 import { GoogleMap, Marker, useJsApiLoader, InfoWindow } from '@react-google-maps/api'
-import Header from '../../components/layouts/header'
-import Footer from '../../components/layouts/footer'
-import MenuBar from '../../components/layouts/menu-bar'
+import Header from '../../pages/layouts/header'
+import Footer from '../../pages/layouts/footer'
+import MenuBar from '../../pages/layouts/menu-bar'
 
 const BookingOnlineStation: React.FC = () => {
   const navigate = useNavigate()
@@ -261,16 +261,7 @@ const BookingOnlineStation: React.FC = () => {
           {/* ==== MAP SECTION ==== */}
           <div className='map-section'>
             {isLoaded ? (
-              <GoogleMap
-                center={center}
-                zoom={11.5}
-                options={mapOptions}
-                mapContainerStyle={{
-                  width: '100%',
-                  height: '500px',
-                  borderRadius: '12px'
-                }}
-              >
+              <GoogleMap center={center} zoom={11.5} options={mapOptions} mapContainerClassName='booking-map-container'>
                 {stations.map((s) => (
                   <Marker
                     key={s.id}
@@ -295,14 +286,10 @@ const BookingOnlineStation: React.FC = () => {
                     }}
                     onCloseClick={() => setActiveStation(null)}
                   >
-                    <div style={{ padding: '8px', maxWidth: '200px' }}>
-                      <h3 style={{ margin: '0', fontSize: '16px' }}>
-                        {stations.find((s) => s.id === activeStation)?.name}
-                      </h3>
-                      <p style={{ margin: '4px 0', fontSize: '13px' }}>
-                        {stations.find((s) => s.id === activeStation)?.address}
-                      </p>
-                      <p style={{ fontSize: '13px', color: '#555' }}>
+                    <div className='station-popup'>
+                      <h3 className='station-popup-title'>{stations.find((s) => s.id === activeStation)?.name}</h3>
+                      <p className='station-popup-address'>{stations.find((s) => s.id === activeStation)?.address}</p>
+                      <p className='station-popup-info'>
                         Số trống: {stations.find((s) => s.id === activeStation)?.empty}/
                         {stations.find((s) => s.id === activeStation)?.total}
                       </p>
@@ -340,8 +327,7 @@ const BookingOnlineStation: React.FC = () => {
                       <div
                         className='progress-fill'
                         style={{
-                          width: `${(s.empty / s.total) * 100}%`,
-                          backgroundColor: '#ff7a00'
+                          width: `${(s.empty / s.total) * 100}%`
                         }}
                       ></div>
                     </div>
