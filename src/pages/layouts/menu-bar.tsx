@@ -1,19 +1,41 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from 'react-router-dom'
+import '../../css/Menu-bar.css'
 
 const MenuBar = () => {
-    const navigate = useNavigate();
-    return (
-        <nav className="menu-bar">
-        <ul className="menu-list">
-          <li onClick={() => navigate("/")}>About</li>
-          <li onClick={() => navigate("/booking-online-station")}>Booking Online Station</li>
-          <li className="menu-active">Blog</li>
-          <li onClick={() => navigate("/payment")}>Payment</li>
-          <li onClick={() => navigate("/contact")}>Contact</li>
-          <li onClick={() => navigate("/premium")}>Premium</li>
-          <li onClick={() => navigate("/business")}>Business</li>
-        </ul>
-      </nav>    
-    )
+  const navigate = useNavigate()
+  const location = useLocation()
+  const currentPath = location.pathname
+
+  return (
+    <nav className='menu-bar'>
+      <ul className='menu-list'>
+        <li className={currentPath === '/' ? 'menu-active' : ''} onClick={() => navigate('/')}>
+          About
+        </li>
+        <li
+          className={currentPath === '/booking-online-station' ? 'menu-active' : ''}
+          onClick={() => navigate('/booking-online-station')}
+        >
+          Booking Online Station
+        </li>
+        <li className={currentPath === '/blog' ? 'menu-active' : ''} onClick={() => navigate('/blog')}>
+          Blog
+        </li>
+        <li className={currentPath === '/payment' ? 'menu-active' : ''} onClick={() => navigate('/payment')}>
+          Payment
+        </li>
+        <li className={currentPath === '/contact' ? 'menu-active' : ''} onClick={() => navigate('/contact')}>
+          Contact
+        </li>
+        <li className={currentPath === '/premium' ? 'menu-active' : ''} onClick={() => navigate('/premium')}>
+          Premium
+        </li>
+        <li className={currentPath === '/business' ? 'menu-active' : ''} onClick={() => navigate('/business')}>
+          Business
+        </li>
+      </ul>
+    </nav>
+  )
 }
-export default MenuBar;
+
+export default MenuBar

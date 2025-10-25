@@ -5,6 +5,8 @@ import { useNavigate, useParams } from 'react-router-dom'
 import Header from '../../pages/layouts/header'
 import Footer from '../../pages/layouts/footer'
 import MenuBar from '../../pages/layouts/menu-bar'
+import mapImage from "../../assets/mapdetailbook.jpg";
+import QRImage from "../../assets/QR1.png";
 const BookingDetail: React.FC = () => {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
@@ -82,7 +84,7 @@ const BookingDetail: React.FC = () => {
         <div className='detail-layout'>
           {/* ==== BẢN ĐỒ ==== */}
           <div className='map-detail'>
-            <img src='/mapdetailbook.jpg' alt='map' className='map-image' />
+            <img src={mapImage} alt="map" className="map-image" />
           </div>
 
           {/* ==== FORM / QR / THÔNG BÁO ==== */}
@@ -134,7 +136,7 @@ const BookingDetail: React.FC = () => {
                 <p>Vui lòng quét mã QR để thanh toán phí giữ chỗ 80.000đ</p>
 
                 <div className='qr-box'>
-                  <img src='/QR1.png' alt='QR Thanh Toán' className='qr-image' />
+                  <img src={QRImage} alt="QR Thanh Toán" className="qr-image" />
                 </div>
 
                 <div className='qr-info'>

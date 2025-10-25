@@ -1,0 +1,37 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 16px 40px;
+}
+.slogan {
+  font-size: 24px;
+  font-weight: 700;
+  color: #fff;
+}
+.phone-icon {
+  color: #00e5ff;
+  margin-right: 6px;
+}
+.menu-bar {
+  background: rgba(0, 0, 0, 0.7);
+  padding: 12px 0;
+  text-align: center;
+}
+.menu-list {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  padding: 0;
+  margin: 0;
+}
+.menu-list li {
+  cursor: pointer;
+  transition: 0.3s;
+}
+.menu-list li:hover,
+.menu-active {
+  color: #32cd32;
+}

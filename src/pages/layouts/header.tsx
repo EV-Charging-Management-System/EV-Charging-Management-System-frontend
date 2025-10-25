@@ -1,6 +1,7 @@
 import { FaPhoneAlt } from "react-icons/fa";
 import Notification from "../../components/Notification";
 import ProfileUser from "../../components/ProfileUser";
+import "../../css/Header.css";
 
 const Header = () => {
   return (

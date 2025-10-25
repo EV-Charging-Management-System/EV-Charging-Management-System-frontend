@@ -51,7 +51,12 @@ const HomePage: React.FC = () => {
   }
 
   // ===== SLIDER =====
-  const images = ['/HomePage1.jpg', '/HomePage2.jpg', '/HomePage3.jpg', '/HomePage4.jpg']
+  const images = [
+    'src/assets/HomePage1.jpg',
+    'src/assets/HomePage2.jpg',
+    'src/assets/HomePage3.jpg',
+    'src/assets/HomePage4.jpg'
+  ]
 
   const nextSlide = () => {
     setCurrentIndex((prev) => (prev + 1) % images.length)
