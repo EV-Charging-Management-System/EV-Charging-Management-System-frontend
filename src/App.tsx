@@ -1,6 +1,9 @@
-// src/App.tsx
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { authService } from "./services/authService";
+import Login from "./pages/Auth/Login";
+
+// EV Driver Pages
 import HomePage from "./pages/EV-Driver/HomePage";
 import BookingOnlineStation from "./pages/EV-Driver/BookingOnlineStation";
 import Premium from "./pages/EV-Driver/Premium";
@@ -15,71 +18,136 @@ import ChargingSchedule from "./pages/EV-Driver/ChargingSchedule";
 import ChargingSession from "./pages/EV-Driver/ChargingSession";
 import Pay from "./pages/EV-Driver/Pay";
 
+// Staff Pages
 import HomePageStaff from "./pages/Staff/HomePageStaff";
-import ProfileStaff from "./components/ProfileStaff"; // ✅ Sửa lại đúng
+import ProfileStaff from "./components/ProfileStaff";
 import Location from "./pages/Staff/Location";
 import LocationDetail from "./pages/Staff/LocationDetail";
 import Sessions from "./pages/Staff/Sessions";
 import ChargingProcessStaff from "./pages/Staff/ChargingProcessStaff";
 import Invoice from "./pages/Staff/Invoice";
 
+// Admin Pages
+import AdminDashboard from "./pages/Admin/AdminDashboard";
+
 const App: React.FC = () => {
+  const user = authService.getCurrentUser();
+
+  // ✅ Route bảo vệ (chặn truy cập sai role)
+  const ProtectedRoute = ({
+    element,
+    allowedRoles,
+  }: {
+    element: JSX.Element;
+    allowedRoles: string[];
+  }) => {
+    if (!user) return <Navigate to="/login" replace />;
+
+    const role = user.role || user.roleName; // xử lý khi backend trả roleName
+    if (!allowedRoles.includes(role)) return <Navigate to="/" replace />;
+
+    return element;
+  };
+
   return (
     <BrowserRouter>
       <Routes>
-        {/* Trang chủ */}
+        {/* 🔑 LOGIN */}
+        <Route path="/login" element={<Login />} />
+
+        {/* 👇 EV DRIVER (Public) */}
         <Route path="/" element={<HomePage />} />
-
-        {/* Trang đặt chỗ trạm sạc */}
         <Route path="/booking-online-station" element={<BookingOnlineStation />} />
-
-        {/* Trang hội viên */}
         <Route path="/premium" element={<Premium />} />
         <Route path="/premium/:type" element={<PremiumDetail />} />
-
-        {/* Trang ví trả sau */}
         <Route path="/vi-tra-sau" element={<ViTraSau />} />
-
-        {/* Trang blog */}
         <Route path="/blog" element={<Blog />} />
-
-        {/* Trang thanh toán */}
         <Route path="/payment" element={<Payment />} />
-
-        {/* Trang liên hệ */}
         <Route path="/contact" element={<Contact />} />
-
-        {/* Trang doanh nghiệp */}
         <Route path="/business" element={<Business />} />
-
-        {/* Trang chi tiết đặt chỗ */}
         <Route path="/booking-detail/:id" element={<BookingDetail />} />
-
-        {/* Trang lịch sạc */}
         <Route path="/charging-schedule" element={<ChargingSchedule />} />
-
-        {/* Phiên sạc */}
         <Route path="/charging-session" element={<ChargingSession />} />
-
-        {/* Thanh toán Pay */}
         <Route path="/pay" element={<Pay />} />
 
-        {/* Trang chủ nhân viên */}
-        <Route path="/staff" element={<HomePageStaff />} />
-        <Route path="/staff/profile" element={<ProfileStaff />} />
+        {/* 👇 STAFF (Protected) */}
+        <Route
+          path="/staff"
+          element={
+            <ProtectedRoute
+              allowedRoles={["STAFF"]}
+              element={<HomePageStaff />}
+            />
+          }
+        />
+        <Route
+          path="/staff/profile"
+          element={
+            <ProtectedRoute
+              allowedRoles={["STAFF"]}
+              element={<ProfileStaff />}
+            />
+          }
+        />
+        <Route
+          path="/staff/location"
+          element={
+            <ProtectedRoute
+              allowedRoles={["STAFF"]}
+              element={<Location />}
+            />
+          }
+        />
+        <Route
+          path="/staff/locationdetail/:id"
+          element={
+            <ProtectedRoute
+              allowedRoles={["STAFF"]}
+              element={<LocationDetail />}
+            />
+          }
+        />
+        <Route
+          path="/staff/sessions/*"
+          element={
+            <ProtectedRoute
+              allowedRoles={["STAFF"]}
+              element={<Sessions />}
+            />
+          }
+        />
+        <Route
+          path="/staff/charging-process-staff/:id"
+          element={
+            <ProtectedRoute
+              allowedRoles={["STAFF"]}
+              element={<ChargingProcessStaff />}
+            />
+          }
+        />
+        <Route
+          path="/staff/invoice"
+          element={
+            <ProtectedRoute
+              allowedRoles={["STAFF"]}
+              element={<Invoice />}
+            />
+          }
+        />
 
-        {/* Các trang nhân viên khác */}
-        <Route path="/staff/location" element={<Location />} />
+        {/* 👇 ADMIN (Protected) */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute
+              allowedRoles={["ADMIN"]}
+              element={<AdminDashboard />}
+            />
+          }
+        />
 
-        <Route path="/staff/locationdetail/:id" element={<LocationDetail />} />
-
-        <Route path="/staff/sessions/*" element={<Sessions />} />
-
-        <Route path="/staff/charging-process-staff/:id" element={<ChargingProcessStaff />} />
-
-        <Route path="/staff/invoice/" element={<Invoice />} />
-        
-
+        {/* 🚧 Fallback (không khớp route nào) */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );

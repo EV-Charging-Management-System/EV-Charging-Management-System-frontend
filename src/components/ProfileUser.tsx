@@ -1,26 +1,41 @@
-import React, { useState } from "react"; 
-import "../css/HomePage.css"; // dùng chung CSS
+import React, { useState, useEffect } from "react";
+import "../css/HomePage.css";
 import { useNavigate } from "react-router-dom";
-import { authService } from "../services/authService"; // import service logout
+import { authService } from "../services/authService";
 import accountImg from "../assets/account.jpg";
+
+interface UserData {
+  userId: number;
+  email: string;
+  role: string;
+}
+
 const ProfileUser: React.FC = () => {
   const [open, setOpen] = useState(false);
+  const [user, setUser] = useState<UserData | null>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      const parsed = JSON.parse(storedUser);
+      setUser(parsed);
+    }
+  }, []);
 
   const handleNavigate = (path: string) => {
     navigate(path);
     setOpen(false);
   };
 
-  // ✅ Xử lý logout
   const handleLogout = async () => {
     try {
-      await authService.logout(); // gọi API logout
+      await authService.logout();
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("user");
       alert("Đăng xuất thành công!");
-      navigate("/login"); // redirect về login
+      navigate("/login");
       setOpen(false);
     } catch (err) {
       console.error(err);
@@ -33,7 +48,6 @@ const ProfileUser: React.FC = () => {
       <img
         src={accountImg}
         alt="Account"
-        className="account-avatar"
         onClick={() => setOpen(!open)}
         style={{
           width: "40px",
@@ -73,8 +87,16 @@ const ProfileUser: React.FC = () => {
                 border: "2px solid #4ade80",
               }}
             />
-            <h3 className="profile-name">Jos Nguyễn</h3>
-            <p className="profile-id">ID: SE182928</p>
+            <h3 className="profile-name">
+              {user ? user.email.split("@")[0] : "Đang tải..."}
+            </h3>
+            <p className="profile-id">ID: {user?.userId ?? "—"}</p>
+            <p
+              className="profile-role"
+              style={{ fontSize: "12px", color: "#9ca3af" }}
+            >
+              {user?.role === "EVDRIVER" && "EV Driver"}
+            </p>
           </div>
 
           <div
@@ -95,18 +117,23 @@ const ProfileUser: React.FC = () => {
               Ví Trả Sau
             </button>
 
-            <hr style={{ borderColor: "rgba(255,255,255,0.2)", margin: "8px 0" }} />
+            <hr
+              style={{
+                borderColor: "rgba(255,255,255,0.2)",
+                margin: "8px 0",
+              }}
+            />
 
             <button
               className="profile-btn logout-btn"
-              onClick={handleLogout} // dùng service logout
+              onClick={handleLogout}
               style={{
                 backgroundColor: "#ef4444",
                 color: "white",
                 fontWeight: "bold",
               }}
             >
-              Logout
+              Đăng xuất
             </button>
           </div>
         </div>
