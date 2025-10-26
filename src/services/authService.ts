@@ -1,4 +1,3 @@
-// src/services/authService.ts
 import { apiClient } from "../utils/api";
 import type {
   LoginResponse,
@@ -14,20 +13,25 @@ import type {
 } from "../utils/types";
 
 export const authService = {
-  // ✅ LOGIN
+  // ✅ LOGIN (đã fix key)
   async login(data: { email: string; password: string }): Promise<LoginResponse> {
+    const payload = {
+      Email: data.email,
+      PasswordHash: data.password,
+    };
+
     const response = await apiClient.post<ApiResponse<LoginResponse>>(
       "/auth/login",
-      data
+      payload
     );
 
     if (response.data.success) {
-      // Chuẩn hóa roleName -> role
       const userData = {
         ...response.data.user,
         role: response.data.user.role || response.data.user.roleName,
       };
 
+      // Lưu token + user
       localStorage.setItem("accessToken", response.data.accessToken);
       localStorage.setItem("refreshToken", response.data.refreshToken);
       localStorage.setItem("user", JSON.stringify(userData));
