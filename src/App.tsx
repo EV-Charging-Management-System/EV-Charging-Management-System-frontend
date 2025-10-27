@@ -31,9 +31,7 @@ import Invoice from "./pages/Staff/Invoice";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 
 const App: React.FC = () => {
-  const user = authService.getCurrentUser();
-
-  // ✅ Route bảo vệ (chặn truy cập sai role)
+  // ✅ Route bảo vệ (dành cho role)
   const ProtectedRoute = ({
     element,
     allowedRoles,
@@ -41,9 +39,15 @@ const App: React.FC = () => {
     element: JSX.Element;
     allowedRoles: string[];
   }) => {
+    const user = authService.getCurrentUser();
+
     if (!user) return <Navigate to="/login" replace />;
 
-    const role = user.role || user.roleName; // xử lý khi backend trả roleName
+    // ✅ Ép role in HOA
+    const role = (user.role || user.roleName || "").toUpperCase();
+
+    console.log("🔍 Current user role:", role);
+
     if (!allowedRoles.includes(role)) return <Navigate to="/" replace />;
 
     return element;
@@ -73,80 +77,40 @@ const App: React.FC = () => {
         {/* 👇 STAFF (Protected) */}
         <Route
           path="/staff"
-          element={
-            <ProtectedRoute
-              allowedRoles={["STAFF"]}
-              element={<HomePageStaff />}
-            />
-          }
+          element={<ProtectedRoute allowedRoles={["STAFF"]} element={<HomePageStaff />} />}
         />
         <Route
           path="/staff/profile"
-          element={
-            <ProtectedRoute
-              allowedRoles={["STAFF"]}
-              element={<ProfileStaff />}
-            />
-          }
+          element={<ProtectedRoute allowedRoles={["STAFF"]} element={<ProfileStaff />} />}
         />
         <Route
           path="/staff/location"
-          element={
-            <ProtectedRoute
-              allowedRoles={["STAFF"]}
-              element={<Location />}
-            />
-          }
+          element={<ProtectedRoute allowedRoles={["STAFF"]} element={<Location />} />}
         />
         <Route
           path="/staff/locationdetail/:id"
-          element={
-            <ProtectedRoute
-              allowedRoles={["STAFF"]}
-              element={<LocationDetail />}
-            />
-          }
+          element={<ProtectedRoute allowedRoles={["STAFF"]} element={<LocationDetail />} />}
         />
         <Route
           path="/staff/sessions/*"
-          element={
-            <ProtectedRoute
-              allowedRoles={["STAFF"]}
-              element={<Sessions />}
-            />
-          }
+          element={<ProtectedRoute allowedRoles={["STAFF"]} element={<Sessions />} />}
         />
         <Route
           path="/staff/charging-process-staff/:id"
-          element={
-            <ProtectedRoute
-              allowedRoles={["STAFF"]}
-              element={<ChargingProcessStaff />}
-            />
-          }
+          element={<ProtectedRoute allowedRoles={["STAFF"]} element={<ChargingProcessStaff />} />}
         />
         <Route
           path="/staff/invoice"
-          element={
-            <ProtectedRoute
-              allowedRoles={["STAFF"]}
-              element={<Invoice />}
-            />
-          }
+          element={<ProtectedRoute allowedRoles={["STAFF"]} element={<Invoice />} />}
         />
 
         {/* 👇 ADMIN (Protected) */}
         <Route
           path="/admin"
-          element={
-            <ProtectedRoute
-              allowedRoles={["ADMIN"]}
-              element={<AdminDashboard />}
-            />
-          }
+          element={<ProtectedRoute allowedRoles={["ADMIN"]} element={<AdminDashboard />} />}
         />
 
-        {/* 🚧 Fallback (không khớp route nào) */}
+        {/* 🚧 Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

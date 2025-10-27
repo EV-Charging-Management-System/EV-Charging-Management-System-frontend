@@ -1,4 +1,3 @@
-// src/pages/Auth/Login.tsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../../services/authService";
@@ -22,8 +21,11 @@ const Login: React.FC = () => {
         password: password,
       });
 
-      if (res.success) {
-        const role = res.user?.role;
+      console.log("🔍 Login response:", res);
+
+      if (res.success && res.user) {
+        const role = (res.user.role || "").toUpperCase();
+        console.log("✅ Detected role:", role);
 
         if (role === "ADMIN") navigate("/admin");
         else if (role === "STAFF") navigate("/staff");
@@ -32,6 +34,7 @@ const Login: React.FC = () => {
         setError(res.message || "Đăng nhập thất bại!");
       }
     } catch (err: any) {
+      console.error("❌ Login error:", err);
       setError(err.message || "Không thể đăng nhập!");
     } finally {
       setLoading(false);
@@ -42,6 +45,7 @@ const Login: React.FC = () => {
     <div className="login-page">
       <div className="login-box">
         <h1 className="login-title">🔋 Đăng nhập hệ thống EV</h1>
+
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
             <label>Email</label>
