@@ -13,11 +13,11 @@ import type {
 } from "../utils/types";
 
 export const authService = {
-  // ✅ LOGIN (đã fix key)
+  // ✅ LOGIN (Chuẩn khớp backend)
   async login(data: { email: string; password: string }): Promise<LoginResponse> {
     const payload = {
-      Email: data.email,
-      PasswordHash: data.password,
+      Email: data.email,          // backend nhận key "Email"
+      PasswordHash: data.password // backend nhận key "PasswordHash"
     };
 
     const response = await apiClient.post<ApiResponse<LoginResponse>>(
@@ -25,28 +25,65 @@ export const authService = {
       payload
     );
 
-    if (response.data.success) {
+    const resData = response.data;
+
+    if (resData.success && resData.user) {
+      // ✅ Chuẩn hóa role (in hoa)
       const userData = {
-        ...response.data.user,
-        role: response.data.user.role || response.data.user.roleName,
+        ...resData.user,
+        role: (resData.user.role || resData.user.roleName || "").toUpperCase(),
       };
 
-      // Lưu token + user
-      localStorage.setItem("accessToken", response.data.accessToken);
-      localStorage.setItem("refreshToken", response.data.refreshToken);
+      // ✅ Lưu thông tin đăng nhập vào localStorage
+      localStorage.setItem("accessToken", resData.accessToken);
+      localStorage.setItem("refreshToken", resData.refreshToken);
       localStorage.setItem("user", JSON.stringify(userData));
     }
 
     return {
       user: {
-        ...response.data.user,
-        role: response.data.user.role || response.data.user.roleName,
+        ...resData.user,
+        role: (resData.user.role || resData.user.roleName || "").toUpperCase(),
       },
-      accessToken: response.data.accessToken,
-      refreshToken: response.data.refreshToken,
-      success: response.data.success,
-      message: response.data.message,
+      accessToken: resData.accessToken,
+      refreshToken: resData.refreshToken,
+      success: resData.success,
+      message: resData.message,
     };
+  },
+
+  // ✅ Lấy thông tin user hiện tại
+  getCurrentUser(): User | null {
+    try {
+      const userStr = localStorage.getItem("user");
+      if (!userStr) return null;
+
+      const user = JSON.parse(userStr);
+      // 🔥 Ép role in hoa để không bị sai khi check
+      user.role = (user.role || user.roleName || "").toUpperCase();
+      return user;
+    } catch {
+      return null;
+    }
+  },
+
+  // ✅ Kiểm tra trạng thái đăng nhập
+  isAuthenticated(): boolean {
+    const token = localStorage.getItem("accessToken");
+    const user = localStorage.getItem("user");
+    return !!(token && user);
+  },
+
+  // ✅ Đăng xuất
+  async logout(): Promise<void> {
+    try {
+      await apiClient.delete("/auth/logout");
+    } catch {
+      console.warn("⚠️ Logout API failed, clearing local data instead.");
+    }
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("user");
   },
 
   // ✅ REGISTER
@@ -56,18 +93,6 @@ export const authService = {
       data
     );
     return { message: response.data.message };
-  },
-
-  // ✅ LOGOUT
-  async logout(): Promise<void> {
-    try {
-      await apiClient.delete("/auth/logout");
-    } catch (e) {
-      console.warn("Logout API failed, clearing local data instead.");
-    }
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("user");
   },
 
   // ✅ REFRESH TOKEN
@@ -95,18 +120,6 @@ export const authService = {
       data
     );
     return { message: response.data.message };
-  },
-
-  // ✅ CURRENT USER
-  getCurrentUser(): User | null {
-    const userStr = localStorage.getItem("user");
-    return userStr ? JSON.parse(userStr) : null;
-  },
-
-  isAuthenticated(): boolean {
-    const token = localStorage.getItem("accessToken");
-    const user = localStorage.getItem("user");
-    return !!(token && user);
   },
 
   // ✅ PASSWORD RESET
