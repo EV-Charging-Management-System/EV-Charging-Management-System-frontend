@@ -92,7 +92,8 @@ export const authService = {
       "/auth/register",
       data
     );
-    return { message: response.data.message };
+    // Return full API response so caller can inspect success/message/data
+    return response.data;
   },
 
   // ✅ REFRESH TOKEN
