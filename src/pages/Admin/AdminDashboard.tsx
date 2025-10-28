@@ -7,6 +7,7 @@ import {
   CreditCard,
   LayoutDashboard,
   LogOut,
+  Building2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../../services/authService";
@@ -16,6 +17,8 @@ import UserTable from "../../components/UserTable";
 import StationTable from "../../components/StationTable";
 import BookingTable from "../../components/BookingTable";
 import PaymentTable from "../../components/PaymentTable";
+import BusinessAccountTable from "../../components/BusinessAccountTable";
+import { ToastContainer } from "react-toastify";
 
 const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -26,7 +29,7 @@ const AdminDashboard: React.FC = () => {
     users: 0,
     stations: 0,
     bookings: 0,
-    payments: 3, // mock số hóa đơn
+    payments: 3,
   });
 
   const navigate = useNavigate();
@@ -47,7 +50,7 @@ const AdminDashboard: React.FC = () => {
       setStats({
         users: u?.length || 0,
         stations: s?.length || 0,
-        bookings: 12, // mock
+        bookings: 12,
         payments: 3,
       });
     } catch (err) {
@@ -77,6 +80,12 @@ const AdminDashboard: React.FC = () => {
             onClick={() => setActiveTab("users")}
           >
             <Users size={18} /> Quản lý tài khoản
+          </li>
+          <li
+            className={activeTab === "business" ? "active" : ""}
+            onClick={() => setActiveTab("business")}
+          >
+            <Building2 size={18} /> Tài khoản DN
           </li>
           <li
             className={activeTab === "stations" ? "active" : ""}
@@ -113,7 +122,6 @@ const AdminDashboard: React.FC = () => {
           <ProfileAdmin />
         </header>
 
-        {/* Tổng quan */}
         {activeTab === "dashboard" && (
           <section className="dashboard-section">
             <h2>Tổng quan hệ thống</h2>
@@ -142,7 +150,6 @@ const AdminDashboard: React.FC = () => {
           </section>
         )}
 
-        {/* Users */}
         {activeTab === "users" && (
           <UserTable
             users={users}
@@ -152,7 +159,8 @@ const AdminDashboard: React.FC = () => {
           />
         )}
 
-        {/* Stations */}
+        {activeTab === "business" && <BusinessAccountTable />}
+
         {activeTab === "stations" && (
           <StationTable
             stations={stations}
@@ -162,17 +170,17 @@ const AdminDashboard: React.FC = () => {
           />
         )}
 
-        {/* Bookings */}
         {activeTab === "bookings" && (
           <BookingTable
             bookings={bookings}
-            onCancel={(id: string | number) => alert("Hủy lịch " + id)}
+            onCancel={(id) => alert("Hủy lịch " + id)}
           />
         )}
 
-        {/* Payments */}
         {activeTab === "payments" && <PaymentTable />}
       </main>
+
+      <ToastContainer position="top-right" autoClose={2000} />
     </div>
   );
 };

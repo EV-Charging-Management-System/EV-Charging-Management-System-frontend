@@ -10,7 +10,7 @@ export const adminService = {
   // ⚡ Lấy danh sách trạm sạc
   async getAllStations() {
     try {
-      const res = await apiClient.get("/station/getAllSations"); // ⚠️ backend ghi sai "Stations"
+      const res = await apiClient.get("/station/getAllSations");
       return res.data.data;
     } catch (error) {
       console.warn("⚠️ Không lấy được danh sách trạm sạc:", error);
@@ -29,15 +29,13 @@ export const adminService = {
     }
   },
 
-  // 🆕 Lấy danh sách đặt lịch (mock hoặc BE thật sau này)
+  // 📅 Lấy danh sách đặt lịch (mock)
   async getAllBookings() {
     try {
-      const res = await apiClient.get("/admin/bookings"); // khi BE có endpoint
+      const res = await apiClient.get("/admin/bookings");
       return res.data.data;
     } catch (error) {
       console.warn("⚠️ Không lấy được danh sách đặt lịch:", error);
-
-      // Dữ liệu giả tạm thời nếu BE chưa có
       return [
         {
           BookingId: 1,
@@ -56,6 +54,69 @@ export const adminService = {
           Status: "Pending",
         },
       ];
+    }
+  },
+
+  // 🏢 QUẢN LÝ TÀI KHOẢN DOANH NGHIỆP
+  async getBusinessAccounts() {
+    // ⚙️ Dữ liệu giả (mock) để hiển thị nếu backend lỗi
+    const fakeData = [
+      {
+        UserId: 201,
+        UserName: "EV Corp HCM",
+        Mail: "contact@evcorp.vn",
+        AccountStatus: "PENDING",
+      },
+      {
+        UserId: 202,
+        UserName: "GreenCharge Co.",
+        Mail: "green@charge.com",
+        AccountStatus: "APPROVED",
+      },
+      {
+        UserId: 203,
+        UserName: "E-Power Ltd.",
+        Mail: "epower@gmail.com",
+        AccountStatus: "REJECTED",
+      },
+    ];
+
+    try {
+      const res = await apiClient.get("/admin/business-accounts");
+
+      // ✅ Nếu API trả dữ liệu đúng, dùng dữ liệu thật
+      if (res.data && res.data.data && res.data.data.length > 0) {
+        return res.data.data;
+      } else {
+        console.warn("⚠️ API không trả dữ liệu hợp lệ, dùng fake data.");
+        return fakeData;
+      }
+    } catch (error) {
+      console.warn("⚠️ Không lấy được danh sách DN:", error);
+      // ✅ Trả về dữ liệu giả để FE không trống
+      return fakeData;
+    }
+  },
+
+  // ✅ Duyệt tài khoản DN
+  async approveBusinessAccount(id: number) {
+    try {
+      const res = await apiClient.put(`/admin/business-accounts/${id}/approve`);
+      return res.data;
+    } catch (error) {
+      console.error("❌ Lỗi duyệt DN:", error);
+      throw error;
+    }
+  },
+
+  // ✅ Từ chối tài khoản DN
+  async rejectBusinessAccount(id: number) {
+    try {
+      const res = await apiClient.put(`/admin/business-accounts/${id}/reject`);
+      return res.data;
+    } catch (error) {
+      console.error("❌ Lỗi từ chối DN:", error);
+      throw error;
     }
   },
 };
