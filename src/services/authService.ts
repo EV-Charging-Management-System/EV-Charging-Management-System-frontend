@@ -106,12 +106,20 @@ export const authService = {
     return response.data.data!;
   },
 
-  // ✅ PROFILE
+  // UserInfo
   async getProfile(): Promise<User> {
-    const response = await apiClient.get<ApiResponse<{ user: User }>>(
-      "/auth/profile"
-    );
-    return response.data.data!.user;
+    // Try several possible endpoints depending on backend
+    const tryPaths = ["/auth/me"];
+    for (const p of tryPaths) {
+      try {
+        const response = await apiClient.get<ApiResponse<{ user: User }>>(p);
+        if (response?.data) return response.data.data?.user ?? response.data.user ?? response.data;
+      } catch (e) {
+        // try next
+      }
+    }
+
+    throw new Error("Profile endpoint not found");
   },
 
   async updateProfile(data: UpdateProfilereq): Promise<UpdateProfilerep> {
