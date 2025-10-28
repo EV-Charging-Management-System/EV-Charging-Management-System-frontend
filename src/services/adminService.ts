@@ -3,9 +3,15 @@ import { apiClient } from "../utils/api";
 export const adminService = {
   // 👤 Lấy danh sách người dùng
   async getAllUsers() {
+  try {
     const res = await apiClient.get("/admin/users");
-    return res.data.data;
-  },
+    return res.data?.data || [];
+  } catch (error) {
+    console.warn("⚠️ Không thể lấy danh sách người dùng:", error);
+    return [];
+  }
+},
+
 
   // ⚡ Lấy danh sách trạm sạc
    async getAllStations(): Promise<any[]> {
