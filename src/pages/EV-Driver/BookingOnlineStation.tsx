@@ -1,223 +1,98 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import '../../css//BookingOnlineStation.css'
 import { useNavigate } from 'react-router-dom'
 import { GoogleMap, Marker, useJsApiLoader, InfoWindow } from '@react-google-maps/api'
 import Header from '../../pages/layouts/header'
 import Footer from '../../pages/layouts/footer'
 import MenuBar from '../../pages/layouts/menu-bar'
+import { authService } from '../../services/authService'
 
 const BookingOnlineStation: React.FC = () => {
   const navigate = useNavigate()
   const [activeStation, setActiveStation] = useState<number | null>(null)
+  const [currentUser, setCurrentUser] = useState<any | null>(null)
 
   // ===== GOOGLE MAP LOADER =====
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: 'AIzaSyDdxswSYXCcEgs8I4GJTPR82Dqpjkon1TM'
   })
 
-  // ===== DANH SÁCH TRẠM SẠC (20 trạm) =====
-  const stations = [
-    {
-      id: 1,
-      name: 'Trạm Sạc Trung Tâm Q1',
-      address: '123 Nguyễn Huệ, Quận 1',
-      lat: 10.776,
-      lng: 106.7009,
-      empty: 3,
-      total: 6,
-      color: 'orange'
-    },
-    {
-      id: 2,
-      name: 'Trạm Sạc Phú Mỹ Hưng',
-      address: '456 Nguyễn Văn Linh, Quận 7',
-      lat: 10.729,
-      lng: 106.721,
-      empty: 5,
-      total: 6,
-      color: 'green'
-    },
-    {
-      id: 3,
-      name: 'Trạm Sạc Thủ Đức',
-      address: '789 Võ Văn Ngân, TP. Thủ Đức',
-      lat: 10.849,
-      lng: 106.771,
-      empty: 4,
-      total: 6,
-      color: 'gray'
-    },
-    {
-      id: 4,
-      name: 'Trạm Sạc Quận 3',
-      address: '12 Cách Mạng Tháng 8, Quận 3',
-      lat: 10.784,
-      lng: 106.688,
-      empty: 2,
-      total: 5,
-      color: 'green'
-    },
-    {
-      id: 5,
-      name: 'Trạm Sạc Quận 4',
-      address: '45 Hoàng Diệu, Quận 4',
-      lat: 10.763,
-      lng: 106.703,
-      empty: 1,
-      total: 4,
-      color: 'orange'
-    },
-    {
-      id: 6,
-      name: 'Trạm Sạc Quận 5',
-      address: '56 Nguyễn Trãi, Quận 5',
-      lat: 10.755,
-      lng: 106.665,
-      empty: 3,
-      total: 5,
-      color: 'green'
-    },
-    {
-      id: 7,
-      name: 'Trạm Sạc Quận 6',
-      address: '78 Hậu Giang, Quận 6',
-      lat: 10.748,
-      lng: 106.635,
-      empty: 2,
-      total: 5,
-      color: 'gray'
-    },
-    {
-      id: 8,
-      name: 'Trạm Sạc Quận 8',
-      address: '99 Phạm Thế Hiển, Quận 8',
-      lat: 10.725,
-      lng: 106.67,
-      empty: 4,
-      total: 5,
-      color: 'green'
-    },
-    {
-      id: 9,
-      name: 'Trạm Sạc Quận 9',
-      address: '66 Lê Văn Việt, Quận 9',
-      lat: 10.84,
-      lng: 106.82,
-      empty: 5,
-      total: 6,
-      color: 'orange'
-    },
-    {
-      id: 10,
-      name: 'Trạm Sạc Bình Thạnh',
-      address: '34 Điện Biên Phủ, Bình Thạnh',
-      lat: 10.802,
-      lng: 106.71,
-      empty: 2,
-      total: 5,
-      color: 'gray'
-    },
-    {
-      id: 11,
-      name: 'Trạm Sạc Gò Vấp',
-      address: '22 Quang Trung, Gò Vấp',
-      lat: 10.835,
-      lng: 106.672,
-      empty: 3,
-      total: 5,
-      color: 'green'
-    },
-    {
-      id: 12,
-      name: 'Trạm Sạc Tân Bình',
-      address: '10 Cộng Hòa, Tân Bình',
-      lat: 10.801,
-      lng: 106.652,
-      empty: 4,
-      total: 5,
-      color: 'orange'
-    },
-    {
-      id: 13,
-      name: 'Trạm Sạc Tân Phú',
-      address: '98 Lũy Bán Bích, Tân Phú',
-      lat: 10.79,
-      lng: 106.63,
-      empty: 3,
-      total: 5,
-      color: 'green'
-    },
-    {
-      id: 14,
-      name: 'Trạm Sạc Bình Tân',
-      address: '65 Kinh Dương Vương, Bình Tân',
-      lat: 10.75,
-      lng: 106.61,
-      empty: 2,
-      total: 5,
-      color: 'gray'
-    },
-    {
-      id: 15,
-      name: 'Trạm Sạc Nhà Bè',
-      address: '88 Nguyễn Hữu Thọ, Nhà Bè',
-      lat: 10.7,
-      lng: 106.72,
-      empty: 3,
-      total: 5,
-      color: 'orange'
-    },
-    {
-      id: 16,
-      name: 'Trạm Sạc Củ Chi',
-      address: '45 Tỉnh Lộ 8, Củ Chi',
-      lat: 10.97,
-      lng: 106.49,
-      empty: 5,
-      total: 5,
-      color: 'green'
-    },
-    {
-      id: 17,
-      name: 'Trạm Sạc Hóc Môn',
-      address: '77 Nguyễn Ảnh Thủ, Hóc Môn',
-      lat: 10.88,
-      lng: 106.62,
-      empty: 3,
-      total: 5,
-      color: 'gray'
-    },
-    {
-      id: 18,
-      name: 'Trạm Sạc Bình Chánh',
-      address: '12 Quốc Lộ 1A, Bình Chánh',
-      lat: 10.74,
-      lng: 106.57,
-      empty: 4,
-      total: 6,
-      color: 'orange'
-    },
-    {
-      id: 19,
-      name: 'Trạm Sạc Cần Giờ',
-      address: '1 Đường Duyên Hải, Cần Giờ',
-      lat: 10.41,
-      lng: 106.96,
-      empty: 2,
-      total: 4,
-      color: 'gray'
-    },
-    {
-      id: 20,
-      name: 'Trạm Sạc Quận 10',
-      address: '120 Thành Thái, Quận 10',
-      lat: 10.77,
-      lng: 106.67,
-      empty: 3,
-      total: 5,
-      color: 'green'
+  // ===== DANH SÁCH TRẠM SẠC (lấy từ BE) =====
+  const [stations, setStations] = useState<Array<any>>([])
+  const [loadingStations, setLoadingStations] = useState(false)
+  const [stationsError, setStationsError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let mountedUser = true
+    const fetchUser = async () => {
+      try {
+        const u = await authService.getProfile()
+        if (mountedUser) setCurrentUser(u)
+      } catch (e) {
+        // ignore
+      }
     }
-  ]
+    fetchUser()
+    return () => {
+      mountedUser = false
+    }
+  }, [])
+
+  useEffect(() => {
+    let mounted = true
+    const fetchStations = async () => {
+      setLoadingStations(true)
+      setStationsError(null)
+      try {
+        const { bookingService } = await import('../../services/bookingService')
+        const data = await bookingService.getAllStations()
+        // Map backend response to UI fields if necessary
+        const mapped = (data || []).map((s: any, idx: number) => {
+          const id = s.StationId ?? s.id ?? idx + 1
+          const name = s.StationName ?? s.name ?? 'Trạm Sạc'
+          const address = s.Address ?? s.address ?? ''
+          const total = s.ChargingPointTotal ?? s.total ?? 4
+          const empty = s.AvailableSlots ?? s.empty ?? Math.max(0, Math.floor(total * 0.5))
+
+          let lat = s.Latitude ?? s.lat
+          let lng = s.Longitude ?? s.lng
+          if (!lat || !lng) {
+            // fallback coordinates nearby center
+            const offset = (idx % 10) * 0.002
+            lat = 10.776 + offset
+            lng = 106.7 + Math.floor(idx / 10) * 0.002
+          }
+
+          const status = (s.StationStatus || '').toLowerCase()
+          const color = status.includes('active') ? 'green' : status.includes('maint') ? 'gray' : 'orange'
+
+          return {
+            id,
+            name,
+            address,
+            lat: Number(lat),
+            lng: Number(lng),
+            empty,
+            total,
+            color,
+            raw: s,
+          }
+        })
+
+        if (mounted) setStations(mapped)
+      } catch (err: any) {
+        console.error('Failed to load stations', err)
+        if (mounted) setStationsError(err?.message || 'Không thể lấy danh sách trạm')
+      } finally {
+        if (mounted) setLoadingStations(false)
+      }
+    }
+
+    fetchStations()
+    return () => {
+      mounted = false
+    }
+  }, [])
 
   const center = { lat: 10.776, lng: 106.7 }
 
@@ -256,6 +131,11 @@ const BookingOnlineStation: React.FC = () => {
       <main className='booking-body'>
         <h1 className='booking-title'>Booking Online Station</h1>
         <p className='booking-subtitle'>Chọn trạm sạc gần bạn và đặt lịch ngay</p>
+        {currentUser && (
+          <div className='user-greeting' style={{ color: '#7cffb2', marginBottom: 8 }}>
+            Xin chào, {currentUser.fullName || currentUser.fullname || currentUser.email}
+          </div>
+        )}
 
         <div className='station-layout'>
           {/* ==== MAP SECTION ==== */}
