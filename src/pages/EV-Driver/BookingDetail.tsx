@@ -6,7 +6,7 @@ import Header from '../../pages/layouts/header'
 import Footer from '../../pages/layouts/footer'
 import MenuBar from '../../pages/layouts/menu-bar'
 import mapImage from "../../assets/mapdetailbook.jpg";
-import QRImage from "../../assets/QR1.png";
+import bookingService from '../../services/bookingService';
 const BookingDetail: React.FC = () => {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
@@ -34,10 +34,15 @@ const BookingDetail: React.FC = () => {
   const [paymentDone, setPaymentDone] = useState(false)
   const [bookingCode, setBookingCode] = useState<string>('')
 
+  const [paymentForm, setPaymentForm] = useState({
+    amount: '30000',
+    orderInfo: ''
+  })
+  const [payLoading, setPayLoading] = useState(false)
+
   const [formData, setFormData] = useState({
     name: 'Jos Nguyễn',
     userId: 'SE182928',
-    phone: '02840375032',
     email: 'phucsms@gmail.com',
     carBrand: '',
     date: '',
@@ -68,11 +73,39 @@ const BookingDetail: React.FC = () => {
   }
 
   // Khi ấn "Đã Thanh Toán"
-  const handlePaymentSuccess = () => {
-    // Random mã đặt chỗ
-    const code = Math.random().toString(36).substring(2, 8).toUpperCase()
-    setBookingCode(code)
-    setPaymentDone(true)
+  const handlePaymentSuccess = (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
+
+    // Require minimal payment fields
+    if (!paymentForm.amount) {
+      return alert('Vui lòng nhập amount.');
+    }
+    // Call backend to create VNPAY URL and redirect
+    (async () => {
+      try {
+        setPayLoading(true)
+        const url = await bookingService.createVnPay({ amount: paymentForm.amount, orderInfo: paymentForm.orderInfo })
+        if (url) {
+          // redirect to payment gateway
+          window.location.href = url
+          return
+        }
+
+        // fallback: mark as paid locally
+        const code = Math.random().toString(36).substring(2, 8).toUpperCase()
+        setBookingCode(code)
+        setPaymentDone(true)
+      } catch (err: any) {
+        console.error('Payment creation failed', err)
+        alert(err?.message || 'Không thể tạo URL thanh toán')
+      } finally {
+        setPayLoading(false)
+      }
+    })()
+  }
+
+  const handlePaymentChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setPaymentForm({ ...paymentForm, [e.target.name]: e.target.value })
   }
 
   return (
@@ -110,6 +143,13 @@ const BookingDetail: React.FC = () => {
                     <strong>Cổng:</strong> {stations[selectedStation - 1]?.port} –{' '}
                     {stations[selectedStation - 1]?.power}
                   </p>
+                  {/* no transfer details shown per requirement */}
+                  {paymentForm.amount && (
+                    <div className='invoice-summary'>
+                      <p><strong>Amount:</strong> {paymentForm.amount}</p>
+                      {paymentForm.orderInfo && <p><strong>Order info:</strong> {paymentForm.orderInfo}</p>}
+                    </div>
+                  )}
                   <p>
                     <strong>Thời gian:</strong> {formData.date ? `${formData.date} ${formData.time}` : 'Không xác định'}
                   </p>
@@ -130,38 +170,26 @@ const BookingDetail: React.FC = () => {
                 </div>
               </div>
             ) : showQR ? (
-              // ✅ GIAO DIỆN QR
-              <div className='qr-section'>
+              // ✅ PAYMENT FORM (replaces QR flow)
+              <div className='payment-form-section'>
                 <h2>Thanh Toán Giữ Chỗ</h2>
-                <p>Vui lòng quét mã QR để thanh toán phí giữ chỗ 80.000đ</p>
 
-                <div className='qr-box'>
-                  <img src={QRImage} alt="QR Thanh Toán" className="qr-image" />
-                </div>
+                <form className='payment-form' onSubmit={handlePaymentSuccess}>
+                  <label>Amount</label>
+                  <input type='number' name='amount' value={paymentForm.amount} onChange={handlePaymentChange} required />
 
-                <div className='qr-info'>
-                  <p>
-                    <strong>Phí giữ chỗ:</strong> 80.000đ
-                  </p>
-                  <p>
-                    <strong>Ngân hàng:</strong> Vietcombank
-                  </p>
-                  <p>
-                    <strong>STK:</strong> 11243782
-                  </p>
-                  <p>
-                    <strong>Nội dung:</strong> Booking {formData.name}
-                  </p>
-                </div>
+                  <label>Order Info</label>
+                  <input type='text' name='orderInfo' value={paymentForm.orderInfo} onChange={handlePaymentChange} />
 
-                <div className='form-buttons'>
-                  <button className='cancel-btn' onClick={handleBackToForm}>
-                    Quay Lại
-                  </button>
-                  <button className='submit-btn' onClick={handlePaymentSuccess}>
-                    Đã Thanh Toán
-                  </button>
-                </div>
+                  <div className='form-buttons'>
+                    <button type='button' className='cancel-btn' onClick={handleBackToForm}>
+                      Quay Lại
+                    </button>
+                    <button type='submit' className='submit-btn' disabled={payLoading}>
+                      {payLoading ? 'Đang chuyển...' : 'Thanh Toán'}
+                    </button>
+                  </div>
+                </form>
               </div>
             ) : (
               // ✅ FORM ĐẶT LỊCH
@@ -177,9 +205,6 @@ const BookingDetail: React.FC = () => {
                 <label>ID</label>
                 <input type='text' name='userId' value={formData.userId} onChange={handleChange} required />
 
-                <label>Số điện thoại</label>
-                <input type='text' name='phone' value={formData.phone} onChange={handleChange} required />
-
                 <label>Email</label>
                 <input type='email' name='email' value={formData.email} onChange={handleChange} required />
 
@@ -190,6 +215,9 @@ const BookingDetail: React.FC = () => {
                   <option>Hyundai</option>
                   <option>Tesla</option>
                 </select>
+
+                <label>Trụ sạc</label>
+                <input type='text' value={selectedStation ? `Trụ ${selectedStation}` : ''} readOnly />
 
                 <div className='form-inline'>
                   <div>
@@ -213,7 +241,7 @@ const BookingDetail: React.FC = () => {
                     Hủy
                   </button>
                   <button type='submit' className='submit-btn'>
-                    Tiếp Tục
+                     Tiếp tục
                   </button>
                 </div>
               </form>
@@ -242,6 +270,11 @@ const BookingDetail: React.FC = () => {
               </div>
             ))}
           </div>
+                  {selectedStation && (
+                    <p>
+                      <strong>Trụ:</strong> #{stations[selectedStation - 1]?.id}
+                    </p>
+                  )}
 
           <div className='legend'>
             <span className='legend-item available'>Còn trống</span>
