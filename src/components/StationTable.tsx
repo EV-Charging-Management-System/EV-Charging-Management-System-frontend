@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "../css/AdminDashboard.css";
 import { toast } from "react-toastify";
+import { adminService } from "../services/adminService";
 
 interface Station {
   StationId: number;
@@ -12,6 +13,8 @@ interface Station {
 
 const StationTable: React.FC = () => {
   const [stations, setStations] = useState<Station[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [newStation, setNewStation] = useState({
     StationName: "",
@@ -19,32 +22,37 @@ const StationTable: React.FC = () => {
     ChargingPointTotal: 0,
   });
 
-  // 🧩 Mock dữ liệu ban đầu
+  // Lấy danh sách trạm từ backend
   useEffect(() => {
-    const mockStations: Station[] = [
-      {
-        StationId: 1,
-        StationName: "Trạm Sạc Trung Tâm",
-        Address: "123 Đường Lê Lợi, TP.HCM",
-        StationStatus: "ACTIVE",
-        ChargingPointTotal: 8,
-      },
-      {
-        StationId: 2,
-        StationName: "Trạm Sạc Bình Dương",
-        Address: "45 Nguyễn Huệ, Bình Dương",
-        StationStatus: "MAINTENANCE",
-        ChargingPointTotal: 6,
-      },
-      {
-        StationId: 3,
-        StationName: "Trạm Sạc Hà Nội",
-        Address: "12 Cầu Giấy, Hà Nội",
-        StationStatus: "INACTIVE",
-        ChargingPointTotal: 10,
-      },
-    ];
-    setStations(mockStations);
+    let mounted = true;
+    const load = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await adminService.getAllStations();
+        if (!mounted) return;
+        // adminService returns array of stations or []
+        setStations(
+          (data || []).map((s: any, idx: number) => ({
+            StationId: s.StationId ?? s.id ?? idx + 1,
+            StationName: s.StationName ?? s.name ?? `Trạm ${idx + 1}`,
+            Address: s.Address ?? s.address ?? "",
+            StationStatus: (s.StationStatus ?? s.status ?? "INACTIVE").toUpperCase(),
+            ChargingPointTotal: s.ChargingPointTotal ?? s.total ?? 0,
+          }))
+        );
+      } catch (err: any) {
+        console.error("Failed to load stations", err);
+        setError(err?.message || "Không thể lấy danh sách trạm");
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    load();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   // 🆕 Mở modal thêm trạm
@@ -119,43 +127,61 @@ const StationTable: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {stations.map((s) => (
-            <tr key={s.StationId}>
-              <td>{s.StationId}</td>
-              <td>{s.StationName}</td>
-              <td>{s.Address}</td>
-              <td>
-                <span
-                  className={`status-badge ${
-                    s.StationStatus === "ACTIVE"
-                      ? "status-approved"
-                      : s.StationStatus === "MAINTENANCE"
-                      ? "status-pending"
-                      : "status-rejected"
-                  }`}
-                >
-                  {s.StationStatus}
-                </span>
-              </td>
-              <td>{s.ChargingPointTotal}</td>
-              <td>
-                {s.StationStatus !== "INACTIVE" && (
-                  <button
-                    className={
-                      s.StationStatus === "MAINTENANCE"
-                        ? "btn-approve"
-                        : "btn-reject"
-                    }
-                    onClick={() => toggleStatus(s.StationId)}
-                  >
-                    {s.StationStatus === "MAINTENANCE"
-                      ? "Kích hoạt lại"
-                      : "Bảo trì"}
-                  </button>
-                )}
+          {loading ? (
+            <tr>
+              <td colSpan={6} style={{ textAlign: "center", padding: "18px" }}>
+                Đang tải danh sách trạm...
               </td>
             </tr>
-          ))}
+          ) : error ? (
+            <tr>
+              <td colSpan={6} style={{ textAlign: "center", color: "#f1c40f" }}>
+                {error}
+              </td>
+            </tr>
+          ) : stations.length === 0 ? (
+            <tr>
+              <td colSpan={6} style={{ textAlign: "center", padding: "18px" }}>
+                Không tìm thấy trạm sạc
+              </td>
+            </tr>
+          ) : (
+            stations.map((s) => (
+              <tr key={s.StationId}>
+                <td>{s.StationId}</td>
+                <td>{s.StationName}</td>
+                <td>{s.Address}</td>
+                <td>
+                  <span
+                    className={`status-badge ${
+                      s.StationStatus === "ACTIVE"
+                        ? "status-approved"
+                        : s.StationStatus === "MAINTENANCE"
+                        ? "status-pending"
+                        : "status-rejected"
+                    }`}
+                  >
+                    {s.StationStatus}
+                  </span>
+                </td>
+                <td>{s.ChargingPointTotal}</td>
+                <td>
+                  {s.StationStatus !== "INACTIVE" && (
+                    <button
+                      className={
+                        s.StationStatus === "MAINTENANCE"
+                          ? "btn-approve"
+                          : "btn-reject"
+                      }
+                      onClick={() => toggleStatus(s.StationId)}
+                    >
+                      {s.StationStatus === "MAINTENANCE" ? "Kích hoạt lại" : "Bảo trì"}
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
 
