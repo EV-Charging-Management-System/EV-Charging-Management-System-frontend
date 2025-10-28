@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { authService } from "../../services/authService";
 import "../../css/Login.css";
 
@@ -16,11 +16,7 @@ const Login: React.FC = () => {
     setLoading(true);
 
     try {
-      const res = await authService.login({
-        email: email,
-        password: password,
-      });
-
+      const res = await authService.login({ email, password });
       console.log("🔍 Login response:", res);
 
       if (res.success && res.user) {
@@ -29,6 +25,7 @@ const Login: React.FC = () => {
 
         if (role === "ADMIN") navigate("/admin");
         else if (role === "STAFF") navigate("/staff");
+        else if (role === "BUSINESS") navigate("/business");
         else navigate("/");
       } else {
         setError(res.message || "Đăng nhập thất bại!");
@@ -75,6 +72,14 @@ const Login: React.FC = () => {
             {loading ? "Đang đăng nhập..." : "Đăng nhập"}
           </button>
         </form>
+
+        {/* 🔗 Link chuyển sang đăng ký */}
+        <p className="switch-link">
+          Chưa có tài khoản?{" "}
+          <Link to="/register" className="text-green-400 hover:underline">
+            Đăng ký ngay
+          </Link>
+        </p>
       </div>
     </div>
   );
