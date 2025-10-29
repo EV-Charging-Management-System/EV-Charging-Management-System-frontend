@@ -6,6 +6,7 @@ import Header from '../../pages/layouts/header'
 import Footer from '../../pages/layouts/footer'
 import MenuBar from '../../pages/layouts/menu-bar'
 import { authService } from '../../services/authService'
+import bookingService from "../../services/bookingService";
 
 const BookingOnlineStation: React.FC = () => {
   const navigate = useNavigate()
@@ -44,7 +45,6 @@ const BookingOnlineStation: React.FC = () => {
       setLoadingStations(true)
       setStationsError(null)
       try {
-        const { bookingService } = await import('../../services/bookingService')
         const data = await bookingService.getAllStations()
         // Map backend response to UI fields if necessary
         const mapped = (data || []).map((s: any, idx: number) => {

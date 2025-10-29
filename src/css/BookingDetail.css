@@ -185,6 +185,69 @@
   line-height: 1.6;
 }
 
+/* =============== PAYMENT FORM (REPLACED QR) =============== */
+.payment-form-section {
+  padding: 12px 16px;
+}
+.payment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.payment-form h2 {
+  margin: 0 0 6px 0;
+  font-size: 20px;
+}
+.payment-form p {
+  margin: 0 0 8px 0;
+  color: #ccc;
+}
+.payment-form label {
+  font-size: 13px;
+  color: #ddd;
+  margin-bottom: 6px;
+  display: block;
+}
+.payment-form input[type='text'],
+.payment-form input[type='number'],
+.payment-form input[type='date'],
+.payment-form input[type='time'],
+.payment-form select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.03);
+  color: #fff;
+  outline: none;
+}
+.payment-form input::placeholder {
+  color: #999;
+}
+.payment-form .form-inline {
+  display: flex;
+  gap: 12px;
+}
+.payment-form .form-inline > div {
+  flex: 1;
+}
+.payment-form .form-buttons {
+  margin-top: 12px;
+}
+
+.invoice-summary {
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 12px;
+}
+
+/* make cancel and submit full width on small screens and aligned on larger */
+@media (max-width: 720px) {
+  .form-buttons { flex-direction: column; gap: 8px; }
+  .cancel-btn, .submit-btn { width: 100%; }
+}
+
 /* =============== GIAO DIỆN THÀNH CÔNG =============== */
 .payment-success {
   text-align: center;
