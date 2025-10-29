@@ -10,7 +10,7 @@ export const adminService = {
   // ⚡ Lấy danh sách trạm sạc
    async getAllStations(): Promise<any[]> {
     try {
-      const res = await apiClient.get("/station/getAllSations");
+      const res = await apiClient.get("/station/getAllStations");
       // Backend returns { data: [...] }
       return res.data?.data || [];
     } catch (error) {
