@@ -5,7 +5,7 @@ import Footer from "../../pages/layouts/footer";
 import MenuBar from "../../pages/layouts/menu-bar";
 import "../../css/Payment.css";
 
-const PaymentSuccess: React.FC = () => {
+const PaymentFail: React.FC = () => {
   const navigate = useNavigate();
 
   return (
@@ -14,16 +14,17 @@ const PaymentSuccess: React.FC = () => {
       <MenuBar />
 
       <main className="page-body text-center">
-        <h1 className="page-title success-title">✅ Thanh Toán Thành Công!</h1>
+        <h1 className="page-title fail-title">❌ Thanh Toán Thất Bại</h1>
 
         <p className="page-description">
-          Cảm ơn bạn đã đăng ký <b>Gói Premium</b>. Tài khoản của bạn đã được
-          nâng cấp và kích hoạt đặc quyền hội viên.
+          Giao dịch của bạn không thành công hoặc đã bị hủy.  
+          <br />
+          Vui lòng kiểm tra lại hoặc thử lại sau.
         </p>
 
         <div className="action-group">
-          <button className="confirm-btn" onClick={() => navigate("/")}>
-            Quay lại Trang chủ
+          <button className="confirm-btn" onClick={() => navigate("/premium")}>
+            Quay lại Gói Premium
           </button>
         </div>
       </main>
@@ -33,4 +34,4 @@ const PaymentSuccess: React.FC = () => {
   );
 };
 
-export default PaymentSuccess;
+export default PaymentFail;

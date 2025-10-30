@@ -6,8 +6,9 @@ import { premiumService } from "../../services/premiumService";
 const PremiumDetail: React.FC = () => {
   const { type } = useParams<{ type: string }>();
   const navigate = useNavigate();
-  const [error, setError] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
+
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   // ======= DANH SÁCH GÓI =======
   const packages = {
@@ -32,8 +33,8 @@ const PremiumDetail: React.FC = () => {
       benefits: [
         "Quản lý nhiều tài khoản nhân viên và phương tiện cùng lúc.",
         "Theo dõi hiệu suất sạc và báo cáo giao dịch định kỳ.",
-        "Tổng hợp thanh toán và chuyển doanh thu cho doanh nghiệp vào cuối chu kỳ.",
-        "Ưu tiên hỗ trợ kỹ thuật và bảo mật dữ liệu doanh nghiệp.",
+        "Tổng hợp thanh toán & chuyển doanh thu cuối chu kỳ.",
+        "Ưu tiên hỗ trợ kỹ thuật & bảo mật dữ liệu doanh nghiệp.",
         "Cập nhật thống kê & báo cáo theo thời gian thực.",
       ],
     },
@@ -44,7 +45,10 @@ const PremiumDetail: React.FC = () => {
   // ======= XỬ LÝ MUA GÓI =======
   const handleConfirm = async () => {
     setError("");
-    if (!current) return;
+    if (!current) {
+      navigate("/premium");
+      return;
+    }
 
     try {
       const userId = Number(localStorage.getItem("userId"));
@@ -61,14 +65,13 @@ const PremiumDetail: React.FC = () => {
       });
 
       if (res.success) {
-        alert("🎉 Mua gói thành công!");
         navigate("/payment-success");
       } else {
-        setError("❌ " + (res.message || "Thanh toán thất bại!"));
+        navigate("/payment-failed");
       }
     } catch (err) {
-      console.error(err);
-      setError("⚠️ Lỗi kết nối máy chủ!");
+      console.error("premium purchase error:", err);
+      navigate("/payment-failed");
     } finally {
       setLoading(false);
     }
@@ -112,8 +115,9 @@ const PremiumDetail: React.FC = () => {
             onClick={handleConfirm}
             disabled={loading}
           >
-            {loading ? "Đang xử lý..." : "Xác nhận và Thanh toán"}
+            {loading ? "Đang xử lý..." : "Xác nhận & Thanh toán"}
           </button>
+
           <button className="back-btn" onClick={() => navigate("/premium")}>
             ← Quay lại
           </button>
