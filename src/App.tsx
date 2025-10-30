@@ -15,11 +15,13 @@ import Contact from "./pages/EV-Driver/Contact";
 import Business from "./pages/EV-Driver/Business";
 import BookingDetail from "./pages/EV-Driver/BookingDetail";
 import VnPayReturn from "./pages/EV-Driver/VnPayReturn";
-import PaymentSuccess from "./pages/EV-Driver/PaymentResult";
+import PaymentResult from "./pages/EV-Driver/PaymentResult";
+import PaymentSuccess from "./pages/EV-Driver/PaymentSuccess";
+import PaymentFail from "./pages/EV-Driver/PaymentFail";
 import ChargingSchedule from "./pages/EV-Driver/ChargingSchedule";
 import ChargingSession from "./pages/EV-Driver/ChargingSession";
 import Pay from "./pages/EV-Driver/Pay";
-
+import PaymentSuccess from "./pages/EV-Driver/PaymentSuccess";
 
 // Staff Pages
 import HomePageStaff from "./pages/Staff/HomePageStaff";
@@ -47,9 +49,7 @@ const App: React.FC = () => {
 
     if (!user) return <Navigate to="/login" replace />;
 
-    // ✅ Ép role in HOA
     const role = (user.role || user.roleName || "").toUpperCase();
-
     console.log("🔍 Current user role:", role);
 
     if (!allowedRoles.includes(role)) return <Navigate to="/" replace />;
@@ -67,11 +67,12 @@ const App: React.FC = () => {
         <Route path="/" element={<HomePage />} />
         <Route path="/booking-online-station" element={<BookingOnlineStation />} />
         <Route path="/premium" element={<Premium />} />
-        <Route path="/premium/:type" element={<PremiumDetail />} />
+        <Route path="/premium-detail/:type" element={<PremiumDetail />} />
         <Route path="/vi-tra-sau" element={<ViTraSau />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/payment" element={<Payment />} />
-        <Route path="/payment-success" element={<PaymentSuccess />} /> {/* ✅ thêm route này */}
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/payment-failed" element={<PaymentFail />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/business" element={<Business />} />
         <Route path="/booking-detail/:id" element={<BookingDetail />} />

@@ -195,4 +195,13 @@
     width: 150px;
     height: 150px;
   }
+  .confirm-btn {
+  position: relative;
+  z-index: 999;
+}
+.detail-card {
+  position: relative;
+  z-index: 10;
+}
+
 }
