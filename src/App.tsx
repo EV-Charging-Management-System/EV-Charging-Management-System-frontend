@@ -3,7 +3,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { authService } from "./services/authService";
 import Login from "./pages/Auth/Login";
 
-
 // EV Driver Pages
 import HomePage from "./pages/EV-Driver/HomePage";
 import BookingOnlineStation from "./pages/EV-Driver/BookingOnlineStation";
@@ -20,6 +19,7 @@ import PaymentSuccess from "./pages/EV-Driver/PaymentResult";
 import ChargingSchedule from "./pages/EV-Driver/ChargingSchedule";
 import ChargingSession from "./pages/EV-Driver/ChargingSession";
 import Pay from "./pages/EV-Driver/Pay";
+import PaymentSuccess from "./pages/EV-Driver/PaymentSuccess";
 
 // Staff Pages
 import HomePageStaff from "./pages/Staff/HomePageStaff";
@@ -70,6 +70,7 @@ const App: React.FC = () => {
         <Route path="/vi-tra-sau" element={<ViTraSau />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/payment" element={<Payment />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} /> {/* ✅ thêm route này */}
         <Route path="/contact" element={<Contact />} />
         <Route path="/business" element={<Business />} />
         <Route path="/booking-detail/:id" element={<BookingDetail />} />

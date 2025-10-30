@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import { adminService } from "../services/adminService";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "../css/AdminDashboard.css"; // để giữ style đồng nhất EV Admin
+import "../css/AdminDashboard.css"; // style đồng nhất EV Admin
 
 const BusinessAccountTable: React.FC = () => {
   const [accounts, setAccounts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [processingId, setProcessingId] = useState<number | null>(null);
 
   // 🔹 Lấy danh sách tài khoản doanh nghiệp
   useEffect(() => {
@@ -34,23 +35,29 @@ const BusinessAccountTable: React.FC = () => {
 
   // 🔹 Duyệt tài khoản
   const handleApprove = async (id: number) => {
+    setProcessingId(id);
     try {
-      await adminService.approveBusinessAccount(id);
+      const res = await adminService.approveBusinessAccount(id);
       updateStatus(id, "APPROVED");
-      toast.success("✅ Duyệt tài khoản thành công!");
+      toast.success(res.message || "✅ Duyệt tài khoản thành công!");
     } catch {
       toast.error("❌ Lỗi khi duyệt tài khoản!");
+    } finally {
+      setProcessingId(null);
     }
   };
 
   // 🔹 Từ chối tài khoản
   const handleReject = async (id: number) => {
+    setProcessingId(id);
     try {
-      await adminService.rejectBusinessAccount(id);
+      const res = await adminService.rejectBusinessAccount(id);
       updateStatus(id, "REJECTED");
-      toast.warn("⚠️ Đã từ chối tài khoản!");
+      toast.warn(res.message || "⚠️ Đã từ chối tài khoản!");
     } catch {
       toast.error("❌ Lỗi khi từ chối tài khoản!");
+    } finally {
+      setProcessingId(null);
     }
   };
 
@@ -82,51 +89,55 @@ const BusinessAccountTable: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {accounts.map((acc) => (
-            <tr key={acc.UserId}>
-              <td>{acc.UserId}</td>
-              <td>{acc.UserName}</td>
-              <td>{acc.Mail}</td>
-              <td>
-                <span
-                  className={`status-badge ${
-                    acc.AccountStatus === "APPROVED"
-                      ? "status-approved"
-                      : acc.AccountStatus === "PENDING"
-                      ? "status-pending"
-                      : "status-rejected"
-                  }`}
-                >
-                  {acc.AccountStatus}
-                </span>
-              </td>
-              <td>
-                {acc.AccountStatus === "PENDING" ? (
-                  <div className="action-buttons">
-                    <button
-                      className="btn-approve"
-                      onClick={() => handleApprove(acc.UserId)}
-                    >
-                      Duyệt
-                    </button>
-                    <button
-                      className="btn-reject"
-                      onClick={() => handleReject(acc.UserId)}
-                    >
-                      Từ chối
-                    </button>
-                  </div>
-                ) : (
-                  <span>—</span>
-                )}
-              </td>
-            </tr>
-          ))}
+          {accounts.map((acc) => {
+            const status = acc.AccountStatus || "PENDING"; // ✅ fallback khi BE chưa có status
+            return (
+              <tr key={acc.UserId}>
+                <td>{acc.UserId}</td>
+                <td>{acc.UserName}</td>
+                <td>{acc.Mail}</td>
+                <td>
+                  <span
+                    className={`status-badge ${
+                      status === "APPROVED"
+                        ? "status-approved"
+                        : status === "PENDING"
+                        ? "status-pending"
+                        : "status-rejected"
+                    }`}
+                  >
+                    {status}
+                  </span>
+                </td>
+                <td>
+                  {status === "PENDING" ? (
+                    <div className="action-buttons">
+                      <button
+                        className="btn-approve"
+                        disabled={processingId === acc.UserId}
+                        onClick={() => handleApprove(acc.UserId)}
+                      >
+                        {processingId === acc.UserId ? "Đang duyệt..." : "Duyệt"}
+                      </button>
+                      <button
+                        className="btn-reject"
+                        disabled={processingId === acc.UserId}
+                        onClick={() => handleReject(acc.UserId)}
+                      >
+                        {processingId === acc.UserId ? "Đang từ chối..." : "Từ chối"}
+                      </button>
+                    </div>
+                  ) : (
+                    <span>—</span>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </section>
   );
 };
 
-// ✅ Quan trọng: Export default để import trong AdminDashboard.tsx
 export default BusinessAccountTable;
