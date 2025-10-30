@@ -15,13 +15,12 @@ import Contact from "./pages/EV-Driver/Contact";
 import Business from "./pages/EV-Driver/Business";
 import BookingDetail from "./pages/EV-Driver/BookingDetail";
 import VnPayReturn from "./pages/EV-Driver/VnPayReturn";
-import PaymentResult from "./pages/EV-Driver/PaymentResult";
 import PaymentSuccess from "./pages/EV-Driver/PaymentSuccess";
 import PaymentFail from "./pages/EV-Driver/PaymentFail";
 import ChargingSchedule from "./pages/EV-Driver/ChargingSchedule";
 import ChargingSession from "./pages/EV-Driver/ChargingSession";
 import Pay from "./pages/EV-Driver/Pay";
-import PaymentSuccess from "./pages/EV-Driver/PaymentSuccess";
+
 
 // Staff Pages
 import HomePageStaff from "./pages/Staff/HomePageStaff";
