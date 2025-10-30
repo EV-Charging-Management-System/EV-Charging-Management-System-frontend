@@ -3,15 +3,75 @@ import { apiClient } from "../utils/api";
 export const adminService = {
   // 👤 Lấy danh sách người dùng
   async getAllUsers() {
-    const res = await apiClient.get("/admin/users");
-    return res.data.data;
+    try {
+      const res = await apiClient.get("/users");
+      console.log("📦 Response getAllUsers:", res.data);
+
+      if (Array.isArray(res.data)) return res.data;
+      if (Array.isArray(res.data?.data)) return res.data.data;
+
+      console.warn("⚠️ Dữ liệu trả về không đúng định dạng:", res.data);
+      return [];
+    } catch (error) {
+      console.warn("⚠️ Không thể lấy danh sách người dùng:", error);
+      return [];
+    }
+  },
+
+  // 📊 ✅ Thêm hàm này để Dashboard hoạt động
+  async getDashboardStats() {
+    try {
+      const res = await apiClient.get("/admin/dashboard");
+      console.log("📊 Dashboard Stats:", res.data);
+      // Trả về dữ liệu chuẩn
+      return res.data?.data || res.data || {};
+    } catch (error) {
+      console.error("❌ Lỗi khi tải dữ liệu dashboard:", error);
+      return { users: 0, stations: 0, staff: 0, bookings: 0, revenue: 0 };
+    }
+  },
+
+  // 🗑️ Xóa người dùng
+  async deleteUser(userId: number) {
+    try {
+      const res = await apiClient.delete(`/users/${userId}`);
+      console.log("📦 Response deleteUser:", res.data);
+
+      if (res.data?.success || res.status === 200)
+        return { success: true, message: res.data?.message || "Xóa tài khoản thành công!" };
+
+      return { success: false, message: res.data?.message || "Xóa tài khoản thất bại!" };
+    } catch (error) {
+      console.error("❌ Lỗi khi xoá user:", error);
+      return { success: false, message: "Lỗi khi xoá user!" };
+    }
+  },
+
+  // ✏️ Cập nhật thông tin người dùng
+  async updateUser(userId: number, data: any) {
+    try {
+      const res = await apiClient.put(`/users/${userId}`, data);
+      console.log("📦 Response updateUser:", res.data);
+
+      if (res.data?.success || res.status === 200)
+        return { success: true, message: res.data?.message || "Cập nhật người dùng thành công!" };
+
+      return { success: false, message: res.data?.message || "Cập nhật thất bại!" };
+    } catch (error) {
+      console.error("❌ Lỗi khi cập nhật user:", error);
+      return { success: false, message: "Lỗi khi cập nhật user!" };
+    }
   },
 
   // ⚡ Lấy danh sách trạm sạc
   async getAllStations() {
     try {
       const res = await apiClient.get("/station/getAllSations");
-      return res.data.data;
+      console.log("📦 Response getAllStations:", res.data);
+
+      if (Array.isArray(res.data)) return res.data;
+      if (Array.isArray(res.data?.data)) return res.data.data;
+      return [];
     } catch (error) {
       console.warn("⚠️ Không lấy được danh sách trạm sạc:", error);
       return [];
@@ -22,101 +82,109 @@ export const adminService = {
   async getAllPayments() {
     try {
       const res = await apiClient.get("/payment/getInvoices");
-      return res.data.data;
+      console.log("📦 Response getAllPayments:", res.data);
+
+      if (Array.isArray(res.data)) return res.data;
+      if (Array.isArray(res.data?.data)) return res.data.data;
+      return [];
     } catch (error) {
       console.warn("⚠️ Không lấy được danh sách thanh toán:", error);
       return [];
     }
   },
 
-  // 📅 Lấy danh sách đặt lịch (mock)
+  // 📅 Lấy danh sách đặt lịch
   async getAllBookings() {
     try {
       const res = await apiClient.get("/admin/bookings");
-      return res.data.data;
+      console.log("📦 Response getAllBookings:", res.data);
+
+      if (Array.isArray(res.data)) return res.data;
+      if (Array.isArray(res.data?.data)) return res.data.data;
+      return [];
     } catch (error) {
       console.warn("⚠️ Không lấy được danh sách đặt lịch:", error);
-      return [
-        {
-          BookingId: 1,
-          UserName: "driver01",
-          StationName: "Trạm Sạc Trung Tâm",
-          StartTime: "2025-10-26T08:00:00Z",
-          EndTime: "2025-10-26T09:00:00Z",
-          Status: "Completed",
-        },
-        {
-          BookingId: 2,
-          UserName: "driver02",
-          StationName: "Trạm EV Nguyễn Huệ",
-          StartTime: "2025-10-26T10:30:00Z",
-          EndTime: "2025-10-26T12:00:00Z",
-          Status: "Pending",
-        },
-      ];
+      return [];
     }
   },
 
-  // 🏢 QUẢN LÝ TÀI KHOẢN DOANH NGHIỆP
+  // 🏢 Lấy danh sách tài khoản doanh nghiệp chờ duyệt
   async getBusinessAccounts() {
-    // ⚙️ Dữ liệu giả (mock) để hiển thị nếu backend lỗi
-    const fakeData = [
-      {
-        UserId: 201,
-        UserName: "EV Corp HCM",
-        Mail: "contact@evcorp.vn",
-        AccountStatus: "PENDING",
-      },
-      {
-        UserId: 202,
-        UserName: "GreenCharge Co.",
-        Mail: "green@charge.com",
-        AccountStatus: "APPROVED",
-      },
-      {
-        UserId: 203,
-        UserName: "E-Power Ltd.",
-        Mail: "epower@gmail.com",
-        AccountStatus: "REJECTED",
-      },
-    ];
-
     try {
-      const res = await apiClient.get("/admin/business-accounts");
+      const res = await apiClient.get("/admin/approvals");
+      console.log("📦 Response getBusinessAccounts:", res.data);
 
-      // ✅ Nếu API trả dữ liệu đúng, dùng dữ liệu thật
-      if (res.data && res.data.data && res.data.data.length > 0) {
-        return res.data.data;
-      } else {
-        console.warn("⚠️ API không trả dữ liệu hợp lệ, dùng fake data.");
-        return fakeData;
-      }
+      if (Array.isArray(res.data)) return res.data;
+      if (Array.isArray(res.data?.data)) return res.data.data;
+      return [];
     } catch (error) {
-      console.warn("⚠️ Không lấy được danh sách DN:", error);
-      // ✅ Trả về dữ liệu giả để FE không trống
-      return fakeData;
+      console.warn("⚠️ Không lấy được danh sách doanh nghiệp:", error);
+      return [];
     }
   },
 
-  // ✅ Duyệt tài khoản DN
+  // ✅ Duyệt tài khoản doanh nghiệp
   async approveBusinessAccount(id: number) {
     try {
-      const res = await apiClient.put(`/admin/business-accounts/${id}/approve`);
-      return res.data;
+      const res = await apiClient.patch(`/admin/approvals/${id}/approve`);
+      console.log("📦 Response approveBusinessAccount:", res.data);
+
+      if (res.data?.success || res.status === 200)
+        return { success: true, message: res.data?.message || "Duyệt doanh nghiệp thành công!" };
+
+      return { success: false, message: res.data?.message || "Duyệt doanh nghiệp thất bại!" };
     } catch (error) {
-      console.error("❌ Lỗi duyệt DN:", error);
-      throw error;
+      console.error("❌ Lỗi duyệt doanh nghiệp:", error);
+      return { success: false, message: "Lỗi khi duyệt doanh nghiệp!" };
     }
   },
 
-  // ✅ Từ chối tài khoản DN
+  // ❌ Từ chối tài khoản doanh nghiệp
   async rejectBusinessAccount(id: number) {
     try {
-      const res = await apiClient.put(`/admin/business-accounts/${id}/reject`);
+      const res = await apiClient.patch(`/admin/approvals/${id}/reject`);
+      console.log("📦 Response rejectBusinessAccount:", res.data);
+
+      if (res.data?.success || res.status === 200)
+        return { success: true, message: res.data?.message || "Từ chối doanh nghiệp thành công!" };
+
+      return { success: false, message: res.data?.message || "Từ chối doanh nghiệp thất bại!" };
+    } catch (error) {
+      console.error("❌ Lỗi từ chối doanh nghiệp:", error);
+      return { success: false, message: "Lỗi khi từ chối doanh nghiệp!" };
+    }
+  },
+
+  // 👥 Lấy danh sách staff
+  async getAllStaff() {
+    try {
+      const res = await apiClient.get("/admin/getAllStaff");
+      console.log("📦 Response getAllStaff:", res.data);
+
+      if (Array.isArray(res.data)) return res.data;
+      if (Array.isArray(res.data?.data)) return res.data.data;
+      return [];
+    } catch (error) {
+      console.warn("⚠️ Không thể lấy danh sách staff:", error);
+      return [];
+    }
+  },
+
+  // ➕ Tạo staff mới (chuẩn BE: Email, PasswordHash, FullName)
+  async createStaff(email: string, password: string, fullName: string) {
+    try {
+      const payload = {
+        Email: email,
+        PasswordHash: password,
+        FullName: fullName,
+      };
+
+      const res = await apiClient.post("/admin/createstaff", payload);
+      console.log("📦 Response createStaff:", res.data);
       return res.data;
     } catch (error) {
-      console.error("❌ Lỗi từ chối DN:", error);
-      throw error;
+      console.error("❌ Lỗi khi tạo staff:", error);
+      return { success: false, message: "Lỗi khi tạo tài khoản staff!" };
     }
   },
 };
