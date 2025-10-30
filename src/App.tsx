@@ -3,7 +3,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { authService } from "./services/authService";
 import Login from "./pages/Auth/Login";
 
-
 // EV Driver Pages
 import HomePage from "./pages/EV-Driver/HomePage";
 import BookingOnlineStation from "./pages/EV-Driver/BookingOnlineStation";
@@ -15,9 +14,12 @@ import Payment from "./pages/EV-Driver/Payment";
 import Contact from "./pages/EV-Driver/Contact";
 import Business from "./pages/EV-Driver/Business";
 import BookingDetail from "./pages/EV-Driver/BookingDetail";
+import VnPayReturn from "./pages/EV-Driver/VnPayReturn";
+import PaymentSuccess from "./pages/EV-Driver/PaymentResult";
 import ChargingSchedule from "./pages/EV-Driver/ChargingSchedule";
 import ChargingSession from "./pages/EV-Driver/ChargingSession";
 import Pay from "./pages/EV-Driver/Pay";
+
 
 // Staff Pages
 import HomePageStaff from "./pages/Staff/HomePageStaff";
@@ -30,6 +32,7 @@ import Invoice from "./pages/Staff/Invoice";
 
 // Admin Pages
 import AdminDashboard from "./pages/Admin/AdminDashboard";
+import PaymentResult from "./pages/EV-Driver/PaymentResult";
 
 const App: React.FC = () => {
   // ✅ Route bảo vệ (dành cho role)
@@ -68,9 +71,12 @@ const App: React.FC = () => {
         <Route path="/vi-tra-sau" element={<ViTraSau />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/payment" element={<Payment />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} /> {/* ✅ thêm route này */}
         <Route path="/contact" element={<Contact />} />
         <Route path="/business" element={<Business />} />
         <Route path="/booking-detail/:id" element={<BookingDetail />} />
+        <Route path="/vnpay/return" element={<VnPayReturn />} />
+        <Route path="/payment-result" element={<PaymentResult />} />
         <Route path="/charging-schedule" element={<ChargingSchedule />} />
         <Route path="/charging-session" element={<ChargingSession />} />
         <Route path="/pay" element={<Pay />} />

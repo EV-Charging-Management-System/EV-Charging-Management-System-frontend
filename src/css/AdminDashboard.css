@@ -595,3 +595,93 @@ tbody tr:hover {
     transform: rotate(360deg);
   }
 }
+.revenue-section .card.large {
+  padding: 1.5rem;
+  background-color: #0f172a;
+  border: 1px solid #22c55e;
+  border-radius: 12px;
+  color: #e2e8f0;
+  margin-top: 1rem;
+}
+
+.chart-container {
+  padding: 1rem;
+  background-color: #0f172a;
+  border: 1px solid #22c55e;
+  border-radius: 12px;
+  margin-top: 1.5rem;
+}
+/* ===== STAFF CREATE FORM ===== */
+.staff-create-container {
+  background-color: #1e293b;
+  border: 1px solid #22c55e55;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 0 8px #22c55e33;
+}
+
+.staff-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.2rem;
+  color: #22c55e;
+  margin-bottom: 1.2rem;
+}
+
+.staff-title span {
+  color: #fff;
+}
+
+.staff-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 200px;
+}
+
+.form-group label {
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+  color: #9ca3af;
+}
+
+.form-group input {
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  background-color: #0f172a;
+  color: #fff;
+  outline: none;
+}
+
+.form-group input:focus {
+  border-color: #22c55e;
+}
+
+.btn-create-staff {
+  width: 100%;
+  padding: 0.8rem;
+  font-weight: 600;
+  background-color: #22c55e;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.btn-create-staff:hover {
+  background-color: #16a34a;
+}
+
+
+
