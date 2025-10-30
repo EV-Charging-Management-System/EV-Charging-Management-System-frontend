@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "../../css/BookingDetail.css";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Header from "../../pages/layouts/header";
 import Footer from "../../pages/layouts/footer";
 import MenuBar from "../../pages/layouts/menu-bar";
@@ -11,12 +11,14 @@ import { authService } from "../../services/authService";
 const BookingDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const stationId = Number(id);
+  const navigate = useNavigate();
 
   const [points, setPoints] = useState<any[]>([]);
   const [ports, setPorts] = useState<any[]>([]);
   const [selectedPointId, setSelectedPointId] = useState<number | null>(null);
   const [selectedPortId, setSelectedPortId] = useState<number | null>(null);
   const [payLoading, setPayLoading] = useState(false);
+  const [txnRef, setTxnRef] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -80,13 +82,16 @@ const BookingDetail: React.FC = () => {
     })();
   }, [selectedPointId]);
 
-  // ===== Gửi booking & redirect tới VNPay =====
+  // ===== Gửi booking & mở VNPay trên tab mới =====
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedPointId || !selectedPortId) {
       alert("Vui lòng chọn cổng sạc!");
       return;
     }
+
+    // ✅ 1️⃣ Mở tab mới NGAY khi click (được browser cho phép)
+    const vnpayTab = window.open("", "_blank");
 
     try {
       setPayLoading(true);
@@ -103,39 +108,60 @@ const BookingDetail: React.FC = () => {
         vehicleId: Number(formData.vehicleId) || 1,
         startTime,
         depositAmount: 50000,
+        userId: formData.userId,
+        carBrand: formData.carBrand,
       };
 
       console.log("[BookingDetail] Payload gửi booking:", payload);
 
-      // 🟢 Gọi API backend
+      // 🟢 2️⃣ Gọi API backend
       const res = await bookingService.createBooking(payload);
       console.log("[BookingDetail] API booking trả về:", res);
 
-      // 🟢 Lấy URL chính xác từ response
-      let redirectUrl: string | null = null;
-      if (typeof res === "string") {
-        redirectUrl = res;
-      } else if (res?.data?.url) {
-        redirectUrl = res.data.url;
-      } else if (res?.url) {
-        redirectUrl = res.url;
-      }
+      const paymentUrl = res?.data?.url || res?.url || null;
+      const ref = res?.data?.txnRef || res?.txnRef || null;
 
-      // 🟢 Nếu có URL → chuyển hướng ngay
-      if (redirectUrl) {
-        console.log("[BookingDetail] Redirecting to:", redirectUrl);
-        window.location.href = redirectUrl;
-        return;
+      // 🟢 3️⃣ Nếu backend trả URL thanh toán
+      if (paymentUrl) {
+        console.log("[BookingDetail] Mở VNPay tab:", paymentUrl);
+        vnpayTab!.location.href = paymentUrl; // mở trên tab đã được tạo
+        setTxnRef(ref);
+      } else {
+        alert("Không nhận được URL thanh toán từ hệ thống!");
+        vnpayTab?.close();
       }
-
-      alert("Không nhận được URL thanh toán từ hệ thống!");
     } catch (error: any) {
       console.error("[BookingDetail] Lỗi khi tạo booking:", error);
       alert(error?.message || "Không thể tạo booking!");
+      vnpayTab?.close(); // đóng tab trống nếu lỗi
     } finally {
       setPayLoading(false);
     }
   };
+
+  // ===== Polling để kiểm tra khi thanh toán xong =====
+  useEffect(() => {
+    if (!txnRef) return;
+    console.log("[BookingDetail] Bắt đầu kiểm tra trạng thái booking:", txnRef);
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await bookingService.getBookingByTxn(txnRef);
+        const status = res?.data?.Status;
+        const deposit = res?.data?.DepositStatus;
+        console.log("[BookingDetail] Polling:", { status, deposit });
+
+        if (status === "ACTIVE" && deposit === true) {
+          clearInterval(interval);
+          navigate(`/payment-result?vnp_TxnRef=${txnRef}`);
+        }
+      } catch (err) {
+        console.warn("[BookingDetail] Polling error:", err);
+      }
+    }, 4000); // kiểm tra mỗi 4s
+
+    return () => clearInterval(interval);
+  }, [txnRef, navigate]);
 
   return (
     <div className="booking-container">
@@ -212,7 +238,11 @@ const BookingDetail: React.FC = () => {
               </select>
 
               <div className="form-buttons">
-                <button type="submit" className="submit-btn" disabled={payLoading}>
+                <button
+                  type="submit"
+                  className="submit-btn"
+                  disabled={payLoading}
+                >
                   {payLoading ? "Đang xử lý..." : "Thanh toán"}
                 </button>
               </div>

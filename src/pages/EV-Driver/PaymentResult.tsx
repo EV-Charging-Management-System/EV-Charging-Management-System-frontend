@@ -1,9 +1,7 @@
-import React from "react";
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import bookingService from "../../services/bookingService";
-import { Modal, Button, Spinner, Alert } from "react-bootstrap";
-import { BsCheckCircleFill, BsXCircleFill } from "react-icons/bs";
+import { Modal, Button, Spinner } from "react-bootstrap";
 
 const PaymentResult: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -11,13 +9,12 @@ const PaymentResult: React.FC = () => {
 
   const [loading, setLoading] = useState(true);
   const [isSuccess, setIsSuccess] = useState<boolean | null>(null);
-  const [txnRef, setTxnRef] = useState<string>("");
+  const [txnRef, setTxnRef] = useState("");
   const [show, setShow] = useState(false);
 
   useEffect(() => {
     const checkPayment = async () => {
       const txn = searchParams.get("vnp_TxnRef");
-
       if (!txn) {
         setIsSuccess(false);
         setLoading(false);
@@ -26,14 +23,10 @@ const PaymentResult: React.FC = () => {
       }
 
       try {
-        console.log("[PaymentResult] Checking txn:", txn);
         const res = await bookingService.getBookingByTxn(txn);
-        console.log("[PaymentResult] Response:", res);
-
         const status = res?.data?.Status;
         const deposit = res?.data?.DepositStatus;
 
-        // ✅ Logic chính xác: chỉ khi ACTIVE + DepositStatus = true thì thành công
         if (status === "ACTIVE" && deposit === true) {
           setIsSuccess(true);
         } else {
@@ -42,7 +35,7 @@ const PaymentResult: React.FC = () => {
 
         setTxnRef(txn);
       } catch (err) {
-        console.error("[PaymentResult] Error:", err);
+        console.error("Lỗi kiểm tra thanh toán:", err);
         setIsSuccess(false);
       } finally {
         setLoading(false);
@@ -55,53 +48,36 @@ const PaymentResult: React.FC = () => {
 
   const handleClose = () => {
     setShow(false);
-    navigate("/booking");
+    navigate("/booking-online-station");
   };
 
   return (
     <Modal show={show} onHide={handleClose} centered>
       <Modal.Header closeButton>
         <Modal.Title>
-          {isSuccess === true
-            ? "✅ Thanh toán thành công"
-            : isSuccess === false
-            ? "❌ Thanh toán thất bại"
-            : "Đang xử lý..."}
+          {isSuccess ? "✅ Thanh toán thành công" : "❌ Thanh toán thất bại"}
         </Modal.Title>
       </Modal.Header>
 
       <Modal.Body className="text-center">
         {loading && (
-          <div>
-            <Spinner animation="border" role="status" variant="primary" />
+          <>
+            <Spinner animation="border" variant="primary" />
             <p className="mt-3">Đang kiểm tra trạng thái thanh toán...</p>
-          </div>
+          </>
         )}
 
-        {!loading && isSuccess === true && (
-          <div>
-            <BsCheckCircleFill color="green" size={60} />
-            <h5 className="mt-3">Thanh toán thành công!</h5>
+        {!loading && isSuccess && (
+          <>
+            <p>Giao dịch của bạn đã được xác nhận thành công!</p>
             <p>
-              Giao dịch của bạn đã được xác nhận thành công.
-              <br />
               <strong>Mã giao dịch:</strong> {txnRef}
             </p>
-            <Alert variant="success">Trạng thái: ACTIVE</Alert>
-          </div>
+          </>
         )}
 
         {!loading && isSuccess === false && (
-          <div>
-            <BsXCircleFill color="red" size={60} />
-            <h5 className="mt-3">Thanh toán thất bại!</h5>
-            <p>
-              Thanh toán không thành công hoặc bị hủy.
-              <br />
-              Vui lòng thử lại hoặc liên hệ hỗ trợ.
-            </p>
-            <Alert variant="danger">Trạng thái: PENDING</Alert>
-          </div>
+          <p>Thanh toán không thành công hoặc bị hủy. Vui lòng thử lại.</p>
         )}
       </Modal.Body>
 
