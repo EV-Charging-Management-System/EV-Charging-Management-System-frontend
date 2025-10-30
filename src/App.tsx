@@ -21,6 +21,7 @@ import PaymentFail from "./pages/EV-Driver/PaymentFail";
 import ChargingSchedule from "./pages/EV-Driver/ChargingSchedule";
 import ChargingSession from "./pages/EV-Driver/ChargingSession";
 import Pay from "./pages/EV-Driver/Pay";
+import PaymentSuccess from "./pages/EV-Driver/PaymentSuccess";
 
 // Staff Pages
 import HomePageStaff from "./pages/Staff/HomePageStaff";
@@ -33,6 +34,7 @@ import Invoice from "./pages/Staff/Invoice";
 
 // Admin Pages
 import AdminDashboard from "./pages/Admin/AdminDashboard";
+import PaymentResult from "./pages/EV-Driver/PaymentResult";
 
 const App: React.FC = () => {
   // ✅ Route bảo vệ (dành cho role)
