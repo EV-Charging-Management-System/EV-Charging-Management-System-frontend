@@ -26,7 +26,7 @@ const BookingOnlineStation: React.FC = () => {
   useEffect(() => {
     let mountedUser = true
     const fetchUser = async () => {
-      try {
+      try {z
         const u = await authService.getProfile()
         if (mountedUser) setCurrentUser(u)
       } catch (e) {
