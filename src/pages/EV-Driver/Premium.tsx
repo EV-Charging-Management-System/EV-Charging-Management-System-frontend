@@ -16,7 +16,8 @@ const Premium: React.FC = () => {
       {/* ===== BODY ===== */}
       <main className="member-body">
         <h1 className="member-title">
-          Trải Nghiệm Đặc Quyền - Nâng Tầm Hội Viên <br /> Chọn Gói Phù Hợp Cho Bạn
+          Trải Nghiệm Đặc Quyền - Nâng Tầm Hội Viên <br /> 
+          Chọn Gói Phù Hợp Cho Bạn
         </h1>
 
         <div className="member-cards">
@@ -33,7 +34,7 @@ const Premium: React.FC = () => {
             </ul>
             <button
               className="buy-btn"
-              onClick={() => navigate("/premium/plan-premium")}
+              onClick={() => navigate("/premium-detail/plan-premium")}
             >
               Mua Ngay
             </button>
@@ -47,14 +48,12 @@ const Premium: React.FC = () => {
               <li>🏢 Quản lý nhiều phương tiện và tài khoản nhân viên</li>
               <li>📊 Theo dõi hiệu suất sử dụng sạc chi tiết theo thời gian thực</li>
               <li>🧾 Báo cáo tổng hợp doanh thu và giao dịch định kỳ</li>
-              <li>
-                💰 Tổng hợp thanh toán của khách hàng và chuyển doanh thu định kỳ
-              </li>
+              <li>💰 Tổng hợp thanh toán khách hàng & chuyển doanh thu định kỳ</li>
               <li>🔒 Ưu tiên hỗ trợ kỹ thuật và bảo mật nâng cao</li>
             </ul>
             <button
               className="buy-btn"
-              onClick={() => navigate("/premium/plan-business")}
+              onClick={() => navigate("/premium-detail/plan-business")}
             >
               Nâng Cấp Ngay
             </button>

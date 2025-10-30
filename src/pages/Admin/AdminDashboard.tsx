@@ -46,7 +46,7 @@ const AdminDashboard: React.FC = () => {
   const [loadingStaff, setLoadingStaff] = useState(true);
   const navigate = useNavigate();
 
-  // 🚀 Load dữ liệu tổng quan khi khởi tạo
+  // 🚀 Load dữ liệu ban đầu
   useEffect(() => {
     const init = async () => {
       try {
@@ -58,25 +58,14 @@ const AdminDashboard: React.FC = () => {
     init();
   }, []);
 
-  // 📊 Gọi API dashboard
+  // 📊 Thống kê Dashboard
   const loadDashboardData = async () => {
     try {
       const res = await adminService.getDashboardStats();
       if (res?.success && res.data) setStats(res.data);
       else if (res.totalUsers !== undefined) setStats(res);
     } catch (error) {
-      console.error("❌ Lỗi tải thống kê dashboard:", error);
-    }
-  };
-
-  // 💰 Gọi API doanh thu tổng
-  const loadRevenueReport = async () => {
-    try {
-      const res = await adminService.getRevenueReport();
-      if (res?.success && res.data) setRevenueData(res.data);
-      else if (res.TotalRevenue !== undefined) setRevenueData(res);
-    } catch (error) {
-      console.error("❌ Lỗi tải báo cáo doanh thu:", error);
+      console.error("❌ Lỗi tải dashboard:", error);
     }
   };
 
@@ -113,13 +102,20 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  // 📈 Khi chọn tab doanh thu → gọi API doanh thu
+  // 💰 Lấy báo cáo doanh thu
+  const loadRevenueReport = async () => {
+    try {
+      const res = await adminService.getRevenueReport?.();
+      if (res?.success && res.data) setRevenueData(res.data);
+      else if (res.TotalRevenue !== undefined) setRevenueData(res);
+    } catch (error) {
+      console.error("❌ Lỗi tải báo cáo doanh thu:", error);
+    }
+  };
+
+  // Khi chọn tab tương ứng
   useEffect(() => {
     if (activeTab === "revenue") loadRevenueReport();
-  }, [activeTab]);
-
-  // 👨‍💼 Khi chọn tab Staff → load danh sách staff
-  useEffect(() => {
     if (activeTab === "staff") loadStaff();
   }, [activeTab]);
 
@@ -129,34 +125,110 @@ const AdminDashboard: React.FC = () => {
     navigate("/login");
   };
 
+  // 🟢 Thêm user
+  const handleAddUser = async (user: Partial<any>) => {
+    try {
+      const res = await adminService.createStaff(
+        user.Mail || "",
+        "123456", // mật khẩu mặc định
+        user.UserName || ""
+      );
+      if (res.success) {
+        toast.success("✅ Thêm tài khoản thành công!");
+        await loadUsers();
+      } else {
+        toast.error(res.message || "❌ Thêm thất bại!");
+      }
+    } catch (error) {
+      console.error("❌ Lỗi thêm user:", error);
+      toast.error("❌ Lỗi khi thêm tài khoản!");
+    }
+  };
+
+  // ✏️ Cập nhật user
+  const handleEditUser = async (user: any) => {
+    try {
+      const res = await adminService.updateUser(user.UserId, user);
+      if (res.success) {
+        toast.success("✏️ Cập nhật thành công!");
+        await loadUsers();
+      } else {
+        toast.error(res.message || "❌ Cập nhật thất bại!");
+      }
+    } catch (error) {
+      console.error("❌ Lỗi cập nhật user:", error);
+      toast.error("❌ Lỗi khi cập nhật tài khoản!");
+    }
+  };
+
+  // 🗑️ Xóa user
+  const handleDeleteUser = async (id: number) => {
+    try {
+      const res = await adminService.deleteUser(id);
+      if (res.success) {
+        toast.success("🗑️ Xóa tài khoản thành công!");
+        await loadUsers();
+      } else {
+        toast.error(res.message || "❌ Xóa thất bại!");
+      }
+    } catch (error) {
+      console.error("❌ Lỗi xóa user:", error);
+      toast.error("❌ Lỗi khi xóa tài khoản!");
+    }
+  };
+
   return (
     <div className="admin-dashboard">
       {/* ========== SIDEBAR ========== */}
       <aside className="admin-sidebar">
         <h2 className="admin-logo">⚡ EV ADMIN</h2>
         <ul className="sidebar-menu">
-          <li className={activeTab === "dashboard" ? "active" : ""} onClick={() => setActiveTab("dashboard")}>
+          <li
+            className={activeTab === "dashboard" ? "active" : ""}
+            onClick={() => setActiveTab("dashboard")}
+          >
             <LayoutDashboard size={18} /> Tổng quan
           </li>
-          <li className={activeTab === "users" ? "active" : ""} onClick={() => setActiveTab("users")}>
+          <li
+            className={activeTab === "users" ? "active" : ""}
+            onClick={() => setActiveTab("users")}
+          >
             <Users size={18} /> Quản lý tài khoản
           </li>
-          <li className={activeTab === "staff" ? "active" : ""} onClick={() => setActiveTab("staff")}>
+          <li
+            className={activeTab === "staff" ? "active" : ""}
+            onClick={() => setActiveTab("staff")}
+          >
             <UserPlus size={18} /> Nhân viên (Staff)
           </li>
-          <li className={activeTab === "business" ? "active" : ""} onClick={() => setActiveTab("business")}>
+          <li
+            className={activeTab === "business" ? "active" : ""}
+            onClick={() => setActiveTab("business")}
+          >
             <Building2 size={18} /> Tài khoản DN
           </li>
-          <li className={activeTab === "stations" ? "active" : ""} onClick={() => setActiveTab("stations")}>
+          <li
+            className={activeTab === "stations" ? "active" : ""}
+            onClick={() => setActiveTab("stations")}
+          >
             <BatteryCharging size={18} /> Trạm sạc
           </li>
-          <li className={activeTab === "bookings" ? "active" : ""} onClick={() => setActiveTab("bookings")}>
+          <li
+            className={activeTab === "bookings" ? "active" : ""}
+            onClick={() => setActiveTab("bookings")}
+          >
             <CalendarCheck2 size={18} /> Đặt lịch
           </li>
-          <li className={activeTab === "payments" ? "active" : ""} onClick={() => setActiveTab("payments")}>
+          <li
+            className={activeTab === "payments" ? "active" : ""}
+            onClick={() => setActiveTab("payments")}
+          >
             <CreditCard size={18} /> Hóa đơn
           </li>
-          <li className={activeTab === "revenue" ? "active" : ""} onClick={() => setActiveTab("revenue")}>
+          <li
+            className={activeTab === "revenue" ? "active" : ""}
+            onClick={() => setActiveTab("revenue")}
+          >
             <BarChart3 size={18} /> Doanh thu
           </li>
         </ul>
@@ -175,7 +247,7 @@ const AdminDashboard: React.FC = () => {
           <ProfileAdmin />
         </header>
 
-        {/* ===== TAB: DASHBOARD ===== */}
+        {/* ===== DASHBOARD ===== */}
         {activeTab === "dashboard" && (
           <section className="dashboard-section">
             <h2>Tổng quan hệ thống</h2>
@@ -218,21 +290,28 @@ const AdminDashboard: React.FC = () => {
           </section>
         )}
 
-        {/* ===== TAB: USERS ===== */}
-        {activeTab === "users" && <UserTable users={users} />}
+        {/* ===== USERS ===== */}
+        {activeTab === "users" && (
+          <UserTable
+            users={users}
+            onAdd={handleAddUser}
+            onEdit={handleEditUser}
+            onDelete={handleDeleteUser}
+          />
+        )}
 
-        {/* ===== TAB: STAFF ===== */}
+        {/* ===== STAFF ===== */}
         {activeTab === "staff" && (
           <div className="staff-section">
-            <CreateStaff onCreated={loadStaff} />   {/* ✅ Reload list sau khi tạo */}
+            <CreateStaff onCreated={loadStaff} />
             <StaffTable staffList={staffList} loading={loadingStaff} />
           </div>
         )}
 
-        {/* ===== TAB: BUSINESS ===== */}
+        {/* ===== BUSINESS ===== */}
         {activeTab === "business" && <BusinessAccountTable />}
 
-        {/* ===== TAB: STATIONS ===== */}
+        {/* ===== STATIONS ===== */}
         {activeTab === "stations" && (
           <StationTable
             stations={stations}
@@ -242,7 +321,7 @@ const AdminDashboard: React.FC = () => {
           />
         )}
 
-        {/* ===== TAB: BOOKINGS ===== */}
+        {/* ===== BOOKINGS ===== */}
         {activeTab === "bookings" && (
           <BookingTable
             bookings={bookings}
@@ -250,10 +329,10 @@ const AdminDashboard: React.FC = () => {
           />
         )}
 
-        {/* ===== TAB: PAYMENTS ===== */}
+        {/* ===== PAYMENTS ===== */}
         {activeTab === "payments" && <PaymentTable />}
 
-        {/* ===== TAB: REVENUE ===== */}
+        {/* ===== REVENUE ===== */}
         {activeTab === "revenue" && (
           <section className="revenue-section">
             <h2>💰 Báo cáo doanh thu</h2>
