@@ -14,6 +14,8 @@ import Payment from "./pages/EV-Driver/Payment";
 import Contact from "./pages/EV-Driver/Contact";
 import Business from "./pages/EV-Driver/Business";
 import BookingDetail from "./pages/EV-Driver/BookingDetail";
+import VnPayReturn from "./pages/EV-Driver/VnPayReturn";
+import PaymentSuccess from "./pages/EV-Driver/PaymentResult";
 import ChargingSchedule from "./pages/EV-Driver/ChargingSchedule";
 import ChargingSession from "./pages/EV-Driver/ChargingSession";
 import Pay from "./pages/EV-Driver/Pay";
@@ -72,6 +74,8 @@ const App: React.FC = () => {
         <Route path="/contact" element={<Contact />} />
         <Route path="/business" element={<Business />} />
         <Route path="/booking-detail/:id" element={<BookingDetail />} />
+        <Route path="/vnpay/return" element={<VnPayReturn />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
         <Route path="/charging-schedule" element={<ChargingSchedule />} />
         <Route path="/charging-session" element={<ChargingSession />} />
         <Route path="/pay" element={<Pay />} />

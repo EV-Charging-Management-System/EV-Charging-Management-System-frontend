@@ -11,6 +11,9 @@ export const apiClient: AxiosInstance = axios.create({
   }
 })
 
+// Helpful debug: show resolved base URL at runtime (visible in browser console)
+console.debug('[api] Resolved API_BASE_URL ->', API_BASE_URL)
+
 // Request interceptor to add auth token
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
@@ -32,6 +35,14 @@ apiClient.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config
+
+    // If there's no response, it's likely a network error or CORS blocking the request.
+    if (!error.response) {
+      console.error('[api] Network/CORS error when calling API:', error.message, originalRequest)
+      const err: any = new Error('Network Error: Unable to reach API. Check backend server or CORS settings.')
+      err.original = error
+      return Promise.reject(err)
+    }
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true

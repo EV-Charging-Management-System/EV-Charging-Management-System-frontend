@@ -64,7 +64,7 @@ export const adminService = {
   },
 
   // ⚡ Lấy danh sách trạm sạc
-  async getAllStations() {
+   async getAllStations(): Promise<any[]> {
     try {
       const res = await apiClient.get("/station/getAllSations");
       console.log("📦 Response getAllStations:", res.data);
@@ -73,8 +73,8 @@ export const adminService = {
       if (Array.isArray(res.data?.data)) return res.data.data;
       return [];
     } catch (error) {
-      console.warn("⚠️ Không lấy được danh sách trạm sạc:", error);
-      return [];
+      console.warn("adminservices.getAllStations failed:", error);
+      throw error;
     }
   },
 

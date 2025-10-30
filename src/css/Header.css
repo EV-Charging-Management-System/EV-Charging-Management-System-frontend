@@ -15,7 +15,7 @@
   margin-right: 6px;
 }
 .menu-bar {
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(16, 15, 15, 0.7);
   padding: 12px 0;
   text-align: center;
 }
@@ -34,4 +34,85 @@
 .menu-list li:hover,
 .menu-active {
   color: #32cd32;
+}
+
+/* Header right buttons */
+.header-right {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.header-btn {
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(46, 39, 39, 0.12);
+  min-width: 110px;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-register {
+  background: #16a34a; /* project green */
+}
+
+.btn-login {
+  background: #f59e0b; /* project yellow/amber */
+  color: #111; /* darker text for contrast on yellow */
+}
+
+.header-btn:hover { transform: translateY(-1px); filter:brightness(0.97); }
+.btn-register:hover { box-shadow: 0 6px 18px rgba(22,163,74,0.22); transform: translateY(-1px); }
+.btn-login:hover { box-shadow: 0 6px 18px rgba(245,158,11,0.22); transform: translateY(-1px); }
+
+.btn-logout {
+  background: #f44;
+}
+
+/* Modal styles */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(2,6,23,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal {
+  background: #0f1724;
+  padding: 24px;
+  border-radius: 12px;
+  width: 420px;
+  max-width: 95%;
+  color: #e6eef2;
+  box-shadow: 0 10px 30px rgba(2,6,23,0.6);
+}
+
+.modal h3 { color: #fff; margin: 0 0 8px 0 }
+.modal p { color: #cfe8d7; margin: 0 0 12px 0 }
+.modal label { display:block; margin-top:10px; color:#cfe8d7; font-size:14px }
+.modal input[type="text"], .modal input[type="email"], .modal input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: #071024;
+  color: #fff;
+  box-sizing: border-box;
+}
+
+.modal-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:16px }
+.modal-cancel { padding:8px 14px; background:transparent; color:#cfe8d7; border:1px solid rgba(255,255,255,0.06); border-radius:8px }
+.modal-submit { padding:10px 16px; background:#16a34a; color:#fff; border:none; border-radius:8px }
+
+@media (max-width: 480px) {
+  .modal { width: 92% }
 }
