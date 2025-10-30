@@ -32,6 +32,7 @@ import Invoice from "./pages/Staff/Invoice";
 
 // Admin Pages
 import AdminDashboard from "./pages/Admin/AdminDashboard";
+import PaymentResult from "./pages/EV-Driver/PaymentResult";
 
 const App: React.FC = () => {
   // ✅ Route bảo vệ (dành cho role)
@@ -75,7 +76,7 @@ const App: React.FC = () => {
         <Route path="/business" element={<Business />} />
         <Route path="/booking-detail/:id" element={<BookingDetail />} />
         <Route path="/vnpay/return" element={<VnPayReturn />} />
-        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/payment-result" element={<PaymentResult />} />
         <Route path="/charging-schedule" element={<ChargingSchedule />} />
         <Route path="/charging-session" element={<ChargingSession />} />
         <Route path="/pay" element={<Pay />} />
