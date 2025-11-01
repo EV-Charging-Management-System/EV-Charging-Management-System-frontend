@@ -22,7 +22,17 @@
   margin-bottom: 30px;
 }
 
-/* ===== LƯỚI CÁC TRẠM ===== */
+.detail-body p {
+  color: #111827;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.detail-body p b {
+  color: #111827;
+}
+
+/* ===== GRID ===== */
 .charger-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -31,7 +41,7 @@
   max-width: 1000px;
 }
 
-/* ===== THẺ TRẠM ===== */
+/* ===== CHARGER CARD ===== */
 .charger-card {
   background: #ffffff;
   border: 2px solid #e5e7eb;
@@ -48,9 +58,16 @@
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* ===== MÀU TRẠNG THÁI ===== */
+/* ===== STATUS COLORS ===== */
 .charger-card.available {
   border-color: #22c55e;
+  background-color: rgba(34, 197, 94, 0.12);
+}
+
+.charger-card.busy {
+  border-color: #eab308;
+  background-color: rgba(234, 179, 8, 0.15);
+  cursor: not-allowed;
 }
 
 .charger-card.booked {
@@ -59,9 +76,9 @@
   cursor: not-allowed;
 }
 
-.charger-card.maintenance {
-  border-color: #eab308;
-  background-color: #fef9c3;
+.charger-card.offline {
+  border-color: #6b7280;
+  background-color: rgba(107, 114, 128, 0.2);
   cursor: not-allowed;
 }
 
@@ -87,7 +104,7 @@
   font-weight: 500;
 }
 
-/* ===== CHÚ GIẢI ===== */
+/* ===== LEGEND ===== */
 .status-legend {
   margin-top: 40px;
   display: flex;
@@ -107,12 +124,16 @@
   background-color: #22c55e;
 }
 
+.legend.busy {
+  background-color: #eab308;
+}
+
 .legend.booked {
   background-color: #ef4444;
 }
 
-.legend.maintenance {
-  background-color: #eab308;
+.legend.offline {
+  background-color: #6b7280;
 }
 
 /* ===== POPUP FORM ===== */
@@ -136,14 +157,8 @@
 }
 
 @keyframes popupFade {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 .form-popup h2 {
