@@ -40,14 +40,20 @@ export interface BookingPayload {
   carBrand?: string;
 }
 
+export interface VnpayPayload {
+  userId: number | string;
+  amount: number;
+}
+
 export interface CreateBookingResponse {
   success: boolean;
+  message?: string;
   data?: {
     url?: string;
     txnRef?: string;
-    paymentId?: number;
   };
-  message?: string;
+  url?: string;
+  txnRef?: string;
 }
 
 /* ============================================================
@@ -99,20 +105,37 @@ const bookingService = {
   },
 
   /**
-   * ✅ Gửi yêu cầu đặt lịch sạc & tạo thanh toán VNPay
-   * FE sẽ redirect sang URL backend trả về
+   * ✅ Tạo thanh toán VNPay
+   * Gửi userId và amount đến API VNPay để tạo URL thanh toán
    */
-  async createBooking(payload: BookingPayload): Promise<CreateBookingResponse> {
+  async createVnpay(payload: VnpayPayload): Promise<CreateBookingResponse> {
+    try {
+      console.log("[bookingService] POST /vnpay/create payload:", payload);
+      const res = await apiClient.post<CreateBookingResponse>("/vnpay/create", payload);
+
+      console.log("[bookingService] /vnpay/create response:", res.data);
+
+      return res.data;
+    } catch (error: any) {
+      console.error("[bookingService] createVnpay failed:", error);
+      if (error.response) {
+        console.error("➡ Status:", error.response.status);
+        console.error("➡ Data:", error.response.data);
+      }
+      throw new Error(error?.response?.data?.message || "Không thể tạo thanh toán VNPay!");
+    }
+  },
+
+  /**
+   * ✅ Tạo booking sau khi thanh toán thành công
+   * Gửi thông tin đầy đủ về trạm, cổng, xe, thời gian
+   */
+  async createBooking(payload: BookingPayload): Promise<any> {
     try {
       console.log("[bookingService] POST /booking payload:", payload);
-      const res = await apiClient.post<CreateBookingResponse>("/booking", payload);
+      const res = await apiClient.post("/booking", payload);
 
       console.log("[bookingService] /booking response:", res.data);
-
-      // Kiểm tra backend trả về đúng cấu trúc hay chưa
-      if (!res.data?.success) {
-        throw new Error(res.data?.message || "Tạo booking thất bại.");
-      }
 
       return res.data;
     } catch (error: any) {
@@ -121,17 +144,19 @@ const bookingService = {
         console.error("➡ Status:", error.response.status);
         console.error("➡ Data:", error.response.data);
       }
-      throw new Error(error?.response?.data?.message || "Không thể tạo booking, vui lòng thử lại!");
+      throw new Error(error?.response?.data?.message || "Không thể tạo booking!");
     }
   },
-  async getBookingByTxn(txnRef: string) {
+
+  // get all booking by user
+  async getBookingByUser(userId: number | string): Promise<any> {
     try {
-      const res = await apiClient.get(`/booking/txn/${txnRef}`);
-      console.log("[bookingService] getBookingByTxn:", res.data);
+      const res = await apiClient.get("/booking/my");
+      console.log("[bookingService] getBookingByUser:", res.data);
       return res.data;
     } catch (error: any) {
-      console.error("[bookingService] getBookingByTxn failed:", error);
-      throw new Error("Không thể lấy thông tin giao dịch");
+      console.error("[bookingService] getBookingByUser error:", error);
+      throw new Error("Không thể tải danh sách booking của người dùng.");
     }
   },
 

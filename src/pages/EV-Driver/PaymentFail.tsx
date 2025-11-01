@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../../pages/layouts/header";
 import Footer from "../../pages/layouts/footer";
@@ -7,6 +7,11 @@ import "../../css/Payment.css";
 
 const PaymentFail: React.FC = () => {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    console.log("❌ [PaymentFail] VNPay code:", params.get("vnp_ResponseCode"));
+  }, []);
 
   return (
     <div className="page-container">
@@ -18,13 +23,12 @@ const PaymentFail: React.FC = () => {
 
         <p className="page-description">
           Giao dịch của bạn không thành công hoặc đã bị hủy.  
-          <br />
-          Vui lòng kiểm tra lại hoặc thử lại sau.
+          <br />Vui lòng thử lại sau hoặc liên hệ hỗ trợ.
         </p>
 
         <div className="action-group">
-          <button className="confirm-btn" onClick={() => navigate("/premium")}>
-            Quay lại Gói Premium
+          <button className="confirm-btn" onClick={() => navigate("/")}>
+            Quay lại Trang chủ
           </button>
         </div>
       </main>

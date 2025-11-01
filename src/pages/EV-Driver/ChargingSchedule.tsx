@@ -1,125 +1,199 @@
-import React, { useState } from 'react'
-import '../../css/ChargingSchedule.css'
-import { FaCalendarAlt, FaMapMarkerAlt, FaBolt, FaClock, FaHashtag } from 'react-icons/fa'
-import { useNavigate } from 'react-router-dom'
-import Header from '../../pages/layouts/header'
-import Footer from '../../pages/layouts/footer'
-import MenuBar from '../../pages/layouts/menu-bar'
+import React, { useEffect, useState } from "react";
+import {
+  Card,
+  Button,
+  Spinner,
+  Badge,
+  Container,
+} from "react-bootstrap";
+import {
+  FaCalendarAlt,
+  FaClock,
+  FaCar,
+  FaMoneyBill,
+  FaHashtag,
+  FaMapMarkerAlt,
+} from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import Header from "../../pages/layouts/header";
+import Footer from "../../pages/layouts/footer";
+import MenuBar from "../../pages/layouts/menu-bar";
+import bookingService from "../../services/bookingService";
+import { authService } from "../../services/authService";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "../../css/ChargingSchedule.css";
 
 const ChargingSchedule: React.FC = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const [bookings, setBookings] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const [bookings, setBookings] = useState([
-    {
-      id: 1,
-      stationName: 'Trạm Sạc Trung Tâm Quận 1',
-      address: '123 Nguyễn Huệ, Quận 1',
-      port: 'M',
-      power: '80kW',
-      date: '20/01/2025',
-      time: '14:00',
-      code: 'ABC123',
-      status: 'Đã xác nhận'
-    },
-    {
-      id: 2,
-      stationName: 'Trạm Sạc Phú Mỹ Hưng',
-      address: '456 Nguyễn Văn Linh, Quận 7',
-      port: 'D',
-      power: '150kW',
-      date: '22/01/2025',
-      time: '10:30',
-      code: 'XYZ789',
-      status: 'Đã xác nhận'
-    }
-  ])
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        setLoading(true);
+        const profile = await authService.getProfile();
+        const user = profile?.data || profile?.user || profile;
+        const userId = user?.id || user?.userId;
 
-  // Hủy lịch
+        if (!userId) {
+          console.warn("⚠️ Không tìm thấy userId!");
+          setLoading(false);
+          return;
+        }
+
+        const res = await bookingService.getBookingByUser(userId);
+        const list = res?.data || [];
+
+        const formatted = list.map((b: any) => ({
+          id: b.BookingId,
+          stationName: b.StationName || "Trạm Sạc",
+          startTime: new Date(b.StartTime).toLocaleString("vi-VN", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          vehicle: b.VehicleName || "Chưa cập nhật",
+          plate: b.LicensePlate || "N/A",
+          deposit: b.DepositAmount?.toLocaleString("vi-VN") + " ₫",
+          qr: b.QR?.substring(0, 8) || "N/A",
+          status:
+            b.Status === "ACTIVE"
+              ? "Đã xác nhận"
+              : b.Status === "CANCELLED"
+              ? "Đã hủy"
+              : "Đang xử lý",
+        }));
+
+        setBookings(formatted);
+      } catch (error) {
+        console.error("❌ Lỗi tải danh sách booking:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBookings();
+  }, []);
+
   const handleCancel = (id: number) => {
-    const confirmDelete = window.confirm('Bạn có chắc muốn hủy lịch này?')
-    if (confirmDelete) {
-      setBookings(bookings.filter((item) => item.id !== id))
+    if (window.confirm("Bạn có chắc muốn hủy lịch này?")) {
+      setBookings((prev) => prev.filter((b) => b.id !== id));
     }
-  }
+  };
 
-  // Bắt đầu sạc
   const handleStartCharging = (booking: any) => {
-    navigate('/charging-session', { state: { booking } })
-  }
+    navigate("/charging-session", { state: { booking } });
+  };
 
   return (
-    <div className='schedule-container'>
+    <div className="schedule-container bg-dark text-light min-vh-100">
       <Header />
-
       <MenuBar />
 
-      {/* ===== BODY ===== */}
-      <main className='schedule-body'>
-        <div className='schedule-header'>
+      <Container className="py-4">
+        <div className="d-flex justify-content-between align-items-center mb-4">
           <div>
-            <h1 className='title'>Lịch Đặt Sạc</h1>
-            <p className='subtitle'>Quản lý các lịch đặt sạc của bạn</p>
+            <h2 className="fw-bold text-warning mb-1">Lịch Đặt Sạc</h2>
+            <p className="text-secondary">
+              Theo dõi và quản lý lịch đặt sạc của bạn
+            </p>
           </div>
-          <button className='new-booking-btn' onClick={() => navigate('/booking-online-station')}>
-            <FaCalendarAlt className="calendar-icon" />
-            Đặt Lịch Mới
-          </button>
+          <Button
+            variant="warning"
+            onClick={() => navigate("/booking-online-station")}
+          >
+            + Đặt Lịch Mới
+          </Button>
         </div>
 
-        <h2 className='section-title'>Lịch Sắp Tới</h2>
-
-        {bookings.length === 0 ? (
-          <p className='empty-message'>Hiện chưa có lịch sạc nào.</p>
+        {loading ? (
+          <div className="text-center mt-5">
+            <Spinner animation="border" variant="warning" />
+            <p className="mt-2">Đang tải dữ liệu...</p>
+          </div>
+        ) : bookings.length === 0 ? (
+          <p className="text-center text-muted">Hiện chưa có lịch sạc nào.</p>
         ) : (
           bookings.map((b) => (
-            <div key={b.id} className='schedule-card'>
-              <div className='schedule-left'>
-                <h3>{b.stationName}</h3>
-                <p className='address'>
-                  <FaMapMarkerAlt /> {b.address}
-                </p>
-                <div className='port-info'>
-                  <FaBolt /> <span>Cổng sạc</span>
-                  <strong>
-                    {b.port} - {b.power}
-                  </strong>
-                </div>
-              </div>
+            <Card
+              key={b.id}
+              className="mb-4 shadow-sm bg-secondary bg-opacity-10 border border-warning"
+            >
+              <Card.Body className="d-flex justify-content-between flex-wrap">
+                {/* Thông tin bên trái */}
+                <div>
+                  <Card.Title className="text-warning mb-3">
+                    <FaMapMarkerAlt className="me-2" />
+                    {b.stationName}
+                  </Card.Title>
 
-              <div className='schedule-right'>
-                <div className='info-group'>
-                  <FaCalendarAlt /> <span>Ngày</span>
-                  <strong>{b.date}</strong>
-                </div>
-                <div className='info-group'>
-                  <FaClock /> <span>Giờ</span>
-                  <strong>{b.time}</strong>
-                </div>
-                <div className='info-group'>
-                  <FaHashtag /> <span>Mã sạc</span>
-                  <strong className='code'>#{b.code}</strong>
-                </div>
-              </div>
+                  <p className="mb-1">
+                    <FaCalendarAlt className="me-2" /> {b.startTime}
+                  </p>
 
-              <div className='status-btn'>
-                <span className='confirm'>{b.status}</span>
-                <div className='btn-group'>
-                  <button className='start-btn' onClick={() => handleStartCharging(b)}>
-                    Bắt Đầu Sạc
-                  </button>
-                  <button className='cancel-btn' onClick={() => handleCancel(b.id)}>
-                    Hủy Lịch
-                  </button>
+                  <p className="mb-1">
+                    <FaCar className="me-2" /> {b.vehicle} – {b.plate}
+                  </p>
+
+                  <p className="mb-1">
+                    <FaMoneyBill className="me-2" /> {b.deposit}
+                  </p>
+
+                  <p className="mb-0">
+                    <FaHashtag className="me-2" /> Mã đặt:{" "}
+                    <strong>#{b.qr}</strong>
+                  </p>
                 </div>
-              </div>
-            </div>
+
+                {/* Thông tin bên phải */}
+                <div className="text-end mt-3 mt-md-0">
+                  <Badge
+                    bg={
+                      b.status === "Đã xác nhận"
+                        ? "success"
+                        : b.status === "Đã hủy"
+                        ? "danger"
+                        : "warning"
+                    }
+                    text={b.status === "Đang xử lý" ? "dark" : "light"}
+                    className="mb-2"
+                  >
+                    {b.status}
+                  </Badge>
+
+                  <div className="d-flex gap-2 justify-content-end">
+                    {b.status === "Đã xác nhận" && (
+                      <Button
+                        size="sm"
+                        variant="warning"
+                        onClick={() => handleStartCharging(b)}
+                      >
+                        Bắt đầu sạc
+                      </Button>
+                    )}
+                    {b.status !== "Đã hủy" && (
+                      <Button
+                        size="sm"
+                        variant="outline-danger"
+                        onClick={() => handleCancel(b.id)}
+                      >
+                        Hủy lịch
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </Card.Body>
+            </Card>
           ))
         )}
-      </main>
+      </Container>
 
       <Footer />
     </div>
-  )
-}
+  );
+};
 
-export default ChargingSchedule
+export default ChargingSchedule;
