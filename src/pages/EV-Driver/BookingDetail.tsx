@@ -18,7 +18,6 @@ const BookingDetail: React.FC = () => {
   const [selectedPointId, setSelectedPointId] = useState<number | null>(null);
   const [selectedPortId, setSelectedPortId] = useState<number | null>(null);
   const [payLoading, setPayLoading] = useState(false);
-  const [txnRef, setTxnRef] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -29,7 +28,7 @@ const BookingDetail: React.FC = () => {
     time: "",
   });
 
-  // ===== Load user info =====
+  // ✅ Load thông tin người dùng
   useEffect(() => {
     (async () => {
       try {
@@ -42,12 +41,12 @@ const BookingDetail: React.FC = () => {
           email: user?.email || "",
         }));
       } catch (e) {
-        console.error("Không thể load profile:", e);
+        console.error("❌ Không thể load profile:", e);
       }
     })();
   }, []);
 
-  // ===== Load points theo station =====
+  // ✅ Load danh sách điểm sạc theo trạm
   useEffect(() => {
     if (!stationId || Number.isNaN(stationId)) return;
     (async () => {
@@ -56,12 +55,12 @@ const BookingDetail: React.FC = () => {
         console.log("[BookingDetail] Points loaded:", res);
         setPoints(res);
       } catch (err) {
-        console.error("Lỗi load điểm sạc:", err);
+        console.error("❌ Lỗi load điểm sạc:", err);
       }
     })();
   }, [stationId]);
 
-  // ===== Load ports theo pointId =====
+  // ✅ Load danh sách cổng theo pointId
   useEffect(() => {
     if (!selectedPointId) return;
     (async () => {
@@ -70,27 +69,28 @@ const BookingDetail: React.FC = () => {
         console.log("[BookingDetail] Ports loaded:", res);
         setPorts(res);
         const firstAvailable = res.find(
-          (p: any) =>
-            (p.PortStatus || p.portStatus || "").toUpperCase() === "AVAILABLE"
+          (p: any) => (p.PortStatus || p.portStatus || "").toUpperCase() === "AVAILABLE"
         );
-        if (firstAvailable) {
-          setSelectedPortId(firstAvailable.PortId ?? firstAvailable.portId);
-        }
+        if (firstAvailable) setSelectedPortId(firstAvailable.PortId);
       } catch (err) {
-        console.error("Lỗi load port:", err);
+        console.error("❌ Lỗi load port:", err);
       }
     })();
   }, [selectedPointId]);
 
-  // ===== Gửi booking & mở VNPay trên tab mới =====
+  // ✅ Gửi booking → mở VNPay
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedPointId || !selectedPortId) {
-      alert("Vui lòng chọn cổng sạc!");
+      alert("⚠️ Vui lòng chọn cổng sạc!");
+      return;
+    }
+    if (!formData.userId) {
+      alert("⚠️ Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại!");
       return;
     }
 
-    // ✅ 1️⃣ Mở tab mới NGAY khi click (được browser cho phép)
+    // 👉 Mở tab mới ngay khi user click
     const vnpayTab = window.open("", "_blank");
 
     try {
@@ -101,67 +101,47 @@ const BookingDetail: React.FC = () => {
         ? new Date(`${todayStr}T${formData.time}`).toISOString()
         : new Date().toISOString();
 
-      const payload = {
+      const bookingData = {
         stationId,
         pointId: selectedPointId,
         portId: selectedPortId,
         vehicleId: Number(formData.vehicleId) || 1,
         startTime,
-        depositAmount: 50000,
-        userId: formData.userId,
+        depositAmount: 30000,
+        userId: Number(formData.userId),
         carBrand: formData.carBrand,
       };
 
-      console.log("[BookingDetail] Payload gửi booking:", payload);
+      // 💾 Lưu localStorage để tạo booking sau khi thanh toán thành công
+      localStorage.setItem("bookingPayload", JSON.stringify(bookingData));
+      console.log("[BookingDetail] bookingPayload saved:", bookingData);
 
-      // 🟢 2️⃣ Gọi API backend
-      const res = await bookingService.createBooking(payload);
-      console.log("[BookingDetail] API booking trả về:", res);
+      // Gọi API VNPay tạo URL thanh toán
+      const vnpayPayload = {
+        userId: Number(formData.userId),
+        amount: 30000,
+      };
 
-      const paymentUrl = res?.data?.url || res?.url || null;
-      const ref = res?.data?.txnRef || res?.txnRef || null;
+      console.log("[BookingDetail] Payload gửi VNPay:", vnpayPayload);
+      const res = await bookingService.createVnpay(vnpayPayload);
+      console.log("[BookingDetail] VNPay response:", res);
 
-      // 🟢 3️⃣ Nếu backend trả URL thanh toán
+      const paymentUrl = res?.data?.url || res?.url;
       if (paymentUrl) {
-        console.log("[BookingDetail] Mở VNPay tab:", paymentUrl);
-        vnpayTab!.location.href = paymentUrl; // mở trên tab đã được tạo
-        setTxnRef(ref);
+        vnpayTab!.location.href = paymentUrl;
       } else {
         alert("Không nhận được URL thanh toán từ hệ thống!");
         vnpayTab?.close();
       }
     } catch (error: any) {
-      console.error("[BookingDetail] Lỗi khi tạo booking:", error);
-      alert(error?.message || "Không thể tạo booking!");
-      vnpayTab?.close(); // đóng tab trống nếu lỗi
+      console.error("❌ Lỗi khi tạo thanh toán:", error);
+      alert(error?.message || "Không thể tạo thanh toán!");
+      vnpayTab?.close();
     } finally {
       setPayLoading(false);
     }
   };
 
-  // ===== Polling để kiểm tra khi thanh toán xong =====
-  useEffect(() => {
-    if (!txnRef) return;
-    console.log("[BookingDetail] Bắt đầu kiểm tra trạng thái booking:", txnRef);
-
-    const interval = setInterval(async () => {
-      try {
-        const res = await bookingService.getBookingByTxn(txnRef);
-        const status = res?.data?.Status;
-        const deposit = res?.data?.DepositStatus;
-        console.log("[BookingDetail] Polling:", { status, deposit });
-
-        if (status === "ACTIVE" && deposit === true) {
-          clearInterval(interval);
-          navigate(`/payment-result?vnp_TxnRef=${txnRef}`);
-        }
-      } catch (err) {
-        console.warn("[BookingDetail] Polling error:", err);
-      }
-    }, 4000); // kiểm tra mỗi 4s
-
-    return () => clearInterval(interval);
-  }, [txnRef, navigate]);
 
   return (
     <div className="booking-container">
@@ -237,12 +217,40 @@ const BookingDetail: React.FC = () => {
                 })}
               </select>
 
-              <div className="form-buttons">
-                <button
-                  type="submit"
-                  className="submit-btn"
-                  disabled={payLoading}
+              <div
+                style={{
+                  margin: "20px 0",
+                  padding: "15px",
+                  backgroundColor: "#878c8fff",
+                  border: "2px solid #202020ff",
+                  borderRadius: "8px",
+                  textAlign: "center",
+                }}
+              >
+                <label
+                  style={{
+                    fontSize: "16px",
+                    fontWeight: "600",
+                    color: "#1e40af",
+                    display: "block",
+                    marginBottom: "8px",
+                  }}
                 >
+                  Giá đặt cọc
+                </label>
+                <div
+                  style={{
+                    fontSize: "28px",
+                    fontWeight: "bold",
+                    color: "#e4e6ecff",
+                  }}
+                >
+                  30,000 ₫
+                </div>
+              </div>
+
+              <div className="form-buttons">
+                <button type="submit" className="submit-btn" disabled={payLoading}>
                   {payLoading ? "Đang xử lý..." : "Thanh toán"}
                 </button>
               </div>
