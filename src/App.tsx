@@ -20,7 +20,7 @@ import PaymentFail from "./pages/EV-Driver/PaymentFail";
 import ChargingSchedule from "./pages/EV-Driver/ChargingSchedule";
 import ChargingSession from "./pages/EV-Driver/ChargingSession";
 import Pay from "./pages/EV-Driver/Pay";
-import PaymentResult from "./pages/EV-Driver/PaymentResult";
+
 
 // Staff & Admin imports
 import HomePageStaff from "./pages/Staff/HomePageStaff";
@@ -73,7 +73,6 @@ const App: React.FC = () => {
         <Route path="/contact" element={<Contact />} />
         <Route path="/business" element={<Business />} />
         <Route path="/booking-detail/:id" element={<BookingDetail />} />
-        <Route path="/payment-result" element={<PaymentResult />} />
         <Route path="/vnpay/return" element={<VnPayReturn />} />
         <Route path="/charging-schedule" element={<ChargingSchedule />} />
         <Route path="/charging-session" element={<ChargingSession />} />
