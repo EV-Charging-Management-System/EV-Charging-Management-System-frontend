@@ -106,7 +106,7 @@ export const authService = {
         if (cached) return JSON.parse(cached);
       }
 
-      const response = await apiClient.get<ApiResponse<{ user: User }>>("/auth/profile");
+      const response = await apiClient.get<ApiResponse<{ user: User }>>("/auth/me");
       const user =
         response.data.user ||
         response.data.data?.user ||
