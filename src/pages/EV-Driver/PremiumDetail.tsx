@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "../../css/PremiumDetail.css";
 import { premiumService } from "../../services/premiumService";
+import { authService } from "../../services/authService";
+import { businessService } from "../../services/businessService";
 
 const PremiumDetail: React.FC = () => {
   const { type } = useParams<{ type: string }>();
@@ -9,81 +11,80 @@ const PremiumDetail: React.FC = () => {
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isPremium, setIsPremium] = useState(false);
+  const [isBusiness, setIsBusiness] = useState(false);
+  const [membership, setMembership] = useState<any>(null);
+  const [user, setUser] = useState<any>(null);
 
-  // ======= DANH SÁCH GÓI =======
+  // ✅ Lấy thông tin người dùng (luôn cập nhật mới)
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const u = await authService.getProfile({ noCache: true });
+        console.log("[PremiumDetail] 👤 User profile:", u);
+        setUser(u);
+
+        const role = (u?.roleName || u?.role || "").toUpperCase();
+        setIsPremium(u?.isPremium === true || role === "PREMIUM");
+        setIsBusiness(role === "BUSINESS");
+      } catch (err) {
+        console.warn("⚠️ Không thể lấy thông tin người dùng:", err);
+      }
+    };
+    fetchUser();
+  }, []);
+
+  // ✅ Nếu là hội viên Premium thì load thông tin gói hiện tại
+  useEffect(() => {
+    if (!isPremium) return;
+    const fetchSubscription = async () => {
+      try {
+        const res = await premiumService.getCurrentSubscription();
+        if (res?.data) setMembership(res.data);
+      } catch (err) {
+        console.warn("⚠️ Không thể lấy thông tin gói Premium:", err);
+      }
+    };
+    fetchSubscription();
+  }, [isPremium]);
+
+  // ✅ Danh sách gói
   const packages = {
     "plan-premium": {
       id: 1,
       title: "Gói Premium",
       desc: "Trải nghiệm đặc quyền cao cấp – truy cập không giới hạn và hỗ trợ ưu tiên.",
-      qr: "/QR1.png",
       benefits: [
-        "Truy cập toàn bộ hệ thống trạm sạc trên toàn quốc.",
-        "Hỗ trợ 24/7 riêng cho hội viên Premium.",
-        "Nhận thông báo sớm về trạm sạc trống & khuyến mãi độc quyền.",
-        "Tự động lưu lịch sử giao dịch và trạm yêu thích.",
-        "Ưu đãi thành viên với đối tác liên kết.",
+        "⚡ Truy cập toàn bộ hệ thống trạm sạc trên toàn quốc.",
+        "💬 Hỗ trợ 24/7 riêng cho hội viên Premium.",
+        "📢 Nhận thông báo sớm về trạm sạc trống & khuyến mãi độc quyền.",
+        "🗺️ Tự động lưu lịch sử giao dịch và trạm yêu thích.",
+        "🎁 Ưu đãi thành viên với đối tác liên kết.",
       ],
+      paymentType: "VNPay",
     },
     "plan-business": {
       id: 2,
       title: "Tài Khoản Doanh Nghiệp",
-      desc: "Dành cho doanh nghiệp muốn quản lý tập trung và tối ưu doanh thu sạc điện.",
-      qr: "/QR2.png",
+      desc: "Quản lý nhiều phương tiện, nhân viên và thanh toán định kỳ qua Ví Trả Sau.",
       benefits: [
-        "Quản lý nhiều tài khoản nhân viên và phương tiện cùng lúc.",
-        "Theo dõi hiệu suất sạc và báo cáo giao dịch định kỳ.",
-        "Tổng hợp thanh toán & chuyển doanh thu cuối chu kỳ.",
-        "Ưu tiên hỗ trợ kỹ thuật & bảo mật dữ liệu doanh nghiệp.",
-        "Cập nhật thống kê & báo cáo theo thời gian thực.",
+        "📊 Theo dõi hiệu suất sạc theo thời gian thực.",
+        "📋 Báo cáo doanh thu và giao dịch định kỳ.",
+        "💼 Quản lý nhiều phương tiện & tài khoản nhân viên.",
+        "💰 Thanh toán tập trung qua Ví Trả Sau.",
+        "🧰 Ưu tiên hỗ trợ kỹ thuật & bảo mật nâng cao.",
       ],
+      paymentType: "Wallet",
     },
   };
 
   const current = packages[type as keyof typeof packages];
-
-  // ======= XỬ LÝ MUA GÓI =======
-  const handleConfirm = async () => {
-    setError("");
-    if (!current) {
-      navigate("/premium");
-      return;
-    }
-
-    try {
-      const userId = Number(localStorage.getItem("userId"));
-      if (!userId) {
-        setError("⚠️ Bạn cần đăng nhập trước khi mua gói!");
-        return;
-      }
-
-      setLoading(true);
-      const res = await premiumService.purchase({
-        userId,
-        packageId: current.id,
-        paymentMethod: "QR",
-      });
-
-      if (res.success) {
-        navigate("/payment-success");
-      } else {
-        navigate("/payment-failed");
-      }
-    } catch (err) {
-      console.error("premium purchase error:", err);
-      navigate("/payment-failed");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // ======= GÓI KHÔNG TỒN TẠI =======
   if (!current) {
     return (
       <div className="detail-container">
         <div className="detail-card fade-in">
           <h2>Không tìm thấy gói hội viên</h2>
-          <button className="back-btn" onClick={() => navigate("/premium")}>
+          <button className="back-btn-bottom" onClick={() => navigate("/premium")}>
             ← Quay lại
           </button>
         </div>
@@ -91,7 +92,60 @@ const PremiumDetail: React.FC = () => {
     );
   }
 
-  // ======= GIAO DIỆN CHÍNH =======
+  // ✅ Xử lý hành động xác nhận
+  const handleConfirm = async () => {
+    setError("");
+    if (!user) {
+      setError("⚠️ Bạn cần đăng nhập trước khi thao tác!");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      if (current.paymentType === "VNPay") {
+        if (isPremium) {
+          alert("✅ Bạn đã là hội viên Premium!");
+          return;
+        }
+
+        const payload = {
+          PackageId: current.id,
+          StartDate: new Date().toISOString().split("T")[0],
+          DurationMonth: "1",
+        };
+
+        const res = await premiumService.createSubscription(payload);
+        const vnpUrl = res?.data?.vnpUrl || res?.vnpUrl || res?.url;
+
+        if (res?.success && vnpUrl) {
+          window.location.href = vnpUrl.replace(/&amp;/g, "&");
+        } else {
+          setError(res?.message || "Không nhận được đường dẫn thanh toán.");
+        }
+      } else {
+        if (isBusiness) {
+          alert("✅ Tài khoản này đã là doanh nghiệp!");
+          return;
+        }
+
+        const res = await businessService.requestUpgrade(user.userId);
+        if (res.success) {
+          alert("🎯 Yêu cầu nâng cấp doanh nghiệp đã được gửi! Vui lòng chờ admin duyệt.");
+          navigate("/premium");
+        } else {
+          setError(res.message || "Không thể gửi yêu cầu nâng cấp.");
+        }
+      }
+    } catch (err) {
+      console.error("❌ Lỗi khi xử lý:", err);
+      setError("❌ Có lỗi xảy ra khi xử lý.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ✅ Giao diện hiển thị
   return (
     <div className="detail-container">
       <div className="detail-card fade-in">
@@ -101,27 +155,68 @@ const PremiumDetail: React.FC = () => {
         <h4>Quyền lợi:</h4>
         <ul className="benefit-list">
           {current.benefits.map((b, i) => (
-            <li key={i}>• {b}</li>
+            <li key={i}>{b}</li>
           ))}
         </ul>
 
-        <img src={current.qr} alt="QR Code" className="qr-image" />
-
         {error && <p className="error-text">{error}</p>}
 
-        <div className="action-group">
-          <button
-            className="confirm-btn"
-            onClick={handleConfirm}
-            disabled={loading}
-          >
-            {loading ? "Đang xử lý..." : "Xác nhận & Thanh toán"}
-          </button>
+        {/* 🟢 Premium */}
+        {isPremium && type === "plan-premium" && membership && (
+          <div className="membership-info">
+            <h3>🎉 Bạn đã là hội viên <span className="highlight">Premium</span></h3>
+            <p><b>Mã gói:</b> {membership.PackageId}</p>
+            <p><b>Mã giao dịch:</b> {membership.TxnRef}</p>
+            <p><b>Phương thức:</b> {membership.PaymentMethod}</p>
+            <p><b>Ngày thanh toán:</b> {new Date(membership.PaymentDate).toLocaleString()}</p>
+            <p><b>Bắt đầu:</b> {new Date(membership.StartDate).toLocaleDateString()}</p>
+            <p><b>Hết hạn:</b> {new Date(membership.ExpireDate).toLocaleDateString()}</p>
+            <button className="back-btn-bottom" onClick={() => navigate("/premium")}>← Quay lại</button>
+          </div>
+        )}
 
-          <button className="back-btn" onClick={() => navigate("/premium")}>
-            ← Quay lại
-          </button>
-        </div>
+        {/* 🟣 Business */}
+        {type === "plan-business" && (
+          <div className="membership-info">
+            {isBusiness ? (
+              <>
+                <h3>💼 Bạn đang sử dụng <span className="highlight">Tài Khoản Doanh Nghiệp</span></h3>
+                <p>
+                  🔹 Truy cập đầy đủ các chức năng doanh nghiệp:
+                  <br />– Quản lý nhân viên & phương tiện
+                  <br />– Theo dõi doanh thu & hiệu suất sạc
+                  <br />– Thanh toán định kỳ qua Ví Trả Sau
+                </p>
+                <p>✅ Tài khoản đã được duyệt và kích hoạt.</p>
+              </>
+            ) : (
+              <>
+                <p>
+                  Bạn có thể gửi yêu cầu nâng cấp tài khoản doanh nghiệp để quản lý nhiều phương tiện
+                  và nhân viên hiệu quả hơn.
+                </p>
+                <button className="confirm-btn" onClick={handleConfirm} disabled={loading}>
+                  {loading ? "Đang xử lý..." : "Gửi Yêu Cầu Nâng Cấp"}
+                </button>
+              </>
+            )}
+            <button className="back-btn-bottom" onClick={() => navigate("/premium")}>
+              ← Quay lại
+            </button>
+          </div>
+        )}
+
+        {/* 🔹 Nếu chưa có gói Premium */}
+        {!isPremium && type === "plan-premium" && (
+          <div className="action-group">
+            <button className="confirm-btn" onClick={handleConfirm} disabled={loading}>
+              {loading ? "Đang xử lý..." : "Xác nhận & Thanh toán"}
+            </button>
+            <button className="back-btn-bottom" onClick={() => navigate("/premium")}>
+              ← Quay lại
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

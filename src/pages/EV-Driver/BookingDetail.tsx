@@ -88,7 +88,7 @@ const BookingDetail: React.FC = () => {
     if (!formData.userId) {
       alert("⚠️ Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại!");
       return;
-    }
+}
 
     // 👉 Mở tab mới ngay khi user click
     const vnpayTab = window.open("", "_blank");
@@ -182,7 +182,7 @@ const BookingDetail: React.FC = () => {
                   })
                 }
                 required
-              >
+>
                 <option value="">Chọn hãng xe</option>
                 <option value="VinFast">VF e34</option>
                 <option value="Hyundai">Hyundai</option>
@@ -271,7 +271,7 @@ const BookingDetail: React.FC = () => {
                 <div
                   key={p.PointId}
                   className={`station-box ${cls} ${
-                    selectedPointId === p.PointId ? "active" : ""
+selectedPointId === p.PointId ? "active" : ""
                   }`}
                   onClick={() => {
                     if (cls !== "available") return;
