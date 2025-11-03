@@ -18,7 +18,6 @@ const BookingDetail: React.FC = () => {
   const [selectedPointId, setSelectedPointId] = useState<number | null>(null);
   const [selectedPortId, setSelectedPortId] = useState<number | null>(null);
   const [payLoading, setPayLoading] = useState(false);
-  const [txnRef, setTxnRef] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -29,7 +28,7 @@ const BookingDetail: React.FC = () => {
     time: "",
   });
 
-  // 🟢 Load user info
+  // ✅ Load thông tin người dùng
   useEffect(() => {
     (async () => {
       try {
@@ -42,112 +41,107 @@ const BookingDetail: React.FC = () => {
           email: user?.email || "",
         }));
       } catch (e) {
-        console.error("Không thể load profile:", e);
+        console.error("❌ Không thể load profile:", e);
       }
     })();
   }, []);
 
-  // 🟢 Load điểm sạc theo station
+  // ✅ Load danh sách điểm sạc theo trạm
   useEffect(() => {
     if (!stationId || Number.isNaN(stationId)) return;
     (async () => {
       try {
         const res = await bookingService.getPoints(stationId);
         console.log("[BookingDetail] Points loaded:", res);
-        setPoints(res?.data || res || []);
+        setPoints(res);
       } catch (err) {
-        console.error("Lỗi load điểm sạc:", err);
+        console.error("❌ Lỗi load điểm sạc:", err);
       }
     })();
   }, [stationId]);
 
-  // 🟢 Load port theo point
+  // ✅ Load danh sách cổng theo pointId
   useEffect(() => {
     if (!selectedPointId) return;
     (async () => {
       try {
         const res = await bookingService.getPorts(selectedPointId);
         console.log("[BookingDetail] Ports loaded:", res);
-        setPorts(res?.data || res || []);
-        const firstAvailable = (res?.data || res || []).find(
-          (p: any) =>
-            (p.PortStatus || p.portStatus || "").toUpperCase() === "AVAILABLE"
+        setPorts(res);
+        const firstAvailable = res.find(
+          (p: any) => (p.PortStatus || p.portStatus || "").toUpperCase() === "AVAILABLE"
         );
-        if (firstAvailable) {
-          setSelectedPortId(firstAvailable.PortId ?? firstAvailable.portId);
-        }
+        if (firstAvailable) setSelectedPortId(firstAvailable.PortId);
       } catch (err) {
-        console.error("Lỗi load port:", err);
+        console.error("❌ Lỗi load port:", err);
       }
     })();
   }, [selectedPointId]);
 
-  // 🟢 Gửi booking
+  // ✅ Gửi booking → mở VNPay
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedPointId || !selectedPortId) {
-      alert("Vui lòng chọn cổng sạc!");
+      alert("⚠️ Vui lòng chọn cổng sạc!");
       return;
     }
+    if (!formData.userId) {
+      alert("⚠️ Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại!");
+      return;
+}
 
+    // 👉 Mở tab mới ngay khi user click
     const vnpayTab = window.open("", "_blank");
+
     try {
       setPayLoading(true);
+
       const todayStr = new Date().toISOString().split("T")[0];
       const startTime = formData.time
         ? new Date(`${todayStr}T${formData.time}`).toISOString()
         : new Date().toISOString();
 
-      const payload = {
+      const bookingData = {
         stationId,
         pointId: selectedPointId,
         portId: selectedPortId,
         vehicleId: Number(formData.vehicleId) || 1,
         startTime,
-        depositAmount: 50000,
-        userId: formData.userId,
+        depositAmount: 30000,
+        userId: Number(formData.userId),
         carBrand: formData.carBrand,
       };
 
-      console.log("[BookingDetail] Payload gửi booking:", payload);
-      const res = await bookingService.createBooking(payload);
-      const paymentUrl = res?.data?.url || res?.url || null;
-      const ref = res?.data?.txnRef || res?.txnRef || null;
+      // 💾 Lưu localStorage để tạo booking sau khi thanh toán thành công
+      localStorage.setItem("bookingPayload", JSON.stringify(bookingData));
+      console.log("[BookingDetail] bookingPayload saved:", bookingData);
 
+      // Gọi API VNPay tạo URL thanh toán
+      const vnpayPayload = {
+        userId: Number(formData.userId),
+        amount: 30000,
+      };
+
+      console.log("[BookingDetail] Payload gửi VNPay:", vnpayPayload);
+      const res = await bookingService.createVnpay(vnpayPayload);
+      console.log("[BookingDetail] VNPay response:", res);
+
+      const paymentUrl = res?.data?.url || res?.url;
       if (paymentUrl) {
         vnpayTab!.location.href = paymentUrl;
-        setTxnRef(ref);
       } else {
         alert("Không nhận được URL thanh toán từ hệ thống!");
         vnpayTab?.close();
       }
     } catch (error: any) {
-      console.error("[BookingDetail] Lỗi khi tạo booking:", error);
-      alert(error?.message || "Không thể tạo booking!");
+      console.error("❌ Lỗi khi tạo thanh toán:", error);
+      alert(error?.message || "Không thể tạo thanh toán!");
       vnpayTab?.close();
     } finally {
       setPayLoading(false);
     }
   };
 
-  // 🟢 Polling kết quả thanh toán
-  useEffect(() => {
-    if (!txnRef) return;
-    const interval = setInterval(async () => {
-      try {
-        const res = await bookingService.getBookingByTxn(txnRef);
-        const status = res?.data?.Status;
-        const deposit = res?.data?.DepositStatus;
-        if (status === "ACTIVE" && deposit === true) {
-          clearInterval(interval);
-          navigate(`/payment-result?vnp_TxnRef=${txnRef}`);
-        }
-      } catch (err) {
-        console.warn("[BookingDetail] Polling error:", err);
-      }
-    }, 4000);
-    return () => clearInterval(interval);
-  }, [txnRef, navigate]);
 
   return (
     <div className="booking-container">
@@ -160,7 +154,6 @@ const BookingDetail: React.FC = () => {
             <img src={mapImage} alt="map" className="map-image" />
           </div>
 
-          {/* ==== FORM ==== */}
           <div className="form-section">
             <form className="booking-form" onSubmit={handleSubmit}>
               <h2>Đặt Lịch Sạc</h2>
@@ -189,7 +182,7 @@ const BookingDetail: React.FC = () => {
                   })
                 }
                 required
-              >
+>
                 <option value="">Chọn hãng xe</option>
                 <option value="VinFast">VF e34</option>
                 <option value="Hyundai">Hyundai</option>
@@ -224,12 +217,40 @@ const BookingDetail: React.FC = () => {
                 })}
               </select>
 
-              <div className="form-buttons">
-                <button
-                  type="submit"
-                  className="submit-btn"
-                  disabled={payLoading}
+              <div
+                style={{
+                  margin: "20px 0",
+                  padding: "15px",
+                  backgroundColor: "#878c8fff",
+                  border: "2px solid #202020ff",
+                  borderRadius: "8px",
+                  textAlign: "center",
+                }}
+              >
+                <label
+                  style={{
+                    fontSize: "16px",
+                    fontWeight: "600",
+                    color: "#1e40af",
+                    display: "block",
+                    marginBottom: "8px",
+                  }}
                 >
+                  Giá đặt cọc
+                </label>
+                <div
+                  style={{
+                    fontSize: "28px",
+                    fontWeight: "bold",
+                    color: "#e4e6ecff",
+                  }}
+                >
+                  30,000 ₫
+                </div>
+              </div>
+
+              <div className="form-buttons">
+                <button type="submit" className="submit-btn" disabled={payLoading}>
                   {payLoading ? "Đang xử lý..." : "Thanh toán"}
                 </button>
               </div>
@@ -237,46 +258,31 @@ const BookingDetail: React.FC = () => {
           </div>
         </div>
 
-        {/* ==== DANH SÁCH ĐIỂM SẠC ==== */}
+        {/* ==== DANH SÁCH CỔNG SẠC ==== */}
         <section className="station-grid">
           <h3>Chọn Cổng Sạc</h3>
           <div className="grid-container">
-            {points.length === 0 ? (
-              <p>Không có điểm sạc nào tại trạm này.</p>
-            ) : (
-              points.map((p: any) => {
-                const pointId =
-                  p.PointId ?? p.ChargingPointId ?? p.id ?? Math.random();
-                const status =
-                  (p.Status ||
-                    p.ChargingPointStatus ||
-                    "").toUpperCase() || "UNKNOWN";
-                const isAvailable = status === "AVAILABLE";
-                const isActive = selectedPointId === pointId;
-
-                return (
-                  <div
-                    key={pointId}
-                    className={`station-box ${
-                      isAvailable ? "available" : "booked"
-                    } ${isActive ? "active" : ""}`}
-                    onClick={() => {
-                      if (!isAvailable) return;
-                      setSelectedPointId(pointId);
-                    }}
-                  >
-                    <h4>#{pointId}</h4>
-                    <p>
-                      {isAvailable
-                        ? "Còn trống"
-                        : status === "BUSY"
-                        ? "Đang sạc"
-                        : "Đã đặt / Bảo trì"}
-                    </p>
-                  </div>
-                );
-              })
-            )}
+            {points.map((p: any) => {
+              const cls =
+                (p.ChargingPointStatus || "").toUpperCase() === "AVAILABLE"
+                  ? "available"
+                  : "booked";
+              return (
+                <div
+                  key={p.PointId}
+                  className={`station-box ${cls} ${
+selectedPointId === p.PointId ? "active" : ""
+                  }`}
+                  onClick={() => {
+                    if (cls !== "available") return;
+                    setSelectedPointId(p.PointId);
+                  }}
+                >
+                  <h4>#{p.PointId}</h4>
+                  <p>{cls === "available" ? "Còn trống" : "Đã đặt / Bảo trì"}</p>
+                </div>
+              );
+            })}
           </div>
         </section>
       </main>
