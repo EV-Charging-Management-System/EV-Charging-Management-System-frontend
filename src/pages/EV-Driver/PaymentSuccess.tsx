@@ -94,17 +94,11 @@ const PaymentSuccess: React.FC = () => {
 
       <main className="page-body text-center fade-in">
         <h1 className="page-title success-title">✅ Thanh Toán Thành Công!</h1>
-        <h3>Mã giao dịch: {txnRef || vnp_TxnRef}</h3>
 
-        <p className="page-description">
-          Cảm ơn bạn đã đăng ký <b>Gói Premium</b>.<br />
-          Giao dịch đã được xác nhận. Đơn đặt lịch sạc của bạn đang được xử lý
-          và lưu vào hệ thống.
-        </p>
-
+      
         {/* 🔹 Thông tin giao dịch */}
         {(txnRef || vnp_TxnRef) && (
-          <div className="txn-box">
+          <div className="txn-box mt-4 p-3 border rounded text-center">
             <p>
               <b>Mã giao dịch:</b> {txnRef || vnp_TxnRef}
             </p>
@@ -141,18 +135,9 @@ const PaymentSuccess: React.FC = () => {
 
         {/* 🔹 Nút hành động */}
         <div className="action-group">
-          <button className="confirm-btn" onClick={() => navigate("/premium")}>
-            Quay lại Gói Premium
-          </button>
-          <button
-            className="confirm-btn"
-            onClick={() => navigate("/booking-history")}
-          >
-            Xem lịch sử đặt sạc
-          </button>
-          <button className="back-btn" onClick={() => navigate("/")}>
-            Trang chủ
-          </button>
+      
+       
+        
         </div>
       </main>
 
