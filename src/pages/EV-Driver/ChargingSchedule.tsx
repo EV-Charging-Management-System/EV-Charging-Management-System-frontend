@@ -174,15 +174,7 @@ const ChargingSchedule: React.FC = () => {
                         Bắt đầu sạc
                       </Button>
                     )}
-                    {b.status !== "Đã hủy" && (
-                      <Button
-                        size="sm"
-                        variant="outline-danger"
-                        onClick={() => handleCancel(b.id)}
-                      >
-                        Hủy lịch
-                      </Button>
-                    )}
+
                   </div>
                 </div>
               </Card.Body>

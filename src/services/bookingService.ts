@@ -160,6 +160,21 @@ const bookingService = {
     }
   },
 
+  /**
+   * ✅ Lấy chi tiết booking theo ID
+   * GET /api/booking/:id
+   */
+  async getBookingById(bookingId: number): Promise<any> {
+    try {
+      const res = await apiClient.get(`/booking/${bookingId}`);
+      console.log("[bookingService] getBookingById:", res.data);
+      return res.data;
+    } catch (error: any) {
+      console.error("[bookingService] getBookingById error:", error);
+      throw new Error("Không thể tải thông tin booking.");
+    }
+  },
+
 };
 
 export default bookingService;
