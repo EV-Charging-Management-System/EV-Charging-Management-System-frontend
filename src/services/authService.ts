@@ -13,31 +13,29 @@ import type {
 } from "../utils/types";
 
 export const authService = {
-  // ✅ LOGIN (Chuẩn khớp backend)
+  // ✅ LOGIN (Chuẩn backend)
   async login(data: { email: string; password: string }): Promise<LoginResponse> {
     const payload = {
-      Email: data.email,          // backend nhận key "Email"
-      PasswordHash: data.password // backend nhận key "PasswordHash"
+      Email: data.email,
+      PasswordHash: data.password,
     };
 
-    const response = await apiClient.post<ApiResponse<LoginResponse>>(
-      "/auth/login",
-      payload
-    );
-
+    const response = await apiClient.post<ApiResponse<LoginResponse>>("/auth/login", payload);
     const resData = response.data;
 
     if (resData.success && resData.user) {
-      // ✅ Chuẩn hóa role (in hoa)
       const userData = {
         ...resData.user,
         role: (resData.user.role || resData.user.roleName || "").toUpperCase(),
       };
 
-      // ✅ Lưu thông tin đăng nhập vào localStorage
       localStorage.setItem("accessToken", resData.accessToken);
       localStorage.setItem("refreshToken", resData.refreshToken);
       localStorage.setItem("user", JSON.stringify(userData));
+      localStorage.setItem(
+        "userId",
+        String(resData.user.UserId || resData.user.userId || resData.user.id || "")
+      );
     }
 
     return {
@@ -52,14 +50,13 @@ export const authService = {
     };
   },
 
-  // ✅ Lấy thông tin user hiện tại
+  // ✅ Lấy user hiện tại từ localStorage
   getCurrentUser(): User | null {
     try {
       const userStr = localStorage.getItem("user");
       if (!userStr) return null;
 
       const user = JSON.parse(userStr);
-      // 🔥 Ép role in hoa để không bị sai khi check
       user.role = (user.role || user.roleName || "").toUpperCase();
       return user;
     } catch {
@@ -67,7 +64,7 @@ export const authService = {
     }
   },
 
-  // ✅ Kiểm tra trạng thái đăng nhập
+  // ✅ Kiểm tra đăng nhập
   isAuthenticated(): boolean {
     const token = localStorage.getItem("accessToken");
     const user = localStorage.getItem("user");
@@ -79,76 +76,90 @@ export const authService = {
     try {
       await apiClient.delete("/auth/logout");
     } catch {
-      console.warn("⚠️ Logout API failed, clearing local data instead.");
+      console.warn("⚠️ Logout API failed, clearing local data.");
     }
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("user");
+    localStorage.removeItem("userId");
   },
 
-  // ✅ REGISTER
+  // ✅ Đăng ký tài khoản thường
   async register(data: RegisterRequest): Promise<RegisterResponse> {
-    const response = await apiClient.post<ApiResponse<RegisterResponse>>(
-      "/auth/register",
-      data
-    );
-    // Return full API response so caller can inspect success/message/data
+    const response = await apiClient.post<ApiResponse<RegisterResponse>>("/auth/register", data);
     return response.data;
   },
 
-  // ✅ REFRESH TOKEN
-  async refreshToken(refreshToken: string): Promise<{
-    accessToken: string;
-    refreshToken: string;
-  }> {
+  // ✅ Làm mới token
+  async refreshToken(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
     const response = await apiClient.post<
       ApiResponse<{ accessToken: string; refreshToken: string }>
     >("/auth/refresh-token", { refreshToken });
     return response.data.data!;
   },
 
-  // UserInfo
-  async getProfile(): Promise<User> {
-    // Try several possible endpoints depending on backend
-    const tryPaths = ["/auth/me"];
-    for (const p of tryPaths) {
-      try {
-        const response = await apiClient.get<ApiResponse<{ user: User }>>(p);
-        if (response?.data) return response.data.data?.user ?? response.data.user ?? response.data;
-      } catch (e) {
-        // try next
+  // ✅ Lấy hồ sơ người dùng (luôn mới nhất)
+  async getProfile(options?: { noCache?: boolean }): Promise<User> {
+    try {
+      if (!options?.noCache) {
+        const cached = localStorage.getItem("user");
+        if (cached) return JSON.parse(cached);
       }
-    }
 
-    throw new Error("Profile endpoint not found");
+      const response = await apiClient.get<ApiResponse<{ user: User }>>("/auth/profile");
+      const user =
+        response.data.user ||
+        response.data.data?.user ||
+        response.data.data ||
+        response.data;
+
+      if (!user) throw new Error("Không nhận được thông tin user");
+
+      user.role = (user.role || user.roleName || "").toUpperCase();
+
+      // ✅ Cập nhật lại localStorage
+      localStorage.setItem("user", JSON.stringify(user));
+      return user;
+    } catch (err) {
+      console.error("⚠️ getProfile error:", err);
+      throw err;
+    }
   },
 
+  // ✅ Cập nhật hồ sơ
   async updateProfile(data: UpdateProfilereq): Promise<UpdateProfilerep> {
-    const response = await apiClient.put<ApiResponse<UpdateProfilerep>>(
-      "/auth/profile",
-      data
-    );
+    const response = await apiClient.put<ApiResponse<UpdateProfilerep>>("/auth/profile", data);
     return { message: response.data.message };
   },
 
-  // ✅ PASSWORD RESET
-  async forgotPassword(email: string): Promise<AuthResponse> {
-    const response = await apiClient.post<ApiResponse<AuthResponse>>(
-      "/auth/forgot-password",
-      { email }
+  // ✅ Đổi mật khẩu
+  async changePassword(data: ChangePasswordRequest): Promise<ChangePasswordReponse> {
+    const response = await apiClient.post<ApiResponse<ChangePasswordReponse>>(
+      "/auth/change-password",
+      data
     );
     return response.data;
   },
 
+  // ✅ Quên mật khẩu
+  async forgotPassword(email: string): Promise<AuthResponse> {
+    const response = await apiClient.post<ApiResponse<AuthResponse>>("/auth/forgot-password", {
+      email,
+    });
+    return response.data;
+  },
+
+  // ✅ Đặt lại mật khẩu
   async resetPassword(
     token: string,
     newPassword: string,
     confirmPassword: string
   ): Promise<AuthResponse> {
-    const response = await apiClient.post<ApiResponse<AuthResponse>>(
-      "/auth/reset-password",
-      { token, newPassword, confirmPassword }
-    );
+    const response = await apiClient.post<ApiResponse<AuthResponse>>("/auth/reset-password", {
+      token,
+      newPassword,
+      confirmPassword,
+    });
     return response.data;
   },
 };

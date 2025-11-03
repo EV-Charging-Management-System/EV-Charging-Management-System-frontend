@@ -27,6 +27,7 @@
   text-align: center;
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  z-index: 10;
 }
 
 .detail-card:hover {
@@ -47,12 +48,19 @@
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
+  pointer-events: none; /* ✅ tránh che nút click */
 }
 
 @keyframes borderGlow {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 /* =============== TIÊU ĐỀ =============== */
@@ -95,20 +103,9 @@
   top: 0;
 }
 
-/* =============== QR CODE =============== */
+/* =============== QR CODE (ẨN HOÀN TOÀN) =============== */
 .qr-image {
-  width: 180px;
-  height: 180px;
-  border-radius: 12px;
-  margin: 20px auto;
-  display: block;
-  box-shadow: 0 0 25px rgba(0, 255, 150, 0.5);
-  animation: qrPulse 2s infinite ease-in-out;
-}
-
-@keyframes qrPulse {
-  0%, 100% { box-shadow: 0 0 25px rgba(0, 255, 150, 0.4); transform: scale(1); }
-  50% { box-shadow: 0 0 40px rgba(0, 255, 180, 0.7); transform: scale(1.03); }
+  display: none !important; /* ✅ ẩn QR code */
 }
 
 /* =============== NÚT =============== */
@@ -131,6 +128,8 @@
   font-size: 16px;
   cursor: pointer;
   transition: all 0.3s ease;
+  position: relative;
+  z-index: 999; /* ✅ đảm bảo click được */
 }
 
 .confirm-btn:hover {
@@ -166,10 +165,19 @@
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-4px); }
-  50% { transform: translateX(4px); }
-  75% { transform: translateX(-4px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+  75% {
+    transform: translateX(-4px);
+  }
 }
 
 /* =============== HIỆU ỨNG FADE-IN =============== */
@@ -178,8 +186,120 @@
 }
 
 @keyframes fadeInUp {
-  0% { opacity: 0; transform: translateY(20px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =============== HỘI VIÊN PREMIUM =============== */
+.success-box {
+  margin-top: 30px;
+  position: relative;
+  background: rgba(0, 30, 25, 0.65);
+  border: 1px solid rgba(0, 255, 180, 0.4);
+  border-radius: 18px;
+  padding: 25px 30px;
+  text-align: left;
+  color: #e8fff7;
+  box-shadow: 0 0 25px rgba(0, 255, 160, 0.25);
+  backdrop-filter: blur(10px);
+  animation: pulseBox 3s ease-in-out infinite alternate;
+}
+
+/* Hiệu ứng glow động */
+@keyframes pulseBox {
+  0% {
+    box-shadow: 0 0 15px rgba(0, 255, 150, 0.2),
+      0 0 25px rgba(0, 255, 150, 0.25);
+    border-color: rgba(0, 255, 160, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(0, 255, 150, 0.45),
+      0 0 45px rgba(0, 255, 150, 0.35);
+    border-color: rgba(0, 255, 160, 0.45);
+  }
+  100% {
+    box-shadow: 0 0 20px rgba(0, 255, 150, 0.3),
+      0 0 35px rgba(0, 255, 150, 0.3);
+    border-color: rgba(0, 255, 160, 0.35);
+  }
+}
+
+/* Tiêu đề hội viên nổi bật hơn */
+.success-text {
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: #00ffa3;
+  text-shadow: 0 0 12px rgba(0, 255, 180, 0.9),
+    0 0 30px rgba(0, 255, 180, 0.5);
+  animation: glowText 2.5s ease-in-out infinite alternate;
+}
+
+/* Hiệu ứng chữ phát sáng */
+@keyframes glowText {
+  0% {
+    text-shadow: 0 0 10px rgba(0, 255, 160, 0.7),
+      0 0 20px rgba(0, 255, 160, 0.4);
+  }
+  50% {
+    text-shadow: 0 0 20px rgba(0, 255, 180, 0.9),
+      0 0 40px rgba(0, 255, 180, 0.6);
+  }
+  100% {
+    text-shadow: 0 0 12px rgba(0, 255, 160, 0.7),
+      0 0 25px rgba(0, 255, 160, 0.4);
+  }
+}
+
+.member-info {
+  font-size: 15px;
+  line-height: 1.8;
+  margin-top: 10px;
+  border-top: 1px solid rgba(0, 255, 180, 0.15);
+  padding-top: 10px;
+}
+
+.member-info p {
+  margin: 5px 0;
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 3px;
+}
+
+.member-info b {
+  color: #00ffa3;
+  text-shadow: 0 0 5px rgba(0, 255, 180, 0.5);
+}
+
+/* Trạng thái màu động */
+.member-info span {
+  color: #00ffcc;
+  font-weight: 700;
+  animation: glowText 2.5s ease-in-out infinite alternate;
+}
+
+/* Khi trạng thái ACTIVE thì sáng xanh hơn */
+.member-info span[data-status="ACTIVE"] {
+  color: #00ffb7;
+  text-shadow: 0 0 12px rgba(0, 255, 160, 0.9);
+}
+
+/* Khi trạng thái EXPIRED thì sáng đỏ */
+.member-info span[data-status="EXPIRED"] {
+  color: #ff5252;
+  text-shadow: 0 0 12px rgba(255, 100, 100, 0.7);
+}
+
+/* Khi trạng thái PENDING thì sáng vàng */
+.member-info span[data-status="PENDING"] {
+  color: #ffd54f;
+  text-shadow: 0 0 12px rgba(255, 220, 130, 0.7);
 }
 
 /* =============== RESPONSIVE =============== */
@@ -191,17 +311,32 @@
   .detail-card h2 {
     font-size: 22px;
   }
-  .qr-image {
-    width: 150px;
-    height: 150px;
-  }
-  .confirm-btn {
-  position: relative;
-  z-index: 999;
-}
-.detail-card {
-  position: relative;
-  z-index: 10;
+/* === NÚT QUAY LẠI DƯỚI CÙNG (TRONG THẺ HỘI VIÊN) === */
+.back-btn-bottom {
+  margin-top: 22px;
+  width: 100%;
+  padding: 10px 0;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 255, 150, 0.4);
+  background: rgba(0, 255, 150, 0.08);
+  color: #bfffea;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.25s ease;
+  box-shadow: 0 0 6px rgba(0, 255, 150, 0.25);
 }
 
+.back-btn-bottom:hover {
+  background: rgba(0, 255, 150, 0.15);
+  color: #00ffa3;
+  border-color: rgba(0, 255, 150, 0.9);
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(0, 255, 150, 0.6);
 }
+
+
+}
+
+

@@ -13,18 +13,21 @@ const PaymentFail: React.FC = () => {
       <Header />
       <MenuBar />
 
-      <main className="page-body text-center">
+      <main className="page-body text-center fade-in">
         <h1 className="page-title fail-title">❌ Thanh Toán Thất Bại</h1>
 
         <p className="page-description">
-          Giao dịch của bạn không thành công hoặc đã bị hủy.  
+          Giao dịch của bạn không thành công hoặc đã bị hủy.
           <br />
-          Vui lòng kiểm tra lại hoặc thử lại sau.
+          Vui lòng thử lại hoặc liên hệ hỗ trợ nếu vẫn gặp lỗi.
         </p>
 
         <div className="action-group">
           <button className="confirm-btn" onClick={() => navigate("/premium")}>
             Quay lại Gói Premium
+          </button>
+          <button className="back-btn" onClick={() => navigate("/")}>
+            Trang chủ
           </button>
         </div>
       </main>

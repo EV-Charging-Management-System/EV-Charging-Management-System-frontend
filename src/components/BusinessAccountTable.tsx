@@ -2,26 +2,30 @@ import React, { useEffect, useState } from "react";
 import { adminService } from "../services/adminService";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "../css/AdminDashboard.css"; // style đồng nhất EV Admin
+import "../css/AdminDashboard.css"; // dùng style chung
 
 const BusinessAccountTable: React.FC = () => {
   const [accounts, setAccounts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<number | null>(null);
 
-  // 🔹 Lấy danh sách tài khoản doanh nghiệp
+  // 🔹 Lấy danh sách tài khoản doanh nghiệp chờ duyệt
+  const fetchAccounts = async () => {
+    try {
+      setLoading(true);
+      const res = await adminService.getBusinessAccounts();
+      if (Array.isArray(res?.data)) setAccounts(res.data);
+      else if (Array.isArray(res)) setAccounts(res);
+      else setAccounts([]);
+    } catch (err) {
+      console.error("❌ Lỗi tải danh sách doanh nghiệp:", err);
+      toast.error("Không thể tải danh sách doanh nghiệp!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchAccounts = async () => {
-      try {
-        const data = await adminService.getBusinessAccounts();
-        setAccounts(data);
-      } catch (err) {
-        console.error(err);
-        toast.error("❌ Không thể tải danh sách doanh nghiệp!");
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchAccounts();
   }, []);
 
@@ -38,9 +42,15 @@ const BusinessAccountTable: React.FC = () => {
     setProcessingId(id);
     try {
       const res = await adminService.approveBusinessAccount(id);
-      updateStatus(id, "APPROVED");
-      toast.success(res.message || "✅ Duyệt tài khoản thành công!");
-    } catch {
+      if (res.success) {
+        updateStatus(id, "APPROVED");
+        toast.success(res.message || "✅ Đã duyệt tài khoản doanh nghiệp!");
+        await fetchAccounts();
+      } else {
+        toast.error(res.message || "❌ Duyệt thất bại!");
+      }
+    } catch (err) {
+      console.error(err);
       toast.error("❌ Lỗi khi duyệt tài khoản!");
     } finally {
       setProcessingId(null);
@@ -52,9 +62,15 @@ const BusinessAccountTable: React.FC = () => {
     setProcessingId(id);
     try {
       const res = await adminService.rejectBusinessAccount(id);
-      updateStatus(id, "REJECTED");
-      toast.warn(res.message || "⚠️ Đã từ chối tài khoản!");
-    } catch {
+      if (res.success) {
+        updateStatus(id, "REJECTED");
+        toast.info(res.message || "🚫 Đã từ chối yêu cầu!");
+        await fetchAccounts();
+      } else {
+        toast.error(res.message || "❌ Từ chối thất bại!");
+      }
+    } catch (err) {
+      console.error(err);
       toast.error("❌ Lỗi khi từ chối tài khoản!");
     } finally {
       setProcessingId(null);
@@ -70,19 +86,27 @@ const BusinessAccountTable: React.FC = () => {
       </div>
     );
 
-  // 🔹 Render bảng dữ liệu
+  // 🔹 Nếu không có dữ liệu
+  if (!accounts.length)
+    return (
+      <div className="empty-container">
+        <p>Không có tài khoản doanh nghiệp nào đang chờ duyệt.</p>
+      </div>
+    );
+
+  // 🔹 Render bảng
   return (
     <section className="admin-section">
       <h2>🏢 Danh sách tài khoản doanh nghiệp</h2>
       <p className="section-desc">
-        Quản trị viên có thể duyệt hoặc từ chối các tài khoản doanh nghiệp đăng ký mới.
+        Quản trị viên có thể duyệt hoặc từ chối yêu cầu nâng cấp doanh nghiệp.
       </p>
 
       <table className="admin-table">
         <thead>
           <tr>
             <th>ID</th>
-            <th>Tên doanh nghiệp</th>
+            <th>Tên người dùng</th>
             <th>Email</th>
             <th>Trạng thái</th>
             <th>Thao tác</th>
@@ -90,7 +114,7 @@ const BusinessAccountTable: React.FC = () => {
         </thead>
         <tbody>
           {accounts.map((acc) => {
-            const status = acc.AccountStatus || "PENDING"; // ✅ fallback khi BE chưa có status
+            const status = acc.AccountStatus || acc.RoleName || "PENDING";
             return (
               <tr key={acc.UserId}>
                 <td>{acc.UserId}</td>
@@ -99,32 +123,36 @@ const BusinessAccountTable: React.FC = () => {
                 <td>
                   <span
                     className={`status-badge ${
-                      status === "APPROVED"
+                      status === "BUSINESS" || status === "APPROVED"
                         ? "status-approved"
-                        : status === "PENDING"
+                        : status === "PENDING_BUSINESS" || status === "PENDING"
                         ? "status-pending"
                         : "status-rejected"
                     }`}
                   >
-                    {status}
+                    {status === "BUSINESS" ? "APPROVED" : status}
                   </span>
                 </td>
                 <td>
-                  {status === "PENDING" ? (
+                  {status === "PENDING_BUSINESS" || status === "PENDING" ? (
                     <div className="action-buttons">
                       <button
                         className="btn-approve"
                         disabled={processingId === acc.UserId}
                         onClick={() => handleApprove(acc.UserId)}
                       >
-                        {processingId === acc.UserId ? "Đang duyệt..." : "Duyệt"}
+                        {processingId === acc.UserId
+                          ? "Đang duyệt..."
+                          : "Duyệt"}
                       </button>
                       <button
                         className="btn-reject"
                         disabled={processingId === acc.UserId}
                         onClick={() => handleReject(acc.UserId)}
                       >
-                        {processingId === acc.UserId ? "Đang từ chối..." : "Từ chối"}
+                        {processingId === acc.UserId
+                          ? "Đang từ chối..."
+                          : "Từ chối"}
                       </button>
                     </div>
                   ) : (
