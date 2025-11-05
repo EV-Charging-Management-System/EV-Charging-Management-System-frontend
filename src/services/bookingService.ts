@@ -109,7 +109,7 @@ const bookingService = {
    * Gửi userId và amount đến API VNPay để tạo URL thanh toán
    */
   async createVnpay(payload: VnpayPayload): Promise<CreateBookingResponse> {
-    try {
+try {
       console.log("[bookingService] POST /vnpay/create payload:", payload);
       const res = await apiClient.post<CreateBookingResponse>("/vnpay/create", payload);
 
