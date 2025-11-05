@@ -33,6 +33,7 @@ const BookingDetail: React.FC = () => {
     (async () => {
       try {
         const profile = await authService.getProfile();
+        console.log("👤 Profile response:", profile);
         const user = profile?.user || profile?.data || profile;
         setFormData((prev) => ({
           ...prev,
@@ -185,8 +186,8 @@ const BookingDetail: React.FC = () => {
 >
                 <option value="">Chọn hãng xe</option>
                 <option value="VinFast">VF e34</option>
-                <option value="Hyundai">Hyundai</option>
-                <option value="Tesla">Tesla</option>
+                <option value="Hyundai">VinFast VF5</option>
+                <option value="Tesla">Tesla Model 3</option>
               </select>
 
               <label>Giờ đến sạc</label>
