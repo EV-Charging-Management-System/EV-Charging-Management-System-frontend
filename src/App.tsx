@@ -26,7 +26,6 @@ import HomePageStaff from "./pages/Staff/HomePageStaff";
 import ProfileStaff from "./components/ProfileStaff";
 import Location from "./pages/Staff/Location";
 import LocationDetail from "./pages/Staff/LocationDetail";
-import Sessions from "./pages/Staff/Sessions";
 import ChargingProcessStaff from "./pages/Staff/ChargingProcessStaff";
 import Invoice from "./pages/Staff/Invoice";
 
@@ -94,12 +93,7 @@ const App: React.FC = () => {
           path="/staff/locationdetail/:address"
           element={<ProtectedRoute allowedRoles={["STAFF"]} element={<LocationDetail />} />}
         />
-
-        <Route
-          path="/staff/sessions/*"
-          element={<ProtectedRoute allowedRoles={["STAFF"]} element={<Sessions />} />}
-        />
-
+        
         <Route
           path="/staff/charging-process-staff/:id"
           element={<ProtectedRoute allowedRoles={["STAFF"]} element={<ChargingProcessStaff />} />}

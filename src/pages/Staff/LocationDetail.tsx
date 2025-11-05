@@ -1,3 +1,4 @@
+// src/pages/location/LocationDetail.tsx
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import ProfileStaff from "../../components/ProfileStaff";
@@ -5,162 +6,396 @@ import StaffSideBar from "../../pages/layouts/staffSidebar";
 import locationService from "../../services/locationService";
 import type { Station } from "../../services/locationService";
 import chargingPointService from "../../services/chargingpointService";
-import type { ChargingPoint } from "../../services/chargingpointService";
+import type { ChargingPoint, ChargingPort } from "../../services/chargingpointService";
+import { vehicleService } from "../../services/vehicleService";
 import "../../css/LocationDetail.css";
 
-interface OfflineSession {
-  id: number;
-  StationName: string;
-  chargerName: string;
-  power: string;
-  customer: string;
-  phone: string;
-  carBrand: string;
-  status: string;
-}
+const API_BASE_URL = "http://localhost:5000/api/charging-session";
 
 const LocationDetail: React.FC = () => {
-  // ✅ param phải là address, không phải id
   const { address } = useParams();
   const decodedAddress = decodeURIComponent(address || "");
 
-  const [showContent, setShowContent] = useState(false);
-  const [stationInfo, setStationInfo] = useState<Station | null>(null);
-  const [chargersData, setChargersData] = useState<ChargingPoint[]>([]);
+  const [fadeIn, setFadeIn] = useState(false);
+  const [station, setStation] = useState<Station | null>(null);
+  const [chargers, setChargers] = useState<ChargingPoint[]>([]);
+  const [ports, setPorts] = useState<ChargingPort[]>([]);
   const [selectedCharger, setSelectedCharger] = useState<ChargingPoint | null>(null);
+  const [showForm, setShowForm] = useState(false);
+  const [userType, setUserType] = useState<"EV-Driver" | "Guest">("EV-Driver");
 
-  const [formData, setFormData] = useState({
-    fullName: "",
-    phone: "",
-    carBrand: "VinFast",
+  const [form, setForm] = useState({
+    licensePlate: "",
+    displayName: "",
+    battery: "",
+    portId: "",
+    portType: "",
+    kwh: "",
+    price: "",
   });
 
-  // ✅ hiệu ứng fade-in
+  const [loadingStation, setLoadingStation] = useState(false);
+  const [loadingChargers, setLoadingChargers] = useState(false);
+  const [loadingPorts, setLoadingPorts] = useState(false);
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
+
+  // Animation tải
   useEffect(() => {
-    setTimeout(() => setShowContent(true), 150);
+    const timer = setTimeout(() => setFadeIn(true), 100);
+    return () => clearTimeout(timer);
   }, []);
 
-  // ✅ lấy detail trạm bằng Address
+  // Lấy trạm
   useEffect(() => {
     if (!decodedAddress) return;
-
-    const fetchStation = async () => {
+    setLoadingStation(true);
+    (async () => {
       try {
-        const station = await locationService.getStationInfo(decodedAddress);
-        if (station) setStationInfo(station);
-      } catch (err) {
-        console.error("❌ Failed to load station info:", err);
+        const res = await locationService.getStationInfo(decodedAddress);
+        setStation(res);
+      } catch {
+        alert("⚠️ Lỗi khi lấy thông tin trạm");
+      } finally {
+        setLoadingStation(false);
       }
-    };
-
-    fetchStation();
+    })();
   }, [decodedAddress]);
 
-  // ✅ lấy danh sách cổng sạc theo StationId
+  // Lấy trụ
   useEffect(() => {
-    if (!stationInfo?.StationId) return;
-
-    const fetchPoints = async () => {
+    if (!station?.StationId) return;
+    setLoadingChargers(true);
+    (async () => {
       try {
-        const points = await chargingPointService.getByStationId(stationInfo.StationId);
-        setChargersData(points);
-      } catch (err) {
-        console.error("❌ Failed to load charging points:", err);
+        const list = await chargingPointService.getByStationId(station.StationId);
+        setChargers(list);
+      } catch {
+        alert("⚠️ Lỗi khi lấy danh sách điểm sạc");
+      } finally {
+        setLoadingChargers(false);
       }
-    };
+    })();
+  }, [station]);
 
-    fetchPoints();
-  }, [stationInfo]);
+  // Mở form
+  const openForm = async (charger: ChargingPoint) => {
+    if (charger.ChargingPointStatus?.toLowerCase() !== "available") {
+      return alert("⚠️ Điểm đang bận!");
+    }
+    setSelectedCharger(charger);
+    setShowForm(true);
+    setUserType("EV-Driver"); // mặc định
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setLoadingPorts(true);
+    try {
+      const portsList = await chargingPointService.getPortsByPoint(charger.PointId);
+      setPorts(portsList);
+    } catch {
+      alert("⚠️ Lỗi lấy cổng sạc");
+      setPorts([]);
+    } finally {
+      setLoadingPorts(false);
+    }
+
+    setForm({
+      licensePlate: "",
+      displayName: "",
+      battery: "",
+      portId: "",
+      portType: "",
+      kwh: "",
+      price: "",
+    });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleLicenseChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm(prev => ({
+      ...prev,
+      licensePlate: e.target.value,
+      displayName: "",
+      battery: "",
+    }));
+  };
+
+  // Tra biển số
+  const handleLookupCompany = async () => {
+    const plate = form.licensePlate.trim();
+    if (!plate) return alert("⚠️ Nhập biển số xe!");
+
+    try {
+      const v = await vehicleService.getVehicleByLicensePlate(plate);
+      if (!v) {
+        setForm(prev => ({ ...prev, displayName: "", battery: "" }));
+        return alert("⚠️ Xe chưa đăng ký — nhập pin thủ công!");
+      }
+
+      const display = v.companyName
+        ? `Công ty: ${v.companyName} - Pin: ${v.battery}`
+        : `Khách: ${v.userName} - Pin: ${v.battery}`;
+
+      setForm(prev => ({
+        ...prev,
+        displayName: display,
+        battery: v.battery != null ? String(v.battery) : "",
+      }));
+    } catch {
+      alert("⚠️ Lỗi tra cứu xe");
+    }
+  };
+
+  // EV Driver API
+  const createChargingSession = async (
+    licensePlate: string,
+    stationId: number,
+    pointId: number,
+    portId: number,
+    battery: number
+  ) => {
+    setLoadingSubmit(true);
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+      if (!accessToken) {
+        alert("⚠️ Phiên đăng nhập đã hết hạn — vui lòng đăng nhập lại");
+        window.location.href = "/login";
+        return;
+      }
+
+      const res = await fetch(`${API_BASE_URL}/staff/start`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          licensePlate,
+          stationId,
+          pointId,
+          portId,
+          batteryPercentage: battery,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.message || "Server error");
+
+      return data;
+    } finally {
+      setLoadingSubmit(false);
+    }
+  };
+
+  // Guest API
+  const createChargingSessionGuest = async (
+    stationId: number,
+    pointId: number,
+    portId: number,
+    battery: number
+  ) => {
+    setLoadingSubmit(true);
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+      if (!accessToken) {
+        alert("⚠️ Phiên đăng nhập đã hết hạn — vui lòng đăng nhập lại");
+        window.location.href = "/login";
+        return;
+      }
+
+      const res = await fetch(`${API_BASE_URL}/guest/start`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          stationId,
+          pointId,
+          portId,
+          battery,
+          batteryPercentage: battery,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.message || "Server error");
+
+      return data;
+    } finally {
+      setLoadingSubmit(false);
+    }
+  };
+
+  // Gửi form
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedCharger || !stationInfo) return;
+    if (!selectedCharger || !form.portId || !form.battery) {
+      return alert("⚠️ Điền đủ thông tin");
+    }
 
-    const newSession: OfflineSession = {
-      id: Date.now(),
-      StationName: stationInfo.StationName,
-      chargerName: selectedCharger.Name ?? `Point #${selectedCharger.PointId}`,
-      power: selectedCharger.Power ?? "N/A",
-      customer: formData.fullName,
-      phone: formData.phone,
-      carBrand: formData.carBrand,
-      status: "pending",
-    };
+    try {
+      let sessionData;
 
-    const existing = JSON.parse(localStorage.getItem("offlineSessions") || "[]");
-    localStorage.setItem("offlineSessions", JSON.stringify([...existing, newSession]));
+      if (userType === "EV-Driver") {
+        if (!form.licensePlate) return alert("⚠️ Nhập biển số xe");
+        sessionData = await createChargingSession(
+          form.licensePlate,
+          station!.StationId,
+          selectedCharger.PointId,
+          Number(form.portId),
+          Number(form.battery)
+        );
+      } else {
+        // Guest
+        sessionData = await createChargingSessionGuest(
+          station!.StationId,
+          selectedCharger.PointId,
+          Number(form.portId),
+          Number(form.battery)
+        );
+      }
 
-    setChargersData(prev =>
-      prev.map(c =>
-        c.PointId === selectedCharger.PointId ? { ...c, ChargingPointStatus: "BUSY" } : c
-      )
-    );
+      setChargers(prev =>
+        prev.map(c =>
+          c.PointId === selectedCharger.PointId ? { ...c, ChargingPointStatus: "BUSY" } : c
+        )
+      );
 
-    setSelectedCharger(null);
-    setFormData({ fullName: "", phone: "", carBrand: "VinFast" });
-    alert("✅ Đặt phiên sạc offline thành công!");
-  };
+      const sessionId = sessionData?.data?.sessionId ?? sessionData?.sessionId ?? "unknown";
+      alert(`✅ Tạo phiên sạc thành công! Session ID: ${sessionId}`);
 
-  const renderStatus = (s: string) => {
-    if (!s) return "Không rõ";
-    switch (s.toLowerCase()) {
-      case "available": return "Còn trống";
-      case "busy": return "Đang sạc";
-      default: return "Bảo trì";
+      setShowForm(false);
+    } catch (err: any) {
+      console.error("Create session error:", err);
+      alert(`⚠️ Tạo phiên sạc thất bại: ${err?.message || err}`);
     }
   };
 
-  const openForm = (charger: ChargingPoint) => {
-    if (charger.ChargingPointStatus?.toLowerCase() === "available") {
-      setSelectedCharger(charger);
+  const handlePortSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const portId = Number(e.target.value);
+    const port = ports.find(p => p.PortId === portId);
+    if (!port) {
+      setForm(prev => ({ ...prev, portId: "", portType: "", kwh: "", price: "" }));
+      return;
     }
+    setForm(prev => ({
+      ...prev,
+      portId: String(port.PortId),
+      portType: port.PortType,
+      kwh: String(port.PortTypeOfKwh),
+      price: String(port.PortTypePrice),
+    }));
   };
+
+  const handleBatteryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm(prev => ({ ...prev, battery: e.target.value }));
+  };
+
+  const renderStatus = (s?: string) =>
+    s === "AVAILABLE" ? "Còn trống" : s === "BUSY" ? "Đang sạc" : "Bảo trì";
 
   return (
     <div className="location-wrapper">
       <StaffSideBar />
-
-      <div className={`location-main-wrapper ${showContent ? "fade-in" : "hidden"}`}>
+      <div className={`location-main-wrapper ${fadeIn ? "fade-in" : "hidden"}`}>
         <main className="location-main">
-          
           <header className="location-header">
             <h1>Chi tiết trạm sạc</h1>
-            <div className="location-header-actions">
-              <ProfileStaff />
-            </div>
+            <div className="location-header-actions"><ProfileStaff /></div>
           </header>
 
           <section className="detail-body">
-            {stationInfo ? (
+            {station && (
               <>
-                <h2 className="detail-title">{stationInfo.StationName}</h2>
-                <p className="detail-sub">{stationInfo.StationDescrip}</p>
-                <p><b>Địa chỉ:</b> {stationInfo.Address}</p>
-                <p><b>Trạng thái:</b> {stationInfo.StationStatus}</p>
-                <p><b>Tổng số trụ sạc:</b> {stationInfo.ChargingPointTotal}</p>
+                <h2>{station.StationName}</h2>
+                <p><b>Địa chỉ:</b> {station.Address}</p>
+                <p><b>Tổng số trụ:</b> {station.ChargingPointTotal}</p>
               </>
-            ) : (
-              <p>⏳ Đang tải thông tin trạm...</p>
             )}
 
             <div className="charger-grid">
-              {chargersData.length === 0 && <p>Không có trụ sạc</p>}
-
-              {chargersData.map(charger => (
+              {chargers.map(ch => (
                 <div
-                  key={charger.PointId}
-                  className={`charger-card ${charger.ChargingPointStatus?.toLowerCase()}`}
-                  onClick={() => openForm(charger)}
+                  key={ch.PointId}
+                  className={`charger-card ${ch.ChargingPointStatus?.toLowerCase()}`}
+                  onClick={() => openForm(ch)}
                 >
-                  <h3>Điểm #{charger.PointId}</h3>
-                  <p className="charger-status">{renderStatus(charger.ChargingPointStatus)}</p>
+                  <h3>Điểm #{ch.PointId}</h3>
+                  <p>{renderStatus(ch.ChargingPointStatus)}</p>
                 </div>
               ))}
             </div>
+
+            {showForm && (
+              <div className="booking-form-overlay">
+                <form className="booking-form" onSubmit={handleSubmit}>
+                  <h2>Đặt phiên sạc</h2>
+
+                  {/* Chọn loại người dùng */}
+                  <div className="user-type-select">
+                    <label>Loại người dùng:</label>
+                    <select
+                      value={userType}
+                      onChange={(e) =>
+                        setUserType(e.target.value as "EV-Driver" | "Guest")
+                      }
+                    >
+                      <option value="EV-Driver">EV-Driver</option>
+                      <option value="Guest">Guest</option>
+                    </select>
+                  </div>
+
+                  {/* Form EV-Driver */}
+                  {userType === "EV-Driver" && (
+                    <>
+                      <label>Biển số xe</label>
+                      <div className="lookup-row">
+                        <input
+                          value={form.licensePlate}
+                          onChange={handleLicenseChange}
+                          required
+                        />
+                        <button type="button" onClick={handleLookupCompany}>
+                          Tra cứu
+                        </button>
+                      </div>
+
+                      {form.displayName && <p><b>{form.displayName}</b></p>}
+                    </>
+                  )}
+
+                  {/* Pin */}
+                  <label>Số pin hiện tại (%)</label>
+                  <input
+                    type="number"
+                    value={form.battery}
+                    onChange={handleBatteryChange}
+                    required
+                  />
+
+                  {/* Chọn cổng */}
+                  <label>Chọn cổng sạc</label>
+                  <select value={form.portId} onChange={handlePortSelect} required>
+                    <option value="">-- Chọn cổng --</option>
+                    {ports.map(p => (
+                      <option key={p.PortId} value={p.PortId}>{p.PortType}</option>
+                    ))}
+                  </select>
+
+                  {form.portId && (
+                    <div className="port-info">
+                      <p><b>Kwh:</b> {form.kwh}</p>
+                      <p><b>Giá:</b> {form.price}₫</p>
+                    </div>
+                  )}
+
+                  <div className="form-buttons">
+                    <button type="submit" disabled={loadingSubmit}>
+                      {loadingSubmit ? "Đang tạo..." : "Xác nhận"}
+                    </button>
+                    <button type="button" onClick={() => setShowForm(false)}>Hủy</button>
+                  </div>
+                </form>
+              </div>
+            )}
           </section>
         </main>
       </div>

@@ -81,7 +81,7 @@ body.charging-body-page {
   margin-bottom: 10px;
   cursor: pointer;
   transition: background 0.3s, color 0.3s;
-  color: #d1d5db;
+  color: #e5e7eb;
   font-size: 15px;
 }
 
@@ -142,7 +142,7 @@ body.charging-body-page {
   height: 64px;
   display: flex;
   align-items: center;
-  justify-content: space-between; /* thêm để profile về góc phải */
+  justify-content: space-between;
   background: rgba(17,24,39,0.9);
   padding: 0 20px;
   border-bottom: 1px solid #1f2937;
@@ -158,7 +158,7 @@ body.charging-body-page {
 .charging-header h1 {
   font-size: 22px;
   font-weight: 500;
-  color:#3df26f; /* đổi màu chữ Phiên Sạc rõ hơn */
+  color:#3df26f;
 }
 
 /* ================= MAIN CONTENT ================= */
@@ -180,18 +180,19 @@ body.charging-body-page {
   align-items: center;
   justify-content: center;
   min-height: calc(100vh - 64px - 60px);
+  color: #111827;
 }
 
 .charging-title {
-  color: #111827; /* chữ Phiên Sạc */
+  color: #111827;
 }
 
 .charging-subtitle {
-  color: #4b5563; /* chữ địa chỉ */
+  color: #4b5563;
 }
 
 .status-pill {
-  color: #111827; /* chữ trên background status */
+  color: #0f172a;
 }
 
 /* ================= CHARGING BOX ================= */
@@ -206,6 +207,7 @@ body.charging-body-page {
   align-items: center;
   justify-content: center;
   border: 2px solid #3df26f;
+  color: #111827;
 }
 
 .battery-outline {
@@ -296,6 +298,7 @@ body.charging-body-page {
   gap: 12px;
   margin-top: 24px;
   align-items: flex-start;
+  color: #111827;
   transition: all 0.3s ease;
 }
 
@@ -362,7 +365,7 @@ body.charging-body-page {
   padding: 18px 0;
   font-size: 15px;
   background-color: rgba(0,0,0,0.6);
-  color: #d8e9dc;
+  color: #f1f5f9;
   flex-shrink: 0;
   width: 100%;
   margin-top: auto;

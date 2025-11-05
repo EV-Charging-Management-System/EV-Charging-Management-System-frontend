@@ -28,11 +28,9 @@ const StaffSideBar: React.FC = () => {
               Location
             </li>
 
-            <li className={isActive("/staff/sessions")} onClick={() => navigate("/staff/sessions")}>
-              Sessions
-            </li>
+          
 
-            <li
+           <li
               className={isActive("/staff/charging-process-staff/1")}
               onClick={() => navigate("/staff/charging-process-staff/1")}
             >

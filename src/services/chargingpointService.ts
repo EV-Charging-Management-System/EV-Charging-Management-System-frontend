@@ -1,28 +1,34 @@
-import apiClient from '../utils/api'
+import apiClient from "../utils/api";
+
+export interface ChargingPort {
+  PortId: number;
+  PointId: number;
+  PortType: string;
+  PortTypeOfKwh: number;
+  PortTypePrice: number;
+}
 
 export interface ChargingPoint {
   PointId: number;
   StationId: number;
   NumberOfPort: number;
-  ChargingPointStatus: 'AVAILABLE' | 'BUSY' | 'OFFLINE';
-  PortType?: string;
-  Name?: string; 
-  Power?: string; 
+  ChargingPointStatus: "AVAILABLE" | "BUSY" | "OFFLINE";
 }
 
 class ChargingPointService {
   async getByStationId(stationId: number): Promise<ChargingPoint[]> {
-    try {
-      const res = await apiClient.get(`/station/getPoint`, {
-        params: { stationId }
-      })
+    const res = await apiClient.get("/station/getPoint", {
+      params: { stationId }
+    });
+    return res.data?.data ?? [];
+  }
 
-      return res.data?.data || []
-    } catch (error) {
-      console.error("⚠️ Error fetching charging points:", error)
-      throw error
-    }
+  async getPortsByPoint(pointId: number): Promise<ChargingPort[]> {
+    const res = await apiClient.get("/station/getPort", {  // Sửa URL ở đây
+      params: { pointId }
+    });
+    return res.data?.data ?? [];
   }
 }
 
-export default new ChargingPointService()
+export default new ChargingPointService();
