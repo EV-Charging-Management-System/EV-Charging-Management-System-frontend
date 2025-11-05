@@ -4,6 +4,9 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { FaInfoCircle, FaClock, FaDollarSign } from 'react-icons/fa'
 import Header from '../../pages/layouts/header'
 import Footer from '../../pages/layouts/footer'
+import bookingService from '../../services/bookingService'
+import chargingSessionService from '../../services/chargingSessionService'
+
 interface Booking {
   id?: number
   stationName: string
@@ -25,6 +28,29 @@ const ChargingSession: React.FC = () => {
   const [finished, setFinished] = useState<boolean>(false)
 
   const [startTimestamp, setStartTimestamp] = useState<string | null>(null)
+  const [sessionId, setSessionId] = useState<number | null>(null)
+  const [bookingData, setBookingData] = useState<any>(null)
+
+  // ===== Load booking data khi component mount =====
+  useEffect(() => {
+    const loadBookingData = async () => {
+      if (!booking?.id) {
+        console.warn("⚠️ Không có booking ID!");
+        return;
+      }
+
+      try {
+        const res = await bookingService.getBookingById(booking.id);
+        console.log("📦 [ChargingSession] Booking data loaded:", res);
+        setBookingData(res.data || res);
+      } catch (error) {
+        console.error("❌ Không thể tải thông tin booking:", error);
+        alert("Không thể tải thông tin đặt lịch. Vui lòng thử lại!");
+      }
+    };
+
+    loadBookingData();
+  }, [booking?.id]);
 
   useEffect(() => {
     let interval: number | null = null
@@ -45,34 +71,82 @@ const ChargingSession: React.FC = () => {
     }
   }, [isCharging, finished, battery])
 
-  const handleStart = () => {
-    setIsCharging(true)
-    setStartTimestamp(new Date().toISOString())
+  // ===== Hàm tạo battery percentage ngẫu nhiên từ 1-100 =====
+  const getRandomBatteryPercentage = (): number => {
+    return Math.floor(Math.random() * 100) + 1; // Random từ 1 đến 100
   }
 
-  const handleStop = () => {
-    setIsCharging(false)
-    setFinished(true)
-  }
-
-  const handleNavigateToPay = () => {
-    const kwh = Math.max(0, (battery - 45) * 0.2)
-    const endTimestamp = new Date().toISOString()
-
-    const payload = {
-      totalCost: cost,
-      stationName: booking?.stationName || 'Trạm Sạc',
-      address: booking?.address || '',
-      port: booking?.port || '',
-      power: booking?.power || '',
-      code: booking?.code || '',
-      durationMinutes: time,
-      kwh,
-      startTime: startTimestamp || endTimestamp,
-      endTime: endTimestamp
+  const handleStart = async () => {
+    if (!booking?.id || !bookingData) {
+      alert("Không tìm thấy thông tin booking. Vui lòng thử lại!");
+      return;
     }
 
-    navigate('/Pay', { state: payload })
+    try {
+      const randomBattery = getRandomBatteryPercentage();
+      
+      const payload = {
+        bookingId: booking.id,
+        stationId: bookingData.StationId ,
+        vehicleId: bookingData.VehicleId ,
+        pointId: bookingData.PointId,
+        portId: bookingData.PortId ,
+        batteryPercentage: randomBattery,
+      };
+
+      console.log("🚀 [ChargingSession] Starting session with payload:", payload);
+      console.log("🔋 Random battery percentage:", randomBattery);
+      const res = await chargingSessionService.startSession(payload);
+      console.log("✅ [ChargingSession] Session started:", res);
+
+      if (res.success && res.data?.sessionId) {
+        setSessionId(res.data.sessionId);
+        setStartTimestamp(res.data.checkinTime || new Date().toISOString());
+        setBattery(randomBattery); // Cập nhật UI với giá trị random
+        setIsCharging(true);
+        alert(`✅ Phiên sạc đã bắt đầu! Pin hiện tại: ${randomBattery}%`);
+      } else {
+        alert("⚠️ Không thể bắt đầu phiên sạc: " + (res.message || "Lỗi không xác định"));
+      }
+    } catch (error: any) {
+      console.error("❌ [ChargingSession] Start session error:", error);
+      alert("❌ Lỗi khi bắt đầu phiên sạc: " + (error?.message || "Vui lòng thử lại!"));
+    }
+  }
+
+  const handleStop = async () => {
+    if (!sessionId) {
+      alert("Không tìm thấy phiên sạc. Vui lòng thử lại!");
+      return;
+    }
+
+    try {
+      console.log("🛑 [ChargingSession] Ending session, sessionId:", sessionId);
+      const res = await chargingSessionService.endSession(sessionId);
+      console.log("✅ [ChargingSession] Session ended:", res);
+
+      if (res.success) {
+        setIsCharging(false);
+        setFinished(true);
+
+        // ✅ Gọi API tạo invoice sau khi kết thúc phiên sạc
+        console.log("📄 [ChargingSession] Creating invoice...");
+        const invoiceRes = await chargingSessionService.createInvoice(sessionId);
+        console.log("✅ [ChargingSession] Invoice created:", invoiceRes);
+
+        alert("✅ Phiên sạc đã kết thúc! Hóa đơn đã được tạo và sẽ được thanh toán qua ví trả sau.");
+        
+        // Chuyển về trang lịch sử hoặc dashboard
+        setTimeout(() => {
+          navigate("/charging-schedule");
+        }, 2000);
+      } else {
+        alert("⚠️ Không thể kết thúc phiên sạc: " + (res.message || "Lỗi không xác định"));
+      }
+    } catch (error: any) {
+      console.error("❌ [ChargingSession] End session error:", error);
+      alert("❌ Lỗi: " + (error?.message || "Vui lòng thử lại!"));
+    }
   }
 
   const statusText = finished ? 'Đã hoàn tất' : isCharging ? 'Đang sạc' : 'Đang chờ sạc'
@@ -95,12 +169,7 @@ const ChargingSession: React.FC = () => {
         </div>
 
         <div className='charging-card'>
-          <div className='top-line'>
-            <p className='port-info-text'>
-              Cổng {booking?.port || 'M'} – {booking?.power || '80kW'} – Mã:{' '}
-              <strong>{booking?.code || 'ABC123'}</strong>
-            </p>
-          </div>
+        
 
           {/* ✅ Thanh pin đã sửa đúng yêu cầu */}
           <div className='charge-progress'>
@@ -112,7 +181,7 @@ const ChargingSession: React.FC = () => {
             <div className='charging-actions'>
               {!isCharging && !finished && (
                 <button className='start-btn' onClick={handleStart}>
-                  ⚡ Bắt đầu sạc
+                  ⚡ Sạc
                 </button>
               )}
 
@@ -160,15 +229,12 @@ const ChargingSession: React.FC = () => {
           {finished && (
             <div className='payment-box'>
               <h3>
-                <FaDollarSign /> Thanh Toán
+                <FaDollarSign /> Hoàn Tất
               </h3>
-              <p>Vui lòng thanh toán để hoàn tất phiên sạc</p>
+              <p>Phiên sạc đã hoàn tất. Hóa đơn sẽ được thanh toán qua ví trả sau.</p>
               <div className='payment-total'>
-                Tổng thanh toán: <strong>{cost.toLocaleString()}đ</strong>
+                Tổng chi phí: <strong>{cost.toLocaleString()}đ</strong>
               </div>
-              <button className='pay-btn' onClick={handleNavigateToPay}>
-                Thanh Toán Ngay
-              </button>
             </div>
           )}
         </div>
