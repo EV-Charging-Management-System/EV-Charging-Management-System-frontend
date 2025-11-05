@@ -27,7 +27,19 @@ const PaymentSuccess: React.FC = () => {
       try {
         const res = await premiumService.getCurrentSubscription();
         console.log("[PaymentSuccess] Membership:", res);
-        if (res?.success) setMembership(res.data);
+
+        if (res?.success && res.data) {
+          const m = res.data;
+          // ✅ Map lại key để đảm bảo hiển thị đúng
+          setMembership({
+            id: m.SubscriptionId || m.PackageId || m.id,
+            startDate: m.StartDate || m.start_date || m.startDate,
+            endDate: m.ExpireDate || m.EndDate || m.end_date || m.endDate,
+            status: m.Status || m.status || "ACTIVE",
+          });
+        } else {
+          console.warn("⚠️ Không có dữ liệu membership từ API!");
+        }
       } catch (error) {
         console.error("❌ Lỗi khi lấy thông tin Premium:", error);
       }
@@ -95,7 +107,6 @@ const PaymentSuccess: React.FC = () => {
       <main className="page-body text-center fade-in">
         <h1 className="page-title success-title">✅ Thanh Toán Thành Công!</h1>
 
-      
         {/* 🔹 Thông tin giao dịch */}
         {(txnRef || vnp_TxnRef) && (
           <div className="txn-box mt-4 p-3 border rounded text-center">
@@ -122,23 +133,19 @@ const PaymentSuccess: React.FC = () => {
               <b>Mã gói:</b> #{membership.id}
             </p>
             <p>
-              <b>Ngày bắt đầu:</b> {membership.startDate}
+              <b>Ngày bắt đầu:</b> {membership.startDate || "—"}
             </p>
             <p>
-              <b>Ngày hết hạn:</b> {membership.endDate}
+              <b>Ngày hết hạn:</b> {membership.endDate || "—"}
             </p>
             <p>
-              <b>Trạng thái:</b> {membership.status}
+              <b>Trạng thái:</b> {membership.status || "—"}
             </p>
           </div>
         )}
 
         {/* 🔹 Nút hành động */}
-        <div className="action-group">
-      
-       
-        
-        </div>
+        <div className="action-group"></div>
       </main>
 
       <Footer />

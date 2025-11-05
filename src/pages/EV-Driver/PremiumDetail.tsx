@@ -16,7 +16,7 @@ const PremiumDetail: React.FC = () => {
   const [membership, setMembership] = useState<any>(null);
   const [user, setUser] = useState<any>(null);
 
-  // ✅ Lấy thông tin người dùng (luôn cập nhật mới)
+  // ✅ Lấy thông tin người dùng
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -34,7 +34,35 @@ const PremiumDetail: React.FC = () => {
     fetchUser();
   }, []);
 
-  // ✅ Nếu là hội viên Premium thì load thông tin gói hiện tại
+  // ✅ Khi quay lại sau thanh toán VNPay
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+    const txnRef = params.get("txnRef");
+
+    if (code === "00" && txnRef?.startsWith("SUB_")) {
+      console.log(`[PremiumDetail] 🧾 Thanh toán Premium thành công (txnRef=${txnRef})`);
+
+      const refreshAfterPayment = async () => {
+        try {
+          // ✅ Gọi đúng endpoint /subscription/current
+          const res = await premiumService.getCurrentSubscription();
+          if (res.success && res.data) {
+            setIsPremium(true);
+            setMembership(res.data);
+            console.log("🎉 Premium activated:", res.data);
+          } else {
+            console.warn("⚠️ Không lấy được gói sau thanh toán:", res);
+          }
+        } catch (err) {
+          console.error("❌ Lỗi khi cập nhật Premium sau thanh toán:", err);
+        }
+      };
+      refreshAfterPayment();
+    }
+  }, []);
+
+  // ✅ Load thông tin gói Premium nếu đang là hội viên
   useEffect(() => {
     if (!isPremium) return;
     const fetchSubscription = async () => {
@@ -92,7 +120,7 @@ const PremiumDetail: React.FC = () => {
     );
   }
 
-  // ✅ Xử lý hành động xác nhận
+  // ✅ Xử lý xác nhận
   const handleConfirm = async () => {
     setError("");
     if (!user) {
@@ -115,11 +143,10 @@ const PremiumDetail: React.FC = () => {
           DurationMonth: "1",
         };
 
+        // ✅ Gọi API đúng luồng Subscription
         const res = await premiumService.createSubscription(payload);
-        const vnpUrl = res?.data?.vnpUrl || res?.vnpUrl || res?.url;
-
-        if (res?.success && vnpUrl) {
-          window.location.href = vnpUrl.replace(/&amp;/g, "&");
+        if (res?.vnpUrl) {
+          window.location.href = res.vnpUrl.replace(/&amp;/g, "&");
         } else {
           setError(res?.message || "Không nhận được đường dẫn thanh toán.");
         }
@@ -161,17 +188,21 @@ const PremiumDetail: React.FC = () => {
 
         {error && <p className="error-text">{error}</p>}
 
-        {/* 🟢 Premium */}
+        {/* 🟢 Premium Info */}
         {isPremium && type === "plan-premium" && membership && (
           <div className="membership-info">
-            <h3>🎉 Bạn đã là hội viên <span className="highlight">Premium</span></h3>
+            <h3>
+              🎉 Bạn đã là hội viên <span className="highlight">Premium</span>
+            </h3>
             <p><b>Mã gói:</b> {membership.PackageId}</p>
             <p><b>Mã giao dịch:</b> {membership.TxnRef}</p>
             <p><b>Phương thức:</b> {membership.PaymentMethod}</p>
             <p><b>Ngày thanh toán:</b> {new Date(membership.PaymentDate).toLocaleString()}</p>
             <p><b>Bắt đầu:</b> {new Date(membership.StartDate).toLocaleDateString()}</p>
             <p><b>Hết hạn:</b> {new Date(membership.ExpireDate).toLocaleDateString()}</p>
-            <button className="back-btn-bottom" onClick={() => navigate("/premium")}>← Quay lại</button>
+            <button className="back-btn-bottom" onClick={() => navigate("/premium")}>
+              ← Quay lại
+            </button>
           </div>
         )}
 
@@ -180,20 +211,19 @@ const PremiumDetail: React.FC = () => {
           <div className="membership-info">
             {isBusiness ? (
               <>
-                <h3>💼 Bạn đang sử dụng <span className="highlight">Tài Khoản Doanh Nghiệp</span></h3>
+                <h3>
+                  💼 Bạn đang sử dụng <span className="highlight">Tài Khoản Doanh Nghiệp</span>
+                </h3>
                 <p>
-                  🔹 Truy cập đầy đủ các chức năng doanh nghiệp:
-                  <br />– Quản lý nhân viên & phương tiện
-                  <br />– Theo dõi doanh thu & hiệu suất sạc
-                  <br />– Thanh toán định kỳ qua Ví Trả Sau
+                  🔹 Quản lý nhiều phương tiện & nhân viên <br />
+                  🔹 Báo cáo doanh thu định kỳ <br />
+                  🔹 Thanh toán qua Ví Trả Sau
                 </p>
-                <p>✅ Tài khoản đã được duyệt và kích hoạt.</p>
               </>
             ) : (
               <>
                 <p>
-                  Bạn có thể gửi yêu cầu nâng cấp tài khoản doanh nghiệp để quản lý nhiều phương tiện
-                  và nhân viên hiệu quả hơn.
+                  Bạn có thể gửi yêu cầu nâng cấp tài khoản doanh nghiệp để quản lý nhiều phương tiện và nhân viên hiệu quả hơn.
                 </p>
                 <button className="confirm-btn" onClick={handleConfirm} disabled={loading}>
                   {loading ? "Đang xử lý..." : "Gửi Yêu Cầu Nâng Cấp"}

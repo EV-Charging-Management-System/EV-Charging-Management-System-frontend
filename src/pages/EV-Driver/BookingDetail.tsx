@@ -88,9 +88,9 @@ const BookingDetail: React.FC = () => {
     if (!formData.userId) {
       alert("⚠️ Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại!");
       return;
-}
+    }
 
-    // 👉 Mở tab mới ngay khi user click
+    // 👉 Mở tab mới ngay khi user click (tránh bị chặn popup)
     const vnpayTab = window.open("", "_blank");
 
     try {
@@ -116,17 +116,26 @@ const BookingDetail: React.FC = () => {
       localStorage.setItem("bookingPayload", JSON.stringify(bookingData));
       console.log("[BookingDetail] bookingPayload saved:", bookingData);
 
-      // Gọi API VNPay tạo URL thanh toán
+      // 💳 Gọi API VNPay tạo URL thanh toán cho Booking Deposit
       const vnpayPayload = {
-        userId: Number(formData.userId),
         amount: 30000,
+        stationId,
+        portId: selectedPortId,
+        orderInfo: `Đặt cọc trạm ${stationId}`,
       };
 
-      console.log("[BookingDetail] Payload gửi VNPay:", vnpayPayload);
-      const res = await bookingService.createVnpay(vnpayPayload);
-      console.log("[BookingDetail] VNPay response:", res);
+      console.log("[BookingDetail] Payload gửi VNPay Booking:", vnpayPayload);
 
-      const paymentUrl = res?.data?.url || res?.url;
+      // ✅ Gọi endpoint mới: /api/vnpay/create-booking
+      const res = await bookingService.createVnpayBooking(vnpayPayload);
+      console.log("[BookingDetail] VNPay Booking response:", res);
+
+      const paymentUrl =
+        res?.data?.data?.vnpUrl ||
+        res?.data?.vnpUrl ||
+        res?.vnpUrl ||
+        res?.url;
+
       if (paymentUrl) {
         vnpayTab!.location.href = paymentUrl;
       } else {
@@ -141,7 +150,6 @@ const BookingDetail: React.FC = () => {
       setPayLoading(false);
     }
   };
-
 
   return (
     <div className="booking-container">
@@ -182,7 +190,7 @@ const BookingDetail: React.FC = () => {
                   })
                 }
                 required
->
+              >
                 <option value="">Chọn hãng xe</option>
                 <option value="VinFast">VF e34</option>
                 <option value="Hyundai">Hyundai</option>
@@ -271,7 +279,7 @@ const BookingDetail: React.FC = () => {
                 <div
                   key={p.PointId}
                   className={`station-box ${cls} ${
-selectedPointId === p.PointId ? "active" : ""
+                    selectedPointId === p.PointId ? "active" : ""
                   }`}
                   onClick={() => {
                     if (cls !== "available") return;
