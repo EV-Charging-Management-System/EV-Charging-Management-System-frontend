@@ -130,9 +130,9 @@ const ChargingSession: React.FC = () => {
         setFinished(true);
 
         // ✅ Gọi API tạo invoice sau khi kết thúc phiên sạc
-        console.log("📄 [ChargingSession] Creating invoice...");
-        const invoiceRes = await chargingSessionService.createInvoice(sessionId);
-        console.log("✅ [ChargingSession] Invoice created:", invoiceRes);
+        // console.log("📄 [ChargingSession] Creating invoice...");
+        // const invoiceRes = await chargingSessionService.createInvoice(sessionId);
+        // console.log("✅ [ChargingSession] Invoice created:", invoiceRes);
 
         alert("✅ Phiên sạc đã kết thúc! Hóa đơn đã được tạo và sẽ được thanh toán qua ví trả sau.");
         

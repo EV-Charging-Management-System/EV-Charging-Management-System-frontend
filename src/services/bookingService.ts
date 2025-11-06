@@ -1,5 +1,3 @@
-
-
 import { apiClient } from "../utils/api";
 
 /* ============================================================
@@ -159,6 +157,21 @@ const bookingService = {
     } catch (error: any) {
       console.error("[bookingService] getBookingByUser error:", error);
       throw new Error("Không thể tải danh sách booking của người dùng.");
+    }
+  },
+
+  /**
+   * ✅ Lấy chi tiết booking theo ID
+   * GET /api/booking/:id
+   */
+  async getBookingById(bookingId: number): Promise<any> {
+    try {
+      const res = await apiClient.get(`/booking/${bookingId}`);
+      console.log("[bookingService] getBookingById:", res.data);
+      return res.data;
+    } catch (error: any) {
+      console.error("[bookingService] getBookingById error:", error);
+      throw new Error("Không thể tải thông tin booking.");
     }
   },
 

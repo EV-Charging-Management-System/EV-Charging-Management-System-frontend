@@ -79,22 +79,22 @@ const chargingSessionService = {
    * ✅ Tạo hóa đơn sau khi kết thúc phiên sạc
    * POST /api/charging-session/:id/invoice
    */
-  async createInvoice(sessionId: number): Promise<any> {
-    try {
-      console.log("[chargingSessionService] POST /charging-session/invoice, sessionId:", sessionId);
-      const res = await apiClient.post(`/charging-session/${sessionId}/invoice`);
+  // async createInvoice(sessionId: number): Promise<any> {
+  //   try {
+  //     console.log("[chargingSessionService] POST /charging-session/invoice, sessionId:", sessionId);
+  //     const res = await apiClient.post(`/charging-session/${sessionId}/invoice`);
       
-      console.log("[chargingSessionService] Create invoice response:", res.data);
-      return res.data;
-    } catch (error: any) {
-      console.error("[chargingSessionService] createInvoice failed:", error);
-      if (error.response) {
-        console.error("➡ Status:", error.response.status);
-        console.error("➡ Data:", error.response.data);
-      }
-      throw new Error(error?.response?.data?.message || "Không thể tạo hóa đơn!");
-    }
-  },
+  //     console.log("[chargingSessionService] Create invoice response:", res.data);
+  //     return res.data;
+  //   } catch (error: any) {
+  //     console.error("[chargingSessionService] createInvoice failed:", error);
+  //     if (error.response) {
+  //       console.error("➡ Status:", error.response.status);
+  //       console.error("➡ Data:", error.response.data);
+  //     }
+  //     throw new Error(error?.response?.data?.message || "Không thể tạo hóa đơn!");
+  //   }
+  // },
 };
 
 export default chargingSessionService;
