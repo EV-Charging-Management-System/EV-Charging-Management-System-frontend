@@ -59,15 +59,19 @@ const AdminDashboard: React.FC = () => {
   }, []);
 
   // 📊 Thống kê Dashboard
-  const loadDashboardData = async () => {
-    try {
-      const res = await adminService.getDashboardStats();
-      if (res?.success && res.data) setStats(res.data);
-      else if (res.totalUsers !== undefined) setStats(res);
-    } catch (error) {
-      console.error("❌ Lỗi tải dashboard:", error);
+const loadDashboardData = async () => {
+  try {
+    const res = await adminService.getDashboardStats();
+    if (res && typeof res === "object") {
+      setStats(res);
+    } else {
+      toast.error("⚠️ Không thể tải thống kê dashboard!");
     }
-  };
+  } catch (error) {
+    console.error("❌ Lỗi tải dashboard:", error);
+    toast.error("❌ Không thể tải dữ liệu tổng quan!");
+  }
+};
 
   // 👥 Lấy danh sách người dùng
   const loadUsers = async () => {
@@ -102,16 +106,16 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  // 💰 Lấy báo cáo doanh thu
-  const loadRevenueReport = async () => {
-    try {
+// 💰 Lấy báo cáo doanh thu
+const loadRevenueReport = async () => {
+  try {
       const res = await adminService.getRevenueReport?.();
       if (res?.success && res.data) setRevenueData(res.data);
       else if (res.TotalRevenue !== undefined) setRevenueData(res);
-    } catch (error) {
-      console.error("❌ Lỗi tải báo cáo doanh thu:", error);
-    }
-  };
+  } catch (error) {
+    console.error("❌ Lỗi tải báo cáo doanh thu:", error);
+  }
+};
 
   // Khi chọn tab tương ứng
   useEffect(() => {

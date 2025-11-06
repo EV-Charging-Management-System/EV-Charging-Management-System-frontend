@@ -34,6 +34,27 @@ const PremiumDetail: React.FC = () => {
     fetchUser();
   }, []);
 
+  // 🟢 ✅ Thêm mới: Kiểm tra gói Premium hiện tại khi mở trang
+  useEffect(() => {
+    const checkCurrentSubscription = async () => {
+      try {
+        const res = await premiumService.getCurrentSubscription();
+        console.log("[premiumService] ✅ Current subscription:", res);
+        if (res?.success && res?.data) {
+          const sub = res.data;
+          if (sub.SubStatus === "ACTIVE") {
+            setIsPremium(true);
+            setMembership(sub);
+            console.log("🔁 Đã có gói Premium đang hoạt động:", sub);
+          }
+        }
+      } catch (err) {
+        console.warn("⚠️ Không thể kiểm tra gói Premium:", err);
+      }
+    };
+    checkCurrentSubscription();
+  }, []);
+
   // ✅ Khi quay lại sau thanh toán VNPay
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -128,6 +149,12 @@ const PremiumDetail: React.FC = () => {
       return;
     }
 
+    // 🛑 ✅ Thêm kiểm tra chặn khi user đã có gói active
+    if (isPremium && current.paymentType === "VNPay") {
+      alert("✅ Bạn đã là hội viên Premium đang hoạt động, không thể mua lại!");
+      return;
+    }
+
     try {
       setLoading(true);
 
@@ -172,7 +199,7 @@ const PremiumDetail: React.FC = () => {
     }
   };
 
-  // ✅ Giao diện hiển thị
+  // ✅ Giao diện hiển thị (giữ nguyên)
   return (
     <div className="detail-container">
       <div className="detail-card fade-in">
@@ -195,9 +222,6 @@ const PremiumDetail: React.FC = () => {
               🎉 Bạn đã là hội viên <span className="highlight">Premium</span>
             </h3>
             <p><b>Mã gói:</b> {membership.PackageId}</p>
-            <p><b>Mã giao dịch:</b> {membership.TxnRef}</p>
-            <p><b>Phương thức:</b> {membership.PaymentMethod}</p>
-            <p><b>Ngày thanh toán:</b> {new Date(membership.PaymentDate).toLocaleString()}</p>
             <p><b>Bắt đầu:</b> {new Date(membership.StartDate).toLocaleDateString()}</p>
             <p><b>Hết hạn:</b> {new Date(membership.ExpireDate).toLocaleDateString()}</p>
             <button className="back-btn-bottom" onClick={() => navigate("/premium")}>
