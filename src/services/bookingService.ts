@@ -105,14 +105,16 @@ const bookingService = {
   },
 
   /**
-   * ✅ Tạo thanh toán VNPay cho Premium
+   * ✅ Tạo thanh toán VNPay
+   * Gửi userId và amount đến API VNPay để tạo URL thanh toán
    */
   async createVnpay(payload: VnpayPayload): Promise<CreateBookingResponse> {
-    try {
+try {
       console.log("[bookingService] POST /vnpay/create payload:", payload);
       const res = await apiClient.post<CreateBookingResponse>("/vnpay/create", payload);
 
       console.log("[bookingService] /vnpay/create response:", res.data);
+
       return res.data;
     } catch (error: any) {
       console.error("[bookingService] createVnpay failed:", error);
@@ -126,12 +128,15 @@ const bookingService = {
 
   /**
    * ✅ Tạo booking sau khi thanh toán thành công
+   * Gửi thông tin đầy đủ về trạm, cổng, xe, thời gian
    */
   async createBooking(payload: BookingPayload): Promise<any> {
     try {
       console.log("[bookingService] POST /booking payload:", payload);
       const res = await apiClient.post("/booking", payload);
+
       console.log("[bookingService] /booking response:", res.data);
+
       return res.data;
     } catch (error: any) {
       console.error("[bookingService] createBooking failed:", error);
@@ -143,9 +148,7 @@ const bookingService = {
     }
   },
 
-  /**
-   * ✅ Lấy danh sách booking của người dùng hiện tại
-   */
+  // get all booking by user
   async getBookingByUser(userId: number | string): Promise<any> {
     try {
       const res = await apiClient.get("/booking/my");
@@ -158,23 +161,20 @@ const bookingService = {
   },
 
   /**
-   * 🟢 Thanh toán VNPay cho Booking Deposit
+   * ✅ Lấy chi tiết booking theo ID
+   * GET /api/booking/:id
    */
-  async createVnpayBooking(data: any): Promise<any> {
+  async getBookingById(bookingId: number): Promise<any> {
     try {
-      console.log("[bookingService] POST /vnpay/create-booking payload:", data);
-      const res = await apiClient.post("/vnpay/create-booking", data);
-      console.log("[bookingService] /vnpay/create-booking response:", res.data);
+      const res = await apiClient.get(`/booking/${bookingId}`);
+      console.log("[bookingService] getBookingById:", res.data);
       return res.data;
     } catch (error: any) {
-      console.error("[bookingService] createVnpayBooking failed:", error);
-      if (error.response) {
-        console.error("➡ Status:", error.response.status);
-        console.error("➡ Data:", error.response.data);
-      }
-      throw new Error(error?.response?.data?.message || "Không thể tạo thanh toán VNPay Booking!");
+      console.error("[bookingService] getBookingById error:", error);
+      throw new Error("Không thể tải thông tin booking.");
     }
   },
+
 };
 
 export default bookingService;
