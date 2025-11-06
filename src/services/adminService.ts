@@ -123,5 +123,16 @@ async getDashboardStats() {
     return {};
   }
 },
+// 🔍 Xem chi tiết yêu cầu doanh nghiệp
+async getBusinessDetail(userId: number) {
+  try {
+    const res = await apiClient.get(`/admin/approvals/${userId}`);
+    return res.data;
+  } catch (error) {
+    console.error("❌ Lỗi xem chi tiết doanh nghiệp:", error);
+    return { success: false, message: "Lỗi khi xem chi tiết doanh nghiệp!" };
+  }
+},
+
 
 };

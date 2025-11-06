@@ -44,6 +44,7 @@ const AdminDashboard: React.FC = () => {
   const [bookings, setBookings] = useState<any[]>([]);
   const [staffList, setStaffList] = useState<any[]>([]);
   const [loadingStaff, setLoadingStaff] = useState(true);
+
   const navigate = useNavigate();
 
   // 🚀 Load dữ liệu ban đầu
@@ -58,28 +59,28 @@ const AdminDashboard: React.FC = () => {
     init();
   }, []);
 
-  // 📊 Thống kê Dashboard
-const loadDashboardData = async () => {
-  try {
-    const res = await adminService.getDashboardStats();
-    if (res && typeof res === "object") {
-      setStats(res);
-    } else {
-      toast.error("⚠️ Không thể tải thống kê dashboard!");
+  // 📊 Lấy thống kê Dashboard
+  const loadDashboardData = async () => {
+    try {
+      const res = await adminService.getDashboardStats();
+      if (res && typeof res === "object") {
+        setStats(res);
+      } else {
+        toast.error("⚠️ Không thể tải thống kê dashboard!");
+      }
+    } catch (error) {
+      console.error("❌ Lỗi tải dashboard:", error);
+      toast.error("❌ Không thể tải dữ liệu tổng quan!");
     }
-  } catch (error) {
-    console.error("❌ Lỗi tải dashboard:", error);
-    toast.error("❌ Không thể tải dữ liệu tổng quan!");
-  }
-};
+  };
 
   // 👥 Lấy danh sách người dùng
   const loadUsers = async () => {
     try {
       const res = await adminService.getAllUsers();
       if (Array.isArray(res)) setUsers(res);
-    } catch (err) {
-      console.error("⚠️ Không thể tải danh sách người dùng:", err);
+    } catch (error) {
+      console.error("⚠️ Không thể tải danh sách người dùng:", error);
     }
   };
 
@@ -88,8 +89,8 @@ const loadDashboardData = async () => {
     try {
       const res = await adminService.getAllStations();
       if (Array.isArray(res)) setStations(res);
-    } catch (err) {
-      console.error("⚠️ Không thể tải danh sách trạm:", err);
+    } catch (error) {
+      console.error("⚠️ Không thể tải danh sách trạm:", error);
     }
   };
 
@@ -99,25 +100,25 @@ const loadDashboardData = async () => {
     try {
       const res = await adminService.getAllStaff();
       if (Array.isArray(res)) setStaffList(res);
-    } catch (err) {
-      console.error("⚠️ Không thể tải danh sách staff:", err);
+    } catch (error) {
+      console.error("⚠️ Không thể tải danh sách staff:", error);
     } finally {
       setLoadingStaff(false);
     }
   };
 
-// 💰 Lấy báo cáo doanh thu
-const loadRevenueReport = async () => {
-  try {
+  // 💰 Lấy báo cáo doanh thu
+  const loadRevenueReport = async () => {
+    try {
       const res = await adminService.getRevenueReport?.();
       if (res?.success && res.data) setRevenueData(res.data);
       else if (res.TotalRevenue !== undefined) setRevenueData(res);
-  } catch (error) {
-    console.error("❌ Lỗi tải báo cáo doanh thu:", error);
-  }
-};
+    } catch (error) {
+      console.error("❌ Lỗi tải báo cáo doanh thu:", error);
+    }
+  };
 
-  // Khi chọn tab tương ứng
+  // 🎯 Khi chọn tab tương ứng
   useEffect(() => {
     if (activeTab === "revenue") loadRevenueReport();
     if (activeTab === "staff") loadStaff();
@@ -236,6 +237,7 @@ const loadRevenueReport = async () => {
             <BarChart3 size={18} /> Doanh thu
           </li>
         </ul>
+
         <button className="logout-btn" onClick={handleLogout}>
           <LogOut size={18} /> Đăng xuất
         </button>
