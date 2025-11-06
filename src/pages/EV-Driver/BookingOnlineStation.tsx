@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect } from 'react'
 import '../../css//BookingOnlineStation.css'
 import { useNavigate } from 'react-router-dom'
@@ -26,7 +28,7 @@ const BookingOnlineStation: React.FC = () => {
   useEffect(() => {
     let mountedUser = true
     const fetchUser = async () => {
-      try {
+      try {z
         const u = await authService.getProfile()
         if (mountedUser) setCurrentUser(u)
       } catch (e) {
@@ -234,3 +236,7 @@ const BookingOnlineStation: React.FC = () => {
 }
 
 export default BookingOnlineStation
+
+
+
+
