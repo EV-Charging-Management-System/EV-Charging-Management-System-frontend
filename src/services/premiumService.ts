@@ -24,6 +24,14 @@ export const premiumService = {
       const data = res?.data?.data || {};
       const vnpUrl = data?.vnpUrl || res?.data?.vnpUrl || res?.vnpUrl || "";
 
+      // 🧩 Kiểm tra backend trả lỗi "đã có gói ACTIVE"
+      if (res?.data?.success === false) {
+        return {
+          success: false,
+          message: res?.data?.message || "Không thể tạo gói Premium mới.",
+        };
+      }
+
       if (vnpUrl && vnpUrl.startsWith("http")) {
         return {
           success: true,
@@ -60,7 +68,7 @@ export const premiumService = {
    */
   async getCurrentSubscription() {
     try {
-      const res = await apiClient.get("/subscriptions/current"); // ✅ thêm chữ s
+      const res = await apiClient.get("/subscriptions/current");
       console.log("[premiumService] ✅ Current subscription:", res.data);
 
       return {
@@ -86,7 +94,7 @@ export const premiumService = {
    */
   async checkPremiumStatus() {
     try {
-      const res = await apiClient.get("/subscriptions/current"); // ✅ thêm chữ s
+      const res = await apiClient.get("/subscriptions/current");
       const sub = res.data?.data;
       const isPremium = !!(sub && sub.SubStatus === "ACTIVE");
 

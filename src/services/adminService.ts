@@ -15,7 +15,7 @@ export const adminService = {
   // ⚡ Lấy danh sách trạm sạc
   async getAllStations(): Promise<any[]> {
     try {
-      const res = await apiClient.get("/station/getAllSations");
+      const res = await apiClient.get("/station/getAllStations");
       return Array.isArray(res.data?.data) ? res.data.data : res.data || [];
     } catch (error) {
       console.error("⚠️ Lỗi lấy danh sách trạm sạc:", error);
@@ -113,4 +113,15 @@ export const adminService = {
       return { success: false, message: "Lỗi khi tạo tài khoản staff!" };
     }
   },
+  // 📊 Thống kê tổng quan Dashboard
+async getDashboardStats() {
+  try {
+    const res = await apiClient.get("/admin/dashboard");
+    return res.data?.data || res.data || {};
+  } catch (error) {
+    console.error("⚠️ Lỗi lấy thống kê dashboard:", error);
+    return {};
+  }
+},
+
 };
