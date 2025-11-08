@@ -26,6 +26,7 @@ const ChargingSession: React.FC = () => {
   const [cost, setCost] = useState<number>(0)
   const [isCharging, setIsCharging] = useState<boolean>(false)
   const [finished, setFinished] = useState<boolean>(false)
+  const [penaltyMinutes, setPenaltyMinutes] = useState<number>(0)
 
   const [startTimestamp, setStartTimestamp] = useState<string | null>(null)
   const [sessionId, setSessionId] = useState<number | null>(null)
@@ -71,6 +72,31 @@ const ChargingSession: React.FC = () => {
     }
   }, [isCharging, finished, battery])
 
+  // ===== Đếm số giây khi pin đạt 100% (1 giây = 5000đ phạt) =====
+  useEffect(() => {
+    let penaltyCountInterval: number | null = null;
+
+    if (isCharging && !finished && battery >= 100) {
+      console.log(`⚠️ [ChargingSession] Pin đã đầy 100%! Bắt đầu đếm thời gian phạt (1s = 5000đ)...`);
+      
+      // Đếm mỗi 1 giây
+      penaltyCountInterval = window.setInterval(() => {
+        setPenaltyMinutes((prev) => {
+          const newCount = prev + 1;
+          console.log(`⏱️ [ChargingSession] Thời gian quá 100%: ${newCount} giây (${newCount * 5000}đ)`);
+          return newCount;
+        });
+      }, 1000); // 1000ms = 1 giây
+    }
+
+    return () => {
+      if (penaltyCountInterval) {
+        console.log("🛑 [ChargingSession] Dừng đếm thời gian phạt");
+        window.clearInterval(penaltyCountInterval);
+      }
+    };
+  }, [isCharging, finished, battery]);
+
   // ===== Hàm tạo battery percentage ngẫu nhiên từ 1-100 =====
   const getRandomBatteryPercentage = (): number => {
     return Math.floor(Math.random() * 100) + 1; // Random từ 1 đến 100
@@ -79,6 +105,16 @@ const ChargingSession: React.FC = () => {
   const handleStart = async () => {
     if (!booking?.id || !bookingData) {
       alert("Không tìm thấy thông tin booking. Vui lòng thử lại!");
+      return;
+    }
+
+    if (isCharging) {
+      alert("Phiên sạc đã được bắt đầu!");
+      return;
+    }
+
+    if (sessionId) {
+      alert("Đã có phiên sạc đang hoạt động!");
       return;
     }
 
@@ -94,17 +130,20 @@ const ChargingSession: React.FC = () => {
         batteryPercentage: randomBattery,
       };
 
-      console.log("🚀 [ChargingSession] Starting session with payload:", payload);
+      console.log("🚀 [ChargingSession] Step 1: Starting session with payload:", payload);
       console.log("🔋 Random battery percentage:", randomBattery);
+      
+      // ✅ Bước 1: Bắt đầu phiên sạc
       const res = await chargingSessionService.startSession(payload);
       console.log("✅ [ChargingSession] Session started:", res);
 
       if (res.success && res.data?.sessionId) {
         setSessionId(res.data.sessionId);
         setStartTimestamp(res.data.checkinTime || new Date().toISOString());
-        setBattery(randomBattery); // Cập nhật UI với giá trị random
+        setBattery(randomBattery);
         setIsCharging(true);
-        alert(`✅ Phiên sạc đã bắt đầu! Pin hiện tại: ${randomBattery}%`);
+        
+        alert(`✅ Phiên sạc đã bắt đầu!\n\n🔋 Pin hiện tại: ${randomBattery}%\n📍 Session ID: ${res.data.sessionId}\n\n⚠️ Lưu ý: Nếu sạc đến 100% mà không dừng, bạn sẽ bị tính phí phạt 5.000đ/giây!`);
       } else {
         alert("⚠️ Không thể bắt đầu phiên sạc: " + (res.message || "Lỗi không xác định"));
       }
@@ -120,31 +159,65 @@ const ChargingSession: React.FC = () => {
       return;
     }
 
+    if (!isCharging) {
+      alert("Phiên sạc chưa được bắt đầu!");
+      return;
+    }
+
     try {
-      console.log("🛑 [ChargingSession] Ending session, sessionId:", sessionId);
-      const res = await chargingSessionService.endSession(sessionId);
-      console.log("✅ [ChargingSession] Session ended:", res);
+      // ✅ Bước 1: END session trước
+      console.log("🛑 [ChargingSession] Step 1: END session, sessionId:", sessionId);
+      const endRes = await chargingSessionService.endSession(sessionId);
+      console.log("✅ [ChargingSession] Session ended:", endRes);
 
-      if (res.success) {
-        setIsCharging(false);
-        setFinished(true);
-
-        // ✅ Gọi API tạo invoice sau khi kết thúc phiên sạc
-        // console.log("📄 [ChargingSession] Creating invoice...");
-        // const invoiceRes = await chargingSessionService.createInvoice(sessionId);
-        // console.log("✅ [ChargingSession] Invoice created:", invoiceRes);
-
-        alert("✅ Phiên sạc đã kết thúc! Hóa đơn đã được tạo và sẽ được thanh toán qua ví trả sau.");
-        
-        // Chuyển về trang lịch sử hoặc dashboard
-        setTimeout(() => {
-          navigate("/charging-schedule");
-        }, 2000);
-      } else {
-        alert("⚠️ Không thể kết thúc phiên sạc: " + (res.message || "Lỗi không xác định"));
+      if (!endRes.success) {
+        alert("⚠️ Không thể kết thúc phiên sạc: " + (endRes.message || "Lỗi không xác định"));
+        return;
       }
+
+      // Dừng trạng thái sạc ngay lập tức
+      setIsCharging(false);
+      setFinished(true);
+
+      // ⚠️ Bước 2: PENALTY sau END (nếu có)
+      if (penaltyMinutes > 0) {
+        const calculatedPenaltyFee = penaltyMinutes * 5000;
+        console.log(`💰 [ChargingSession] Step 2: Áp dụng phí phạt: ${penaltyMinutes} giây x 5.000đ = ${calculatedPenaltyFee}đ`);
+        console.log(`⚠️ [ChargingSession] API PENALTY gọi 1 LẦN DUY NHẤT: penaltyFee = ${calculatedPenaltyFee}`);
+        
+        try {
+          const penaltyRes = await chargingSessionService.applyPenalty(sessionId, calculatedPenaltyFee);
+          console.log("✅ [ChargingSession] Penalty applied:", penaltyRes);
+        } catch (penaltyError: any) {
+          console.error("❌ [ChargingSession] Penalty API error:", penaltyError);
+          // Không block flow, vẫn tiếp tục tạo invoice
+        }
+      } else {
+        console.log("ℹ️ [ChargingSession] Step 2: Không có phí phạt (pin chưa đạt 100%)");
+      }
+
+      // ✅ Bước 3: CREATE INVOICE cuối cùng
+      console.log("📄 [ChargingSession] Step 3: CREATE invoice...");
+      const invoiceRes = await chargingSessionService.createInvoice(sessionId);
+      console.log("✅ [ChargingSession] Invoice created:", invoiceRes);
+      
+      if (penaltyMinutes > 0) {
+        console.log(`📊 Invoice có: penaltyFee = ${penaltyMinutes * 5000}`);
+      }
+
+      if (invoiceRes.success) {
+        const penaltyText = penaltyMinutes > 0 ? `\n- Phí phạt: ${(penaltyMinutes * 5000).toLocaleString()}đ (${penaltyMinutes} giây)` : '';
+        alert(`✅ Phiên sạc đã kết thúc!\n\n📄 Hóa đơn đã được tạo:\n- Mã hóa đơn: #${invoiceRes.data?.invoiceId || 'N/A'}\n- Tổng chi phí: ${invoiceRes.data?.sessionPrice?.toLocaleString() || cost.toLocaleString()}đ${penaltyText}\n- Thanh toán: Ví trả sau`);
+      } else {
+        alert("⚠️ Phiên sạc đã kết thúc nhưng không tạo được hóa đơn. Vui lòng liên hệ hỗ trợ!");
+      }
+      
+      // Chuyển về trang lịch sử sau 2 giây
+      setTimeout(() => {
+        navigate("/charging-schedule");
+      }, 2000);
     } catch (error: any) {
-      console.error("❌ [ChargingSession] End session error:", error);
+      console.error("❌ [ChargingSession] Stop session error:", error);
       alert("❌ Lỗi: " + (error?.message || "Vui lòng thử lại!"));
     }
   }
@@ -221,8 +294,14 @@ const ChargingSession: React.FC = () => {
               <p>
                 Chi phí sạc: <strong>{cost.toLocaleString()}đ</strong>
               </p>
-              {battery >= 100 && isCharging && <p className="overtime-fee">Phí quá giờ: +12.000đ/phút</p>
-}
+              {battery >= 100 && isCharging && (
+                <>
+                  <p className="overtime-fee">⚠️ Phí quá giờ: +5.000đ/giây</p>
+                  <p className="penalty-warning" style={{color: '#ff4444', fontWeight: 'bold'}}>
+                    🚨 Đã áp dụng phí phạt: {penaltyMinutes} giây x 5.000đ = {(penaltyMinutes * 5000).toLocaleString()}đ
+                  </p>
+                </>
+              )}
             </div>
           </div>
 

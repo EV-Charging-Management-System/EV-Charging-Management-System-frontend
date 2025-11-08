@@ -8,7 +8,6 @@ import {
 } from "react-bootstrap";
 import {
   FaCalendarAlt,
-  FaClock,
   FaCar,
   FaMoneyBill,
   FaHashtag,
@@ -43,7 +42,10 @@ const ChargingSchedule: React.FC = () => {
         }
 
         const res = await bookingService.getBookingByUser(userId);
-        const list = res?.data || [];
+        let list = res?.data || [];
+
+        // ✅ Lọc chỉ những booking có Status = "ACTIVE"
+        list = list.filter((b: any) => b.Status === "ACTIVE");
 
         const formatted = list.map((b: any) => ({
           id: b.BookingId,
@@ -59,12 +61,7 @@ const ChargingSchedule: React.FC = () => {
           plate: b.LicensePlate || "N/A",
           deposit: b.DepositAmount?.toLocaleString("vi-VN") + " ₫",
           qr: b.QR?.substring(0, 8) || "N/A",
-          status:
-            b.Status === "ACTIVE"
-              ? "Đã xác nhận"
-              : b.Status === "CANCELLED"
-              ? "Đã hủy"
-              : "Đang xử lý",
+          status: "Đã xác nhận",
         }));
 
         setBookings(formatted);
@@ -77,12 +74,6 @@ const ChargingSchedule: React.FC = () => {
 
     fetchBookings();
   }, []);
-
-  const handleCancel = (id: number) => {
-    if (window.confirm("Bạn có chắc muốn hủy lịch này?")) {
-      setBookings((prev) => prev.filter((b) => b.id !== id));
-    }
-  };
 
   const handleStartCharging = (booking: any) => {
     navigate("/charging-session", { state: { booking } });
@@ -115,7 +106,9 @@ const ChargingSchedule: React.FC = () => {
             <p className="mt-2">Đang tải dữ liệu...</p>
           </div>
         ) : bookings.length === 0 ? (
-          <p className="text-center text-muted">Hiện chưa có lịch sạc nào.</p>
+          <p className="text-center text-muted">
+            Hiện chưa có lịch sạc nào đang hoạt động.
+          </p>
         ) : (
           bookings.map((b) => (
             <Card
@@ -123,7 +116,6 @@ const ChargingSchedule: React.FC = () => {
               className="mb-4 shadow-sm bg-secondary bg-opacity-10 border border-warning"
             >
               <Card.Body className="d-flex justify-content-between flex-wrap">
-                {/* Thông tin bên trái */}
                 <div>
                   <Card.Title className="text-warning mb-3">
                     <FaMapMarkerAlt className="me-2" />
@@ -148,33 +140,19 @@ const ChargingSchedule: React.FC = () => {
                   </p>
                 </div>
 
-                {/* Thông tin bên phải */}
                 <div className="text-end mt-3 mt-md-0">
-                  <Badge
-                    bg={
-                      b.status === "Đã xác nhận"
-                        ? "success"
-                        : b.status === "Đã hủy"
-                        ? "danger"
-                        : "warning"
-                    }
-                    text={b.status === "Đang xử lý" ? "dark" : "light"}
-                    className="mb-2"
-                  >
+                  <Badge bg="success" text="light" className="mb-2">
                     {b.status}
                   </Badge>
 
                   <div className="d-flex gap-2 justify-content-end">
-                    {b.status === "Đã xác nhận" && (
-                      <Button
-                        size="sm"
-                        variant="warning"
-                        onClick={() => handleStartCharging(b)}
-                      >
-                        Bắt đầu sạc
-                      </Button>
-                    )}
-
+                    <Button
+                      size="sm"
+                      variant="warning"
+                      onClick={() => handleStartCharging(b)}
+                    >
+                      Bắt đầu sạc
+                    </Button>
                   </div>
                 </div>
               </Card.Body>
