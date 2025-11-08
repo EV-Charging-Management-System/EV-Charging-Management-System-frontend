@@ -30,30 +30,35 @@ const SessionHistory: React.FC<Props> = ({ companyId }) => {
     return <p>⚠️ Chưa có lịch sử sạc nào cho công ty này.</p>;
 
   return (
-    <table className="session-table">
-      <thead>
-        <tr>
-          <th>Mã phiên</th>
-          <th>Xe</th>
-          <th>Thời gian bắt đầu</th>
-          <th>Thời gian kết thúc</th>
-          <th>Năng lượng (kWh)</th>
-          <th>Tổng tiền (VNĐ)</th>
-        </tr>
-      </thead>
-      <tbody>
-        {sessions.map((s, i) => (
-          <tr key={i}>
-            <td>{s.SessionId}</td>
-            <td>{s.LicensePlate || "N/A"}</td>
-            <td>{new Date(s.StartTime).toLocaleString()}</td>
-            <td>{new Date(s.EndTime).toLocaleString()}</td>
-            <td>{s.EnergyUsed}</td>
-            <td>{s.TotalCost?.toLocaleString("vi-VN")}</td>
+    <div className="session-history">
+      <h3>Lịch sử sạc của công ty #{companyId}</h3>
+      <table className="session-table">
+        <thead>
+          <tr>
+            <th>Mã phiên</th>
+            <th>Xe (VehicleId)</th>
+            <th>Thời gian bắt đầu</th>
+            <th>Thời gian kết thúc</th>
+            <th>Thời lượng (giờ)</th>
+            <th>Trạng thái</th>
+            <th>Tổng tiền (VNĐ)</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {sessions.map((s, i) => (
+            <tr key={i}>
+              <td>{s.SessionId}</td>
+              <td>{s.VehicleId}</td>
+              <td>{s.CheckinTime ? new Date(s.CheckinTime).toLocaleString() : "—"}</td>
+              <td>{s.CheckoutTime ? new Date(s.CheckoutTime).toLocaleString() : "—"}</td>
+              <td>{s.TotalTime}</td>
+              <td>{s.ChargingStatus}</td>
+              <td>{s.SessionPrice?.toLocaleString("vi-VN")}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 };
 
