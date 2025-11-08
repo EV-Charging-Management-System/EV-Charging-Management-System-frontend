@@ -245,15 +245,37 @@ const PremiumDetail: React.FC = () => {
         )}
 
         {/* 🔹 Premium */}
-        {!isPremium && type === "plan-premium" && (
-          <div className="action-group">
-            <button className="confirm-btn" onClick={handleConfirm} disabled={loading}>
-              {loading ? "Đang xử lý..." : "Xác nhận & Thanh toán"}
-            </button>
-            <button className="back-btn-bottom" onClick={() => navigate("/premium")}>
-              ← Quay lại
-            </button>
-          </div>
+        {type === "plan-premium" && (
+          <>
+            {isPremium ? (
+              <div className="membership-info">
+                <h3>✅ Bạn hiện đang là <span className="highlight">Hội Viên Premium</span></h3>
+                <p>
+                  📅 <strong>Hiệu lực:</strong>{" "}
+                  {membership?.StartDate
+                    ? new Date(membership.StartDate).toLocaleDateString()
+                    : "N/A"}{" "}
+                  -{" "}
+                  {membership?.EndDate
+                    ? new Date(membership.EndDate).toLocaleDateString()
+                    : "N/A"}
+                </p>
+                <p>💎 Trạng thái: <strong>{membership?.SubStatus || "ACTIVE"}</strong></p>
+                <button className="back-btn-bottom" onClick={() => navigate("/premium")}>
+                  ← Quay lại
+                </button>
+              </div>
+            ) : (
+              <div className="action-group">
+                <button className="confirm-btn" onClick={handleConfirm} disabled={loading}>
+                  {loading ? "Đang xử lý..." : "Xác nhận & Thanh toán"}
+                </button>
+                <button className="back-btn-bottom" onClick={() => navigate("/premium")}>
+                  ← Quay lại
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
 
@@ -296,8 +318,12 @@ const PremiumDetail: React.FC = () => {
               />
 
               <div className="form-buttons">
-                <button type="submit" className="confirm-btn">Gửi Yêu Cầu</button>
-                <button type="button" className="back-btn" onClick={() => setShowForm(false)}>Hủy</button>
+                <button type="submit" className="confirm-btn">
+                  Gửi Yêu Cầu
+                </button>
+                <button className="back-btn-bottom" onClick={() => navigate("/premium")}>
+                  ← hủy
+                </button>
               </div>
             </form>
           </div>

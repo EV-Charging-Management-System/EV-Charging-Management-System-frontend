@@ -88,17 +88,17 @@ const VehicleManager: React.FC = () => {
           onChange={(e) => setLicensePlate(e.target.value)}
         />
 
-        <select value={brand} onChange={(e) => setBrand(e.target.value)}>
-          <option value="">Chọn hãng xe</option>
-          <option value="Toyota">Toyota</option>
-          <option value="VinFast">VinFast</option>
-          <option value="Hyundai">Hyundai</option>
-          <option value="Tesla">Tesla</option>
-        </select>
+        {/* ✅ Đổi dropdown hãng xe thành input text */}
+        <input
+          type="text"
+          placeholder="Hãng xe (VD: VinFast, Toyota, Tesla...)"
+          value={brand}
+          onChange={(e) => setBrand(e.target.value)}
+        />
 
         <input
           type="text"
-          placeholder="Tên xe (VD: Vios, VF8, Model 3...)"
+          placeholder="Tên xe (VD: VF8, Vios, Model 3...)"
           value={model}
           onChange={(e) => setModel(e.target.value)}
         />

@@ -53,7 +53,9 @@ export const businessService = {
    */
   async deleteVehicleByPlate(licensePlate: string) {
     try {
-      const res = await apiClient.delete(`/business/vehicle/${licensePlate}`);
+      // ✅ Encode để tránh lỗi khi biển số có dấu gạch hoặc ký tự đặc biệt
+      const encodedPlate = encodeURIComponent(licensePlate.trim());
+      const res = await apiClient.delete(`/business/vehicle/${encodedPlate}`);
       console.log("[businessService] 🗑️ deleteVehicleByPlate:", res.data);
       return res.data;
     } catch (err: any) {
@@ -103,4 +105,41 @@ export const businessService = {
       };
     }
   },
+  /**
+ * ⚡ Lấy lịch sử sạc của doanh nghiệp
+ * Gọi API: GET /api/business/session/:companyId
+ */
+async getCompanySessions(companyId: number) {
+  try {
+    const res = await apiClient.get(`/business/session/${companyId}`);
+    console.log("[businessService] ✅ getCompanySessions:", res.data);
+    return res.data;
+  } catch (err: any) {
+    console.error("[businessService] ❌ Error getCompanySessions:", err);
+    return {
+      success: false,
+      data: [],
+      message: err.response?.data?.message || "Không thể tải lịch sử sạc.",
+    };
+  }
+},
+/**
+ * 📊 Lấy tổng quan doanh nghiệp
+ * Gọi API: GET /api/business/overview/:companyId
+ */
+async getCompanyOverview(companyId: number) {
+  try {
+    const res = await apiClient.get(`/business/overview/${companyId}`);
+    console.log("[businessService] ✅ getCompanyOverview:", res.data);
+    return res.data;
+  } catch (err: any) {
+    console.error("[businessService] ❌ Error getCompanyOverview:", err);
+    return {
+      success: false,
+      data: {},
+      message: err.response?.data?.message || "Không thể tải tổng quan doanh nghiệp.",
+    };
+  }
+},
+
 };
