@@ -7,6 +7,9 @@ import MenuBar from "../layouts/menu-bar";
 import { authService } from "../../services/authService";
 import { businessService } from "../../services/businessService";
 import VehicleManager from "../../components/VehicleManager";
+import SessionHistory from "../../components/SessionHistory";
+import BusinessOverview from "../../components/BusinessOverview";
+
 import { toast } from "react-toastify";
 
 const Business: React.FC = () => {
@@ -90,16 +93,14 @@ const Business: React.FC = () => {
               {activeTab === "sessions" && (
                 <div className="business-section">
                   <h3>⚡ Lịch Sử Sạc Của Doanh Nghiệp</h3>
-                  <p>Chức năng này sẽ hiển thị toàn bộ lịch sử sạc của các xe thuộc công ty bạn.</p>
-                  <p className="coming-soon">🚧 Đang phát triển backend API `/api/business/sessions/:companyId`</p>
+                  <SessionHistory companyId={user?.CompanyId} />
                 </div>
               )}
 
+
               {activeTab === "overview" && (
                 <div className="business-section">
-                  <h3>📈 Báo Cáo Tổng Quan Doanh Nghiệp</h3>
-                  <p>Thống kê tổng số xe, phiên sạc, lượng điện tiêu thụ và tổng doanh thu của công ty.</p>
-                  <p className="coming-soon">🚧 Đang phát triển backend API `/api/business/overview/:companyId`</p>
+                  <BusinessOverview companyId={user?.CompanyId} />
                 </div>
               )}
             </div>
