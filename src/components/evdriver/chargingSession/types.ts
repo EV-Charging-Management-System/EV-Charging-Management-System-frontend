@@ -9,6 +9,7 @@ export interface Booking {
   port?: string
   power?: string
   code?: string
+  portId?: number
 }
 
 export interface SessionState {

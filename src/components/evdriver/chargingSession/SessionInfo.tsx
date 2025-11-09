@@ -1,9 +1,11 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { FaInfoCircle, FaClock } from 'react-icons/fa'
 import type { Booking } from './types'
+import bookingService from '../../../services/bookingService'
 
 interface SessionInfoProps {
   booking?: Booking
+  bookingData?: any
   battery: number
   time: number
   cost: number
@@ -14,7 +16,35 @@ interface SessionInfoProps {
 /**
  * Component hiển thị thông tin sạc và thời gian/chi phí
  */
-export const SessionInfo: React.FC<SessionInfoProps> = ({ booking, battery, time, cost, isCharging, penaltyMinutes }) => {
+export const SessionInfo: React.FC<SessionInfoProps> = ({ booking, bookingData, battery, time, cost, isCharging, penaltyMinutes }) => {
+  const [portTypeOfKwh, setPortTypeOfKwh] = useState<number | null>(null)
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    const fetchPortDetails = async () => {
+      // Lấy portId từ bookingData hoặc booking
+      const portId = bookingData?.PortId || booking?.portId
+      
+      if (!portId) {
+        console.warn('⚠️ Không có portId để lấy thông tin công suất')
+        return
+      }
+
+      try {
+        setLoading(true)
+        const portData = await bookingService.getPortById(portId)
+        console.log('📦 [SessionInfo] Port data loaded:', portData)
+        setPortTypeOfKwh(portData.PortTypeOfKwh || null)
+      } catch (error) {
+        console.error('❌ Không thể tải thông tin cổng sạc:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchPortDetails()
+  }, [bookingData, booking?.portId])
+
   return (
     <div className='session-info'>
       <div className='info-box'>
@@ -28,7 +58,7 @@ export const SessionInfo: React.FC<SessionInfoProps> = ({ booking, battery, time
           Năng lượng tiêu thụ: <strong>{Math.max(0, (battery - 45) * 0.2)} kWh</strong>
         </p>
         <p>
-          Công suất: <strong>{booking?.power || '80 kW'}</strong>
+          Công suất: <strong>{loading ? 'Đang tải...' : portTypeOfKwh ? `${portTypeOfKwh} kW` : booking?.power || '80 kW'}</strong>
         </p>
       </div>
 

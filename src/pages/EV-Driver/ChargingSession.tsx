@@ -43,6 +43,7 @@ const ChargingSession: React.FC = () => {
 
           <SessionInfo
             booking={booking}
+            bookingData={bookingData}
             battery={state.battery}
             time={state.time}
             cost={state.cost}

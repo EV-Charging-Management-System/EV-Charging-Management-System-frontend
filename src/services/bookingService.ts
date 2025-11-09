@@ -105,6 +105,20 @@ const bookingService = {
   },
 
   /**
+   * ✅ Lấy chi tiết cổng (Port) theo PortId
+   */
+  async getPortById(portId: number): Promise<any> {
+    try {
+      const res = await apiClient.get(`/station/getPortById/${portId}`);
+      console.log("[bookingService] getPortById:", res.data);
+      return res.data?.data || res.data;
+    } catch (error: any) {
+      console.error("[bookingService] getPortById error:", error);
+      throw new Error("Không thể tải thông tin cổng sạc.");
+    }
+  },
+
+  /**
    * ✅ Tạo thanh toán VNPay
    * Gửi userId và amount đến API VNPay để tạo URL thanh toán
    */
