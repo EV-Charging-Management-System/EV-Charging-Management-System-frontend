@@ -16,15 +16,9 @@ const Business: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [company, setCompany] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-
-  // 🟢 Tab hiện tại
   const [activeTab, setActiveTab] = useState<
-    "vehicles" | "sessions" | "overview" | "lookup"
+    "vehicles" | "sessions" | "overview"
   >("vehicles");
-
-  // 🟢 Tra cứu công ty theo biển số
-  const [licenseLookup, setLicenseLookup] = useState("");
-  const [lookupResult, setLookupResult] = useState<any>(null);
 
   // 🔹 Lấy thông tin user hiện tại
   useEffect(() => {
@@ -63,6 +57,7 @@ const Business: React.FC = () => {
           setCompany(res.data);
           console.log("🏢 Company data:", res.data);
         } else {
+          console.warn("⚠️ Không tìm thấy thông tin công ty!");
           toast.warn("Không tìm thấy thông tin công ty!");
         }
       } catch (err) {
@@ -70,31 +65,9 @@ const Business: React.FC = () => {
         toast.error("Lỗi khi tải thông tin công ty!");
       }
     };
+
     fetchCompany();
   }, [user]);
-
-  // 🔍 Tra cứu công ty theo biển số
-  const handleLookup = async () => {
-    if (!licenseLookup.trim()) {
-      toast.warn("⚠️ Vui lòng nhập biển số xe để tra cứu!");
-      return;
-    }
-    try {
-      const res = await businessService.lookupCompanyByPlate(
-        licenseLookup.trim()
-      );
-      if (res.success && res.data) {
-        setLookupResult(res.data);
-        toast.success("✅ Đã tìm thấy công ty!");
-      } else {
-        setLookupResult(null);
-        toast.error(res.message || "Không tìm thấy công ty nào sở hữu xe này!");
-      }
-    } catch (err) {
-      console.error("❌ Lỗi khi tra cứu:", err);
-      toast.error("Không thể kết nối đến máy chủ.");
-    }
-  };
 
   // 🔹 Gửi yêu cầu nâng cấp Business
   const handleUpgrade = async () => {
@@ -158,14 +131,6 @@ const Business: React.FC = () => {
               >
                 💰 Doanh thu & thống kê
               </button>
-              <button
-                className={`tab-btn ${
-                  activeTab === "lookup" ? "active" : ""
-                }`}
-                onClick={() => setActiveTab("lookup")}
-              >
-                🔍 Tra cứu công ty
-              </button>
             </div>
 
             {/* === TAB CONTENT === */}
@@ -190,50 +155,6 @@ const Business: React.FC = () => {
                   <BusinessOverview
                     companyId={company?.companyId || user?.CompanyId}
                   />
-                </div>
-              )}
-
-              {activeTab === "lookup" && (
-                <div className="business-section">
-                  <h3>🔍 Tra Cứu Công Ty Theo Biển Số Xe</h3>
-                  <div className="lookup-form">
-                    <input
-                      type="text"
-                      placeholder="Nhập biển số xe (VD: 51H-123.45)"
-                      value={licenseLookup}
-                      onChange={(e) =>
-                        setLicenseLookup(e.target.value.toUpperCase())
-                      }
-                    />
-                    <button className="btn-premium" onClick={handleLookup}>
-                      Tra Cứu
-                    </button>
-                  </div>
-
-                  {lookupResult && (
-                    <div className="lookup-result">
-                      <p>
-                        <strong>Công ty:</strong>{" "}
-                        {lookupResult.CompanyName || "Chưa có"}
-                      </p>
-                      <p>
-                        <strong>Địa chỉ:</strong>{" "}
-                        {lookupResult.Address || "N/A"}
-                      </p>
-                      <p>
-                        <strong>Email:</strong>{" "}
-                        {lookupResult.CompanyMail || "N/A"}
-                      </p>
-                      <p>
-                        <strong>Điện thoại:</strong>{" "}
-                        {lookupResult.Phone || "N/A"}
-                      </p>
-                      <p>
-                        <strong>Xe:</strong> {lookupResult.VehicleName} (
-                        {lookupResult.LicensePlate})
-                      </p>
-                    </div>
-                  )}
                 </div>
               )}
             </div>
