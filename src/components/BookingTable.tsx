@@ -10,10 +10,23 @@ interface Booking {
   Status: string;
 }
 
-const BookingTable: React.FC = () => {
+interface BookingTableProps {
+  bookings?: Booking[];
+  onCancel?: (id: number) => void;
+}
+
+const BookingTable: React.FC<BookingTableProps> = ({ 
+  bookings: propBookings, 
+  onCancel 
+}) => {
   const [bookings, setBookings] = useState<Booking[]>([]);
 
   useEffect(() => {
+    if (propBookings) {
+      setBookings(propBookings);
+      return;
+    }
+
     const mockBookings: Booking[] = [
       {
         BookingId: 101,
@@ -41,7 +54,7 @@ const BookingTable: React.FC = () => {
       },
     ];
     setBookings(mockBookings);
-  }, []);
+  }, [propBookings]);
 
   return (
     <section className="data-section">

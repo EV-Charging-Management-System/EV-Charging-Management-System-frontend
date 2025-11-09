@@ -1,0 +1,31 @@
+import React from 'react'
+import type { Point } from './types'
+
+interface PointCardProps {
+  point: Point
+  isSelected: boolean
+  onSelect: () => void
+}
+
+/**
+ * Component card cho mỗi điểm sạc
+ */
+export const PointCard: React.FC<PointCardProps> = ({ point, isSelected, onSelect }) => {
+  const status = (point.ChargingPointStatus || '').toUpperCase()
+  const isAvailable = status === 'AVAILABLE'
+  const cls = isAvailable ? 'available' : 'booked'
+
+  return (
+    <div
+      className={`station-box ${cls} ${isSelected ? 'active' : ''}`}
+      onClick={() => {
+        if (!isAvailable) return
+        onSelect()
+      }}
+      style={{ cursor: isAvailable ? 'pointer' : 'not-allowed' }}
+    >
+      <h4>#{point.PointId}</h4>
+      <p>{isAvailable ? 'Còn trống' : 'Đã đặt / Bảo trì'}</p>
+    </div>
+  )
+}
