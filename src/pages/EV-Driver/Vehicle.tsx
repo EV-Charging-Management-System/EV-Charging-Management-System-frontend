@@ -1,0 +1,140 @@
+import React, { useEffect, useState } from "react";
+import { vehicleService } from "../../services/vehicleService";
+import { toast } from "react-toastify";
+import Header from "../layouts/header";
+import MenuBar from "../layouts/menu-bar";
+import Footer from "../layouts/footer";
+
+const Vehicle: React.FC = () => {
+  const [vehicles, setVehicles] = useState<any[]>([]);
+  const [vehicleName, setVehicleName] = useState("");
+  const [vehicleType, setVehicleType] = useState(""); // ✅ đổi sang text input
+  const [licensePlate, setLicensePlate] = useState("");
+  const [battery, setBattery] = useState<number | "">("");
+
+  // 🔹 Lấy danh sách xe
+  const fetchVehicles = async () => {
+    try {
+      const res = await vehicleService.getVehicles();
+      if (res.success) setVehicles(res.data);
+      else toast.error(res.message);
+    } catch {
+      toast.error("Không thể tải danh sách xe!");
+    }
+  };
+
+  useEffect(() => {
+    fetchVehicles();
+  }, []);
+
+  // 🔹 Thêm xe mới
+  const handleAddVehicle = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!vehicleName || !vehicleType || !licensePlate) {
+      toast.warn("⚠️ Vui lòng nhập đầy đủ thông tin!");
+      return;
+    }
+
+    const payload = {
+      vehicleName,
+      vehicleType,
+      licensePlate,
+      battery: battery === "" ? null : Number(battery),
+    };
+
+    console.log("[Vehicle] Payload gửi:", payload);
+
+    const res = await vehicleService.addVehicle(payload);
+    console.log("[Vehicle] Response:", res);
+
+    if (res.success) {
+      toast.success("✅ Đăng ký xe thành công!");
+      setVehicleName("");
+      setVehicleType("");
+      setLicensePlate("");
+      setBattery("");
+      await fetchVehicles(); // ✅ gọi lại danh sách
+    } else {
+      toast.error(res.message || "Không thể đăng ký xe!");
+    }
+  };
+
+  return (
+    <div className="page-container">
+      <Header />
+      <MenuBar />
+
+      <div className="page-body">
+        <h2 className="page-title">🚗 Xe Của Tôi</h2>
+
+        {/* Form thêm xe */}
+        <form className="add-vehicle-form" onSubmit={handleAddVehicle}>
+          <input
+            type="text"
+            placeholder="Tên xe (VD: VinFast VF5)"
+            value={vehicleName}
+            onChange={(e) => setVehicleName(e.target.value)}
+          />
+
+          {/* ✅ Bỏ dropdown, đổi sang input text */}
+          <input
+            type="text"
+            placeholder="Loại xe (VD: Ô tô, Xe máy, Xe tải)"
+            value={vehicleType}
+            onChange={(e) => setVehicleType(e.target.value)}
+          />
+
+          <input
+            type="text"
+            placeholder="Biển số xe (VD: 51H-123.45)"
+            value={licensePlate}
+            onChange={(e) => setLicensePlate(e.target.value.toUpperCase())} // ✅ auto uppercase
+          />
+
+          <input
+            type="number"
+            placeholder="Dung lượng pin (kWh)"
+            value={battery}
+            onChange={(e) =>
+              setBattery(e.target.value ? parseFloat(e.target.value) : "")
+            }
+          />
+
+          <button type="submit" className="btn-premium">
+            ➕ Đăng ký xe
+          </button>
+        </form>
+
+        {/* Danh sách xe */}
+        {vehicles.length === 0 ? (
+          <p className="empty-text">Bạn chưa đăng ký xe nào.</p>
+        ) : (
+          <table className="vehicle-table">
+            <thead>
+              <tr>
+                <th>Tên Xe</th>
+                <th>Biển Số</th>
+                <th>Loại Xe</th>
+                <th>Dung Lượng Pin</th>
+              </tr>
+            </thead>
+            <tbody>
+              {vehicles.map((v) => (
+                <tr key={v.VehicleId || v.vehicleId}>
+                  <td>{v.VehicleName || v.vehicleName}</td>
+                  <td>{v.LicensePlate || v.licensePlate}</td>
+                  <td>{v.VehicleType || v.vehicleType}</td>
+                  <td>{v.Battery || v.battery || "N/A"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      <Footer />
+    </div>
+  );
+};
+
+export default Vehicle;
