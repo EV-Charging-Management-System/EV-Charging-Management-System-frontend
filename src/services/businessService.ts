@@ -141,5 +141,22 @@ async getCompanyOverview(companyId: number) {
     };
   }
 },
-
+// ** 🔍 Tra cứu công ty theo biển số xe
+// Gọi API: GET /api/vehicle/lookup/company-by-plate?licensePlate=
+async lookupCompanyByPlate(licensePlate: string) {
+  try {
+    const res = await apiClient.get(`/vehicle/lookup/company-by-plate`, {
+      params: { licensePlate },
+    });
+    console.log("[businessService] ✅ lookupCompanyByPlate:", res.data);
+    return res.data;
+  } catch (err: any) {
+    console.error("[businessService] ❌ lookupCompanyByPlate:", err);
+    return {
+      success: false,
+      message: err.response?.data?.message || "Không thể tra cứu công ty!",
+    };
+  }
+},
 };
+
