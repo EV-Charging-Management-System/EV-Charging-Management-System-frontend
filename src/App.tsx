@@ -27,7 +27,6 @@ import HomePageStaff from "./pages/Staff/HomePageStaff";
 import ProfileStaff from "./components/ProfileStaff";
 import Location from "./pages/Staff/Location";
 import LocationDetail from "./pages/Staff/LocationDetail";
-import Sessions from "./pages/Staff/Sessions";
 import ChargingProcessStaff from "./pages/Staff/ChargingProcessStaff";
 import Invoice from "./pages/Staff/Invoice";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
@@ -37,7 +36,7 @@ const App: React.FC = () => {
     element,
     allowedRoles,
   }: {
-    element: JSX.Element;
+    element: React.ReactElement;
     allowedRoles: string[];
   }) => {
     const user = authService.getCurrentUser();
@@ -83,7 +82,6 @@ const App: React.FC = () => {
         <Route path="/staff/profile" element={<ProtectedRoute allowedRoles={["STAFF"]} element={<ProfileStaff />} />} />
         <Route path="/staff/location" element={<ProtectedRoute allowedRoles={["STAFF"]} element={<Location />} />} />
         <Route path="/staff/locationdetail/:id" element={<ProtectedRoute allowedRoles={["STAFF"]} element={<LocationDetail />} />} />
-        <Route path="/staff/sessions/*" element={<ProtectedRoute allowedRoles={["STAFF"]} element={<Sessions />} />} />
         <Route path="/staff/charging-process-staff/:id" element={<ProtectedRoute allowedRoles={["STAFF"]} element={<ChargingProcessStaff />} />} />
         <Route path="/staff/invoice" element={<ProtectedRoute allowedRoles={["STAFF"]} element={<Invoice />} />} />
 
