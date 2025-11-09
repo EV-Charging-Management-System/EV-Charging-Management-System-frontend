@@ -41,9 +41,7 @@ const StaffSideBar: React.FC = () => {
               Invoice
             </li>
 
-            <li className={isActive("/staff/report")} onClick={() => navigate("/staff/report")}>
-              Report To Admin
-            </li>
+
           </ul>
         </nav>
 

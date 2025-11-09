@@ -1,209 +1,213 @@
-import React, { useEffect, useState } from 'react'
-import '../../css/Invoice.css'
-import ProfileStaff from '../../components/ProfileStaff'
-import { useNavigate } from 'react-router-dom'
-import StaffSideBar from '../../pages/layouts/staffSidebar'
+import React, { useEffect, useState } from "react";
+import "../../css/Invoice.css";
+import ProfileStaff from "../../components/ProfileStaff";
+import { useNavigate, useLocation } from "react-router-dom";
+import StaffSideBar from "../../pages/layouts/staffSidebar";
 
-interface InvoiceData {
-  sessionId: number
-  customer: string
-  phone: string
-  carBrand: string
-  startTime: string
-  endTime: string
-  cost: number
-  stationName: string
-  chargerName: string
-  power: string
-  method?: string
-  date?: string
+interface Session {
+  SessionId: number;
+  LicensePlate?: string | null;
+  BatteryPercentage?: number;
+  StationName?: string;
+  chargerName?: string;
+  power?: string;
+  date?: string;
+  time?: string;
+  userType?: "guest" | "staff";
 }
 
+interface InvoiceData {
+  sessionId: number;
+  customer?: string;
+  startTime?: string;
+  endTime?: string;
+  cost: number;
+  stationName?: string;
+  chargerName?: string;
+  power?: string;
+  batteryStart?: number;
+  batteryEnd?: number;
+  paid?: boolean; // trạng thái đã thanh toán
+}
+
+const API_BASE = "http://localhost:5000";
+
 const Invoice: React.FC = () => {
-  const [invoice, setInvoice] = useState<InvoiceData | null>(null)
-  const [history, setHistory] = useState<InvoiceData[]>([])
-  const [selected, setSelected] = useState<InvoiceData | null>(null)
-  const [method, setMethod] = useState<string>('')
-  const [paid, setPaid] = useState(false)
+  const [invoice, setInvoice] = useState<InvoiceData | null>(null); // Hóa đơn mới cần thanh toán
+  const [invoices, setInvoices] = useState<InvoiceData[]>([]); // Lịch sử hóa đơn
+  const [paymentMethod, setMethod] = useState<string>("");
+  const [paid, setPaid] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const location = useLocation();
 
+  // ------------------- Load hóa đơn -------------------
   useEffect(() => {
-    const storedInvoice = localStorage.getItem('currentInvoice')
-    if (storedInvoice) {
-      try {
-        const parsed: InvoiceData = JSON.parse(storedInvoice)
-        parsed.startTime = new Date(parsed.startTime).toLocaleString('vi-VN')
-        parsed.endTime = new Date(parsed.endTime).toLocaleString('vi-VN')
-        setInvoice(parsed)
-      } catch {
-        setInvoice(null)
-      }
+    const locationState = location.state as { session: Session; cost: number } | undefined;
+
+    if (locationState?.session && locationState.cost !== undefined) {
+      // Phiên mới vừa kết thúc → hiển thị thanh toán
+      const { session, cost } = locationState;
+      setInvoice({
+        sessionId: session.SessionId,
+        customer: session.LicensePlate ?? undefined,
+        startTime: session.date,
+        endTime: new Date().toLocaleTimeString("vi-VN"),
+        cost,
+        stationName: session.StationName,
+        chargerName: session.chargerName,
+        power: session.power,
+        batteryStart: session.BatteryPercentage,
+        batteryEnd: 100,
+        paid: false,
+      });
+      setInvoices([]); // Clear danh sách khi có hóa đơn mới
+    } else {
+      // Không có session mới → fetch toàn bộ lịch sử hóa đơn
+      const fetchHistory = async () => {
+        try {
+          const token = localStorage.getItem("accessToken");
+          if (!token) { navigate("/login"); return; }
+
+          const res = await fetch(`${API_BASE}/api/payment/history`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.message || "Lỗi tải lịch sử hóa đơn");
+          setInvoices(data || []);
+        } catch (err: any) {
+          setError(err.message || "Lỗi không xác định");
+        }
+      };
+      fetchHistory();
+      setInvoice(null);
+    }
+  }, [location.state, navigate]);
+
+  // ------------------- Thanh toán -------------------
+  const handlePayment = async () => {
+    if (!invoice || !paymentMethod) {
+      alert("Vui lòng chọn phương thức thanh toán");
+      return;
     }
 
-    const savedHistory = localStorage.getItem('invoiceHistory')
-    if (savedHistory) setHistory(JSON.parse(savedHistory))
-  }, [])
-
-  const handlePayment = () => {
-    if (!invoice || !method) return
-
-    const newInvoice: InvoiceData = {
-      ...invoice,
-      method,
-      date: new Date().toLocaleString('vi-VN')
+    setLoading(true);
+    setError(null);
+    const accessToken = localStorage.getItem("accessToken");
+    if (!accessToken) {
+      alert("⚠️ Phiên đăng nhập hết hạn, vui lòng đăng nhập lại");
+      navigate("/login");
+      return;
     }
 
-    const updatedHistory = [...history, newInvoice]
-    setHistory(updatedHistory)
-    setPaid(true)
-    localStorage.setItem('invoiceHistory', JSON.stringify(updatedHistory))
-    localStorage.removeItem('currentInvoice')
-  }
+    try {
+      const res = await fetch(`${API_BASE}/api/payment/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          sessionId: invoice.sessionId,
+          amount: invoice.cost,
+          paymentMethod,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Lỗi thanh toán");
+
+      setPaid(true);
+    } catch (err: any) {
+      setError(err.message || "Lỗi không xác định");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className='charging-wrapper'>
+    <div className="charging-wrapper">
       <StaffSideBar />
 
-      {/* ==== MAIN CONTENT ==== */}
-      <div className='charging-main-wrapper fade-in'>
-        <header className='charging-header'>
+      <div className="charging-main-wrapper fade-in">
+        <header className="charging-header">
           <h1>Hóa đơn sạc xe</h1>
-          <div className='charging-header-actions'>
+          <div className="charging-header-actions">
             <ProfileStaff />
           </div>
         </header>
 
-        <main className='invoice-body'>
-          <div className='invoice-container'>
-            {/* ==== CÓ HÓA ĐƠN HIỆN TẠI ==== */}
+        <main className="invoice-body">
+          <div className="invoice-container">
+
+            {/* Hóa đơn mới cần thanh toán */}
             {invoice ? (
               <>
-                <h2>Hóa đơn tháng {new Date().getMonth() + 1}</h2>
-
-                <div className='invoice-box'>
-                  <h3>🚗 Trạm {invoice.stationName}</h3>
-                  <p>
-                    Cổng: <strong>{invoice.chargerName}</strong>
-                  </p>
-                  <p>
-                    Khách hàng: <strong>{invoice.customer}</strong>
-                  </p>
-                  <p>
-                    SĐT: <strong>{invoice.phone}</strong>
-                  </p>
-                  <p>
-                    Xe: <strong>{invoice.carBrand}</strong> – {invoice.power}
-                  </p>
-                  <p>
-                    Bắt đầu: <strong>{invoice.startTime}</strong>
-                  </p>
-                  <p>
-                    Kết thúc: <strong>{invoice.endTime}</strong>
-                  </p>
-                  <p>
-                    Tổng tiền: <strong className='price-text'>{invoice.cost.toLocaleString()}đ</strong>
-                  </p>
+                <h2>Hóa đơn phiên sạc #{invoice.sessionId}</h2>
+                <div className="invoice-box">
+                  <p>Trạm: {invoice.stationName}</p>
+                  <p>Charger: {invoice.chargerName} ({invoice.power})</p>
+                  <p>Xe/Khách hàng: {invoice.customer}</p>
+                  <p>Bắt đầu: {invoice.startTime}</p>
+                  <p>Kết thúc: {invoice.endTime}</p>
+                  <p>Pin: {invoice.batteryStart}% → {invoice.batteryEnd}%</p>
+                  <p>Tổng tiền: <strong className="price-text">{invoice.cost.toLocaleString()}đ</strong></p>
                 </div>
 
-                {/* ==== THANH TOÁN ==== */}
                 {!paid ? (
                   <>
-                    <h3 className='choose-method-title'>Chọn phương thức thanh toán</h3>
-                    <div className='payment-methods'>
-                      {['Tiền mặt', 'Chuyển khoản', 'Business'].map((opt) => (
+                    <h3 className="choose-method-title">Chọn phương thức thanh toán</h3>
+                    <div className="payment-methods">
+                      {["Tiền mặt", "Chuyển khoản", "Business"].map((opt) => (
                         <button
                           key={opt}
                           onClick={() => setMethod(opt)}
-                          className={`pm-btn ${method === opt ? 'active' : ''}`}
+                          className={`pm-btn ${paymentMethod === opt ? "active" : ""}`}
+                          disabled={loading}
                         >
-                          {opt === 'Tiền mặt'
-                            ? '💵 Tiền mặt'
-                            : opt === 'Chuyển khoản'
-                              ? '🏦 Chuyển khoản'
-                              : '🧾 Business'}
+                          {opt === "Tiền mặt" ? "💵 Tiền mặt" : opt === "Chuyển khoản" ? "🏦 Chuyển khoản" : "💳 Business"}
                         </button>
                       ))}
                     </div>
-
-                    {method === 'Chuyển khoản' && (
-                      <div className='qr-box'>
-                        <img src='/QR1.png' alt='QR Thanh toán' />
-                        <p>
-                          Số tiền: <strong>{invoice.cost.toLocaleString()}đ</strong>
-                        </p>
-                      </div>
-                    )}
-
-                    <button className='confirm-btn' onClick={handlePayment} disabled={!method}>
-                      ✅ Xác nhận và In Hóa Đơn
+                    {error && <p className="error">{error}</p>}
+                    <button onClick={handlePayment} disabled={loading || !paymentMethod} className="pay-btn">
+                      {loading ? "Đang xử lý..." : "Thanh toán"}
                     </button>
                   </>
                 ) : (
-                  <div className='payment-success'>
-                    <p>✅ Thanh toán hoàn tất!</p>
-                    <button onClick={() => navigate('/staff/sessions')}>🔙 Quay lại phiên sạc</button>
-                  </div>
+                  <p className="paid-text">✅ Đã thanh toán</p>
                 )}
               </>
-            ) : (
-              /* ==== LỊCH SỬ GIAO DỊCH ==== */
+            ) : null}
+
+            {/* Lịch sử hóa đơn */}
+            {invoices.length > 0 ? (
               <>
-                <h2>📜 Lịch sử giao dịch</h2>
-                {history.length > 0 ? (
-                  history.map((item, i) => (
-                    <div className='history-item' key={i}>
-                      <div className='history-summary'>
-                        <div>
-                          <p>
-                            <strong>{item.customer}</strong> – <span>({item.stationName})</span>
-                          </p>
-                          <p>
-                            Số tiền: <strong>{item.cost.toLocaleString()}đ</strong>
-                          </p>
-                          <p>
-                            Phương thức: <strong>{item.method || '-'}</strong>
-                          </p>
-                        </div>
-                        <button className='detail-btn' onClick={() => setSelected(item)}>
-                          👁️ Xem chi tiết
-                        </button>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <p>Chưa có lịch sử giao dịch nào.</p>
-                )}
+                <h2>Lịch sử hóa đơn</h2>
+                {invoices.map(inv => (
+                  <div key={inv.sessionId} className="invoice-box">
+                    <p>Hóa đơn #{inv.sessionId}</p>
+                    <p>Trạm: {inv.stationName}</p>
+                    <p>Charger: {inv.chargerName} ({inv.power})</p>
+                    <p>Khách: {inv.customer}</p>
+                    <p>Bắt đầu: {inv.startTime}</p>
+                    <p>Kết thúc: {inv.endTime}</p>
+                    <p>Tổng tiền: {inv.cost.toLocaleString()}đ</p>
+                    <p>{inv.paid ? "✅ Đã thanh toán" : "💰 Chưa thanh toán"}</p>
+                  </div>
+                ))}
               </>
-            )}
+            ) : !invoice ? (
+              <p>Chưa có hóa đơn nào.</p>
+            ) : null}
+
           </div>
         </main>
-
-        <footer className='footer'>© 2025 EV Charging System — All rights reserved.</footer>
       </div>
-
-      {/* ==== MODAL CHI TIẾT ==== */}
-      {selected && (
-        <div className='modal-overlay' onClick={() => setSelected(null)}>
-          <div className='modal-card' onClick={(e) => e.stopPropagation()}>
-            <h3>Chi tiết hóa đơn</h3>
-            <div className='modal-body'>
-              {Object.entries(selected).map(([key, value]) =>
-                key !== 'sessionId' ? (
-                  <p key={key}>
-                    <strong>{key}:</strong> {String(value)}
-                  </p>
-                ) : null
-              )}
-            </div>
-            <div className='modal-actions'>
-              <button onClick={() => setSelected(null)}>✖ Đóng</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
-  )
-}
+  );
+};
 
-export default Invoice
+export default Invoice;

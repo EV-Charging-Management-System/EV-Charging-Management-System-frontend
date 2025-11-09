@@ -39,13 +39,11 @@ const LocationDetail: React.FC = () => {
   const [loadingPorts, setLoadingPorts] = useState(false);
   const [loadingSubmit, setLoadingSubmit] = useState(false);
 
-  // Animation tải
   useEffect(() => {
     const timer = setTimeout(() => setFadeIn(true), 100);
     return () => clearTimeout(timer);
   }, []);
 
-  // Lấy trạm
   useEffect(() => {
     if (!decodedAddress) return;
     setLoadingStation(true);
@@ -61,7 +59,6 @@ const LocationDetail: React.FC = () => {
     })();
   }, [decodedAddress]);
 
-  // Lấy trụ
   useEffect(() => {
     if (!station?.StationId) return;
     setLoadingChargers(true);
@@ -77,14 +74,13 @@ const LocationDetail: React.FC = () => {
     })();
   }, [station]);
 
-  // Mở form
   const openForm = async (charger: ChargingPoint) => {
     if (charger.ChargingPointStatus?.toLowerCase() !== "available") {
       return alert("⚠️ Điểm đang bận!");
     }
     setSelectedCharger(charger);
     setShowForm(true);
-    setUserType("EV-Driver"); // mặc định
+    setUserType("EV-Driver");
 
     setLoadingPorts(true);
     try {
@@ -117,7 +113,6 @@ const LocationDetail: React.FC = () => {
     }));
   };
 
-  // Tra biển số
   const handleLookupCompany = async () => {
     const plate = form.licensePlate.trim();
     if (!plate) return alert("⚠️ Nhập biển số xe!");
@@ -143,7 +138,7 @@ const LocationDetail: React.FC = () => {
     }
   };
 
-  // EV Driver API
+  // Tạo phiên sạc EV-Driver gọi staff API với licensePlate
   const createChargingSession = async (
     licensePlate: string,
     stationId: number,
@@ -184,7 +179,7 @@ const LocationDetail: React.FC = () => {
     }
   };
 
-  // Guest API
+  // Tạo phiên sạc Guest gọi API guest/start
   const createChargingSessionGuest = async (
     stationId: number,
     pointId: number,
@@ -224,7 +219,6 @@ const LocationDetail: React.FC = () => {
     }
   };
 
-  // Gửi form
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedCharger || !form.portId || !form.battery) {
@@ -244,7 +238,6 @@ const LocationDetail: React.FC = () => {
           Number(form.battery)
         );
       } else {
-        // Guest
         sessionData = await createChargingSessionGuest(
           station!.StationId,
           selectedCharger.PointId,
@@ -344,28 +337,32 @@ const LocationDetail: React.FC = () => {
                   </div>
 
                   {/* Form EV-Driver */}
-                  {userType === "EV-Driver" && (
-                    <>
-                      <label>Biển số xe</label>
-                      <div className="lookup-row">
-                        <input
-                          value={form.licensePlate}
-                          onChange={handleLicenseChange}
-                          required
-                        />
-                        <button type="button" onClick={handleLookupCompany}>
-                          Tra cứu
-                        </button>
-                      </div>
+                {/* Form EV-Driver */}
+{userType === "EV-Driver" && (
+  <>
+    <label>Biển số xe</label>
+    <div className="lookup-row">
+      <input
+        type="text"
+        placeholder="Nhập biển số xe"
+        value={form.licensePlate}
+        onChange={handleLicenseChange} // ✅ fix handler
+        required
+      />
+      <button type="button" onClick={handleLookupCompany}>
+        Tra cứu
+      </button>
+    </div>
 
-                      {form.displayName && <p><b>{form.displayName}</b></p>}
-                    </>
-                  )}
+    {form.displayName && <p className="display-name"><b>{form.displayName}</b></p>}
+  </>
+)}
+
 
                   {/* Pin */}
                   <label>Số pin hiện tại (%)</label>
                   <input
-                    type="number"
+                    type="Text"
                     value={form.battery}
                     onChange={handleBatteryChange}
                     required
