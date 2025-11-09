@@ -95,6 +95,30 @@ const chargingSessionService = {
       throw new Error(error?.response?.data?.message || "Không thể tạo hóa đơn!");
     }
   },
+
+  /**
+   * ✅ Áp dụng phí phạt khi sạc 100% nhưng chưa dừng
+   * PATCH /api/charging-session/:id/penalty
+   * Phí phạt: penaltyFee = thời gian quá 100% (phút) * 5000đ
+   */
+  async applyPenalty(sessionId: number, penaltyFee: number): Promise<any> {
+    try {
+      console.log("[chargingSessionService] PATCH /charging-session/penalty, sessionId:", sessionId, "penaltyFee:", penaltyFee);
+      const res = await apiClient.patch(`/charging-session/${sessionId}/penalty`, {
+        penaltyFee
+      });
+      
+      console.log("[chargingSessionService] Apply penalty response:", res.data);
+      return res.data;
+    } catch (error: any) {
+      console.error("[chargingSessionService] applyPenalty failed:", error);
+      if (error.response) {
+        console.error("➡ Status:", error.response.status);
+        console.error("➡ Data:", error.response.data);
+      }
+      throw new Error(error?.response?.data?.message || "Không thể áp dụng phí phạt!");
+    }
+  }
 };
 
 export default chargingSessionService;

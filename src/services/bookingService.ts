@@ -38,6 +38,7 @@ export interface BookingPayload {
   orderInfo?: string;
   userId?: number | string;
   carBrand?: string;
+  qr?: string; // ✅ Thêm field qr để lưu txnRef từ VNPay
 }
 
 export interface VnpayPayload {
@@ -46,6 +47,17 @@ export interface VnpayPayload {
 }
 
 export interface CreateBookingResponse {
+  success: boolean;
+  message?: string;
+  data?: {
+    url?: string;
+    txnRef?: string;
+  };
+  url?: string;
+  txnRef?: string;
+}
+
+export interface VnpayResponse {
   success: boolean;
   message?: string;
   data?: {
@@ -105,15 +117,34 @@ const bookingService = {
   },
 
   /**
+   * ✅ Lấy chi tiết cổng (Port) theo PortId
+   */
+  async getPortById(portId: number): Promise<any> {
+    try {
+      const res = await apiClient.get(`/station/getPortById/${portId}`);
+      console.log("[bookingService] getPortById:", res.data);
+      return res.data?.data || res.data;
+    } catch (error: any) {
+      console.error("[bookingService] getPortById error:", error);
+      throw new Error("Không thể tải thông tin cổng sạc.");
+    }
+  },
+
+  /**
    * ✅ Tạo thanh toán VNPay
    * Gửi userId và amount đến API VNPay để tạo URL thanh toán
+   * @returns {VnpayResponse} - Trả về URL thanh toán và txnRef
    */
-  async createVnpay(payload: VnpayPayload): Promise<CreateBookingResponse> {
-try {
+  async createVnpay(payload: VnpayPayload): Promise<VnpayResponse> {
+    try {
       console.log("[bookingService] POST /vnpay/create payload:", payload);
-      const res = await apiClient.post<CreateBookingResponse>("/vnpay/create", payload);
+      const res = await apiClient.post<VnpayResponse>("/vnpay/create", payload);
 
       console.log("[bookingService] /vnpay/create response:", res.data);
+
+      // ✅ Trích xuất txnRef từ response
+      const txnRef = res.data?.data?.txnRef || res.data?.txnRef;
+      console.log("[bookingService] txnRef extracted:", txnRef);
 
       return res.data;
     } catch (error: any) {
