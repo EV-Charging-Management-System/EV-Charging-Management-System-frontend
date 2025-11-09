@@ -11,6 +11,8 @@ import {
   Building2,
   UserPlus,
   BarChart3,
+  Zap,
+  Cable,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../../services/authService";
@@ -24,6 +26,8 @@ import BusinessAccountTable from "../../components/BusinessAccountTable";
 import StaffTable from "../../components/StaffTable";
 import CreateStaff from "../../components/CreateStaff";
 import RevenueChart from "../../components/RevenueChart";
+import PointTable from "../../components/PointTable";
+import PortTable from "../../components/PortTable";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -44,6 +48,14 @@ const AdminDashboard: React.FC = () => {
   const [bookings, setBookings] = useState<any[]>([]);
   const [staffList, setStaffList] = useState<any[]>([]);
   const [loadingStaff, setLoadingStaff] = useState(true);
+
+  // 🆕 State cho Point & Port management
+  const [selectedStationId, setSelectedStationId] = useState<number | null>(null);
+  const [selectedStationName, setSelectedStationName] = useState<string>("");
+  const [selectedPointId, setSelectedPointId] = useState<number | null>(null);
+  const [points, setPoints] = useState<any[]>([]);
+  const [ports, setPorts] = useState<any[]>([]);
+
   const navigate = useNavigate();
 
   // 🚀 Load dữ liệu ban đầu
@@ -58,14 +70,18 @@ const AdminDashboard: React.FC = () => {
     init();
   }, []);
 
-  // 📊 Thống kê Dashboard
+  // 📊 Lấy thống kê Dashboard
   const loadDashboardData = async () => {
     try {
       const res = await adminService.getDashboardStats();
-      if (res?.success && res.data) setStats(res.data);
-      else if (res.totalUsers !== undefined) setStats(res);
+      if (res && typeof res === "object") {
+        setStats(res);
+      } else {
+        toast.error("⚠️ Không thể tải thống kê dashboard!");
+      }
     } catch (error) {
       console.error("❌ Lỗi tải dashboard:", error);
+      toast.error("❌ Không thể tải dữ liệu tổng quan!");
     }
   };
 
@@ -74,8 +90,8 @@ const AdminDashboard: React.FC = () => {
     try {
       const res = await adminService.getAllUsers();
       if (Array.isArray(res)) setUsers(res);
-    } catch (err) {
-      console.error("⚠️ Không thể tải danh sách người dùng:", err);
+    } catch (error) {
+      console.error("⚠️ Không thể tải danh sách người dùng:", error);
     }
   };
 
@@ -84,8 +100,8 @@ const AdminDashboard: React.FC = () => {
     try {
       const res = await adminService.getAllStations();
       if (Array.isArray(res)) setStations(res);
-    } catch (err) {
-      console.error("⚠️ Không thể tải danh sách trạm:", err);
+    } catch (error) {
+      console.error("⚠️ Không thể tải danh sách trạm:", error);
     }
   };
 
@@ -95,8 +111,8 @@ const AdminDashboard: React.FC = () => {
     try {
       const res = await adminService.getAllStaff();
       if (Array.isArray(res)) setStaffList(res);
-    } catch (err) {
-      console.error("⚠️ Không thể tải danh sách staff:", err);
+    } catch (error) {
+      console.error("⚠️ Không thể tải danh sách staff:", error);
     } finally {
       setLoadingStaff(false);
     }
@@ -113,7 +129,7 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  // Khi chọn tab tương ứng
+  // 🎯 Khi chọn tab tương ứng
   useEffect(() => {
     if (activeTab === "revenue") loadRevenueReport();
     if (activeTab === "staff") loadStaff();
@@ -177,6 +193,195 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  // 🗑️ Xóa trạm sạc
+  const handleDeleteStation = async (id: number) => {
+    try {
+      const res = await adminService.deleteStation(id);
+      if (res.success) {
+        toast.success("🗑️ Xóa trạm sạc thành công!");
+        await loadStations();
+      } else {
+        toast.error(res.message || "❌ Xóa trạm thất bại!");
+      }
+    } catch (error) {
+      console.error("❌ Lỗi xóa trạm:", error);
+      toast.error("❌ Lỗi khi xóa trạm sạc!");
+    }
+  };
+
+  // 📍 Load Points theo Station
+  const loadPoints = async (stationId: number) => {
+    try {
+      const res = await adminService.getPointsByStation(stationId);
+      setPoints(Array.isArray(res) ? res : []);
+    } catch (error) {
+      console.error("⚠️ Lỗi tải Points:", error);
+      setPoints([]);
+    }
+  };
+
+  // 🔌 Load Ports theo Point
+  const loadPorts = async (pointId: number) => {
+    try {
+      const res = await adminService.getPortsByPoint(pointId);
+      console.log("🔍 API Response for Ports:", res);
+      console.log("🔍 Is Array?", Array.isArray(res));
+      setPorts(Array.isArray(res) ? res : []);
+    } catch (error) {
+      console.error("⚠️ Lỗi tải Ports:", error);
+      setPorts([]);
+    }
+  };
+
+  // ➕ Thêm Point
+  const handleAddPoint = async (point: Partial<any>) => {
+    try {
+      const res = await adminService.createPoint(
+        point.StationId!,
+        point.NumberOfPort!
+      );
+      if (res.success) {
+        toast.success("✅ Thêm Point thành công!");
+        if (selectedStationId) await loadPoints(selectedStationId);
+      } else {
+        toast.error(res.message || "❌ Thêm Point thất bại!");
+      }
+    } catch (error) {
+      console.error("❌ Lỗi thêm Point:", error);
+      toast.error("❌ Lỗi khi thêm Point!");
+    }
+  };
+
+  // ✏️ Cập nhật Point
+  const handleEditPoint = async (point: any) => {
+    try {
+      const res = await adminService.updatePoint(
+        point.PointId,
+        point.NumberOfPort,
+        point.ChargingPointStatus
+      );
+      if (res.success) {
+        toast.success("✏️ Cập nhật Point thành công!");
+        if (selectedStationId) await loadPoints(selectedStationId);
+      } else {
+        toast.error(res.message || "❌ Cập nhật Point thất bại!");
+      }
+    } catch (error) {
+      console.error("❌ Lỗi cập nhật Point:", error);
+      toast.error("❌ Lỗi khi cập nhật Point!");
+    }
+  };
+
+  // 🗑️ Xóa Point
+  const handleDeletePoint = async (id: number) => {
+    try {
+      const res = await adminService.deletePoint(id);
+      if (res.success) {
+        toast.success("🗑️ Xóa Point thành công!");
+        if (selectedStationId) await loadPoints(selectedStationId);
+      } else {
+        toast.error(res.message || "❌ Xóa Point thất bại! Có thể còn Port đang hoạt động.");
+      }
+    } catch (error) {
+      console.error("❌ Lỗi xóa Point:", error);
+      toast.error("❌ Lỗi khi xóa Point!");
+    }
+  };
+
+  // ➕ Thêm Port
+  const handleAddPort = async (port: Partial<any>) => {
+    try {
+      const res = await adminService.createPort(
+        port.PointId!,
+        port.PortName!,
+        port.PortType!,
+        port.PortStatus!
+      );
+      if (res.success) {
+        toast.success("✅ Thêm Port thành công!");
+        if (selectedPointId) await loadPorts(selectedPointId);
+      } else {
+        toast.error(res.message || "❌ Thêm Port thất bại!");
+      }
+    } catch (error) {
+      console.error("❌ Lỗi thêm Port:", error);
+      toast.error("❌ Lỗi khi thêm Port!");
+    }
+  };
+
+  // ✏️ Cập nhật Port
+  const handleEditPort = async (port: any) => {
+    try {
+      const res = await adminService.updatePort(
+        port.PortId,
+        port.PortName,
+        port.PortType,
+        port.PortStatus
+      );
+      if (res.success) {
+        toast.success("✏️ Cập nhật Port thành công!");
+        if (selectedPointId) await loadPorts(selectedPointId);
+      } else {
+        toast.error(res.message || "❌ Cập nhật Port thất bại!");
+      }
+    } catch (error) {
+      console.error("❌ Lỗi cập nhật Port:", error);
+      toast.error("❌ Lỗi khi cập nhật Port!");
+    }
+  };
+
+  // 🗑️ Xóa Port
+  const handleDeletePort = async (id: number) => {
+    try {
+      const res = await adminService.deletePort(id);
+      if (res.success) {
+        toast.success("🗑️ Xóa Port thành công!");
+        if (selectedPointId) await loadPorts(selectedPointId);
+      } else {
+        toast.error(res.message || "❌ Xóa Port thất bại!");
+      }
+    } catch (error) {
+      console.error("❌ Lỗi xóa Port:", error);
+      toast.error("❌ Lỗi khi xóa Port!");
+    }
+  };
+
+  // 🎯 Xem Points của Station
+  const handleViewPoints = (stationId: number) => {
+    const station = stations.find(s => s.StationId === stationId);
+    setSelectedStationId(stationId);
+    setSelectedStationName(station?.StationName || `Trạm ${stationId}`);
+    setSelectedPointId(null);
+    setActiveTab("points");
+    loadPoints(stationId);
+  };
+
+  // 🎯 Xem Ports của Point
+  const handleViewPorts = (pointId: number) => {
+    setSelectedPointId(pointId);
+    setActiveTab("ports");
+    loadPorts(pointId);
+  };
+
+  // 🔙 Quay lại từ Points về Stations
+  const handleBackToStations = () => {
+    setSelectedStationId(null);
+    setSelectedStationName("");
+    setSelectedPointId(null);
+    setPoints([]);
+    setActiveTab("stations");
+  };
+
+  // 🔙 Quay lại từ Ports về Points
+  const handleBackToPoints = () => {
+    setSelectedPointId(null);
+    setPorts([]);
+    setActiveTab("points");
+    if (selectedStationId) {
+      loadPoints(selectedStationId);
+    }
+  };
+
   return (
     <div className="admin-dashboard">
       {/* ========== SIDEBAR ========== */}
@@ -214,6 +419,36 @@ const AdminDashboard: React.FC = () => {
             <BatteryCharging size={18} /> Trạm sạc
           </li>
           <li
+            className={activeTab === "points" ? "active" : ""}
+            onClick={() => {
+              if (!selectedStationId) {
+                toast.warning("⚠️ Vui lòng chọn trạm sạc trước!");
+                setActiveTab("stations");
+              } else {
+                setActiveTab("points");
+              }
+            }}
+          >
+            <Zap size={18} /> Charging Points
+          </li>
+          <li
+            className={activeTab === "ports" ? "active" : ""}
+            onClick={() => {
+              if (!selectedPointId) {
+                toast.warning("⚠️ Vui lòng chọn Point trước!");
+                if (selectedStationId) {
+                  setActiveTab("points");
+                } else {
+                  setActiveTab("stations");
+                }
+              } else {
+                setActiveTab("ports");
+              }
+            }}
+          >
+            <Cable size={18} /> Charging Ports
+          </li>
+          <li
             className={activeTab === "bookings" ? "active" : ""}
             onClick={() => setActiveTab("bookings")}
           >
@@ -232,6 +467,7 @@ const AdminDashboard: React.FC = () => {
             <BarChart3 size={18} /> Doanh thu
           </li>
         </ul>
+
         <button className="logout-btn" onClick={handleLogout}>
           <LogOut size={18} /> Đăng xuất
         </button>
@@ -316,8 +552,36 @@ const AdminDashboard: React.FC = () => {
           <StationTable
             stations={stations}
             onAdd={() => toast.info("🚧 Chức năng thêm trạm đang phát triển")}
-            onEdit={(s) => toast.info(`✏️ Sửa trạm ${s.StationId}`)}
-            onDelete={(id) => toast.info(`🗑️ Xóa trạm ${id}`)}
+            onEdit={(s: any) => toast.info(`✏️ Sửa trạm ${s.StationId}`)}
+            onDelete={handleDeleteStation}
+            onViewPoints={handleViewPoints}
+          />
+        )}
+
+        {/* ===== POINTS ===== */}
+        {activeTab === "points" && selectedStationId && (
+          <PointTable
+            points={points}
+            stationId={selectedStationId}
+            stationName={selectedStationName}
+            onAdd={handleAddPoint}
+            onEdit={handleEditPoint}
+            onDelete={handleDeletePoint}
+            onViewPorts={handleViewPorts}
+            onBack={handleBackToStations}
+          />
+        )}
+
+        {/* ===== PORTS ===== */}
+        {activeTab === "ports" && selectedPointId && (
+          <PortTable
+            ports={ports}
+            pointId={selectedPointId}
+            stationName={selectedStationName}
+            onAdd={handleAddPort}
+            onEdit={handleEditPort}
+            onDelete={handleDeletePort}
+            onBack={handleBackToPoints}
           />
         )}
 
@@ -325,7 +589,7 @@ const AdminDashboard: React.FC = () => {
         {activeTab === "bookings" && (
           <BookingTable
             bookings={bookings}
-            onCancel={(id) => toast.info(`🚫 Hủy lịch ${id}`)}
+            onCancel={(id: any) => toast.info(`🚫 Hủy lịch ${id}`)}
           />
         )}
 

@@ -23,32 +23,38 @@ export const authService = {
     const response = await apiClient.post<ApiResponse<LoginResponse>>("/auth/login", payload);
     const resData = response.data;
 
-    if (resData.success && resData.user) {
-      const userData = {
-        ...resData.user,
-        role: (resData.user.role || resData.user.roleName || "").toUpperCase(),
-      };
-
+    if (resData.success) {
+      // ✅ chỉ lưu token, không lưu user
       localStorage.setItem("accessToken", resData.accessToken);
       localStorage.setItem("refreshToken", resData.refreshToken);
-      localStorage.setItem("user", JSON.stringify(userData));
-      localStorage.setItem(
-        "userId",
-        String(resData.user.UserId || resData.user.userId || resData.user.id || "")
-      );
+
+      // ✅ gọi /auth/me để lấy thông tin user đầy đủ
+      try {
+        const userRes = await apiClient.get<ApiResponse<{ user: User }>>("/auth/me");
+        const user = userRes.data.user;
+
+        const normalizedUser = {
+          ...user,
+          role: (user.role || "").toUpperCase(),
+          fullName: user.fullName || user.FullName || "",
+        };
+
+        localStorage.setItem("user", JSON.stringify(normalizedUser));
+        localStorage.setItem("userId", String(normalizedUser.userId || normalizedUser.UserId));
+      } catch (err) {
+        console.warn("⚠️ Không thể load thông tin user sau đăng nhập:", err);
+      }
     }
 
     return {
-      user: {
-        ...resData.user,
-        role: (resData.user.role || resData.user.roleName || "").toUpperCase(),
-      },
-      accessToken: resData.accessToken,
-      refreshToken: resData.refreshToken,
       success: resData.success,
       message: resData.message,
+      accessToken: resData.accessToken,
+      refreshToken: resData.refreshToken,
+      user: resData.user, // backend có thể trả user rút gọn (cũng được)
     };
   },
+
 
   // ✅ Lấy user hiện tại từ localStorage
   getCurrentUser(): User | null {
@@ -101,30 +107,34 @@ export const authService = {
   // ✅ Lấy hồ sơ người dùng (luôn mới nhất)
   async getProfile(options?: { noCache?: boolean }): Promise<User> {
     try {
-      if (!options?.noCache) {
-        const cached = localStorage.getItem("user");
-        if (cached) return JSON.parse(cached);
-      }
+      // ⚙️ lấy token từ local
+      const token = localStorage.getItem("accessToken");
+      if (!token) throw new Error("Chưa đăng nhập");
 
+      // ✅ gọi API để luôn lấy user mới nhất
       const response = await apiClient.get<ApiResponse<{ user: User }>>("/auth/me");
-      const user =
-        response.data.user ||
-        response.data.data?.user ||
-        response.data.data ||
-        response.data;
+      const user = response.data.user;
 
       if (!user) throw new Error("Không nhận được thông tin user");
 
-      user.role = (user.role || user.roleName || "").toUpperCase();
+      const normalizedUser = {
+        ...user,
+        role: (user.role || "").toUpperCase(),
+        fullName: user.fullName || user.FullName || "",
+      };
 
-      // ✅ Cập nhật lại localStorage
-      localStorage.setItem("user", JSON.stringify(user));
-      return user;
+      // ✅ lưu vào localStorage (vì đây là dữ liệu backend chuẩn)
+      localStorage.setItem("user", JSON.stringify(normalizedUser));
+      localStorage.setItem("userId", String(normalizedUser.userId || normalizedUser.UserId));
+
+      return normalizedUser;
     } catch (err) {
       console.error("⚠️ getProfile error:", err);
       throw err;
     }
   },
+
+
 
   // ✅ Cập nhật hồ sơ
   async updateProfile(data: UpdateProfilereq): Promise<UpdateProfilerep> {

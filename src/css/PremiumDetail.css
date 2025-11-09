@@ -48,19 +48,12 @@
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
-  pointer-events: none; /* ✅ tránh che nút click */
+  pointer-events: none;
 }
 
 @keyframes borderGlow {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
 /* =============== TIÊU ĐỀ =============== */
@@ -103,12 +96,7 @@
   top: 0;
 }
 
-/* =============== QR CODE (ẨN HOÀN TOÀN) =============== */
-.qr-image {
-  display: none !important; /* ✅ ẩn QR code */
-}
-
-/* =============== NÚT =============== */
+/* =============== NÚT HÀNH ĐỘNG =============== */
 .action-group {
   display: flex;
   flex-direction: column;
@@ -117,6 +105,7 @@
   margin-top: 35px;
 }
 
+/* === Nút Gửi / Xác nhận === */
 .confirm-btn {
   width: 85%;
   padding: 14px;
@@ -129,7 +118,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
-  z-index: 999; /* ✅ đảm bảo click được */
+  z-index: 999;
 }
 
 .confirm-btn:hover {
@@ -137,7 +126,9 @@
   box-shadow: 0 0 20px rgba(0, 255, 150, 0.6);
 }
 
-.back-btn {
+/* === Nút Quay lại === */
+.back-btn,
+.back-btn-bottom {
   width: 85%;
   padding: 10px;
   background: rgba(255, 255, 255, 0.08);
@@ -146,11 +137,11 @@
   border-radius: 10px;
   font-size: 15px;
   cursor: pointer;
-  margin-top: 5px;
   transition: all 0.3s ease;
 }
 
-.back-btn:hover {
+.back-btn:hover,
+.back-btn-bottom:hover {
   color: #00ffa3;
   background: rgba(0, 255, 150, 0.1);
   border-color: rgba(0, 255, 150, 0.6);
@@ -165,19 +156,10 @@
 }
 
 @keyframes shake {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  25% {
-    transform: translateX(-4px);
-  }
-  50% {
-    transform: translateX(4px);
-  }
-  75% {
-    transform: translateX(-4px);
-  }
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+  75% { transform: translateX(-4px); }
 }
 
 /* =============== HIỆU ỨNG FADE-IN =============== */
@@ -186,17 +168,11 @@
 }
 
 @keyframes fadeInUp {
-  0% {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
-/* =============== HỘI VIÊN PREMIUM =============== */
+/* =============== THẺ HỘI VIÊN PREMIUM =============== */
 .success-box {
   margin-top: 30px;
   position: relative;
@@ -211,26 +187,22 @@
   animation: pulseBox 3s ease-in-out infinite alternate;
 }
 
-/* Hiệu ứng glow động */
 @keyframes pulseBox {
   0% {
     box-shadow: 0 0 15px rgba(0, 255, 150, 0.2),
       0 0 25px rgba(0, 255, 150, 0.25);
-    border-color: rgba(0, 255, 160, 0.25);
   }
   50% {
-    box-shadow: 0 0 25px rgba(0, 255, 150, 0.45),
+    box-shadow: 0 0 45px rgba(0, 255, 150, 0.45),
       0 0 45px rgba(0, 255, 150, 0.35);
-    border-color: rgba(0, 255, 160, 0.45);
   }
   100% {
     box-shadow: 0 0 20px rgba(0, 255, 150, 0.3),
       0 0 35px rgba(0, 255, 150, 0.3);
-    border-color: rgba(0, 255, 160, 0.35);
   }
 }
 
-/* Tiêu đề hội viên nổi bật hơn */
+/* Tiêu đề hội viên */
 .success-text {
   text-align: center;
   font-weight: 700;
@@ -241,7 +213,6 @@
   animation: glowText 2.5s ease-in-out infinite alternate;
 }
 
-/* Hiệu ứng chữ phát sáng */
 @keyframes glowText {
   0% {
     text-shadow: 0 0 10px rgba(0, 255, 160, 0.7),
@@ -277,29 +248,76 @@
   text-shadow: 0 0 5px rgba(0, 255, 180, 0.5);
 }
 
-/* Trạng thái màu động */
 .member-info span {
-  color: #00ffcc;
   font-weight: 700;
   animation: glowText 2.5s ease-in-out infinite alternate;
 }
 
-/* Khi trạng thái ACTIVE thì sáng xanh hơn */
+/* Trạng thái màu */
 .member-info span[data-status="ACTIVE"] {
   color: #00ffb7;
   text-shadow: 0 0 12px rgba(0, 255, 160, 0.9);
 }
-
-/* Khi trạng thái EXPIRED thì sáng đỏ */
 .member-info span[data-status="EXPIRED"] {
   color: #ff5252;
   text-shadow: 0 0 12px rgba(255, 100, 100, 0.7);
 }
-
-/* Khi trạng thái PENDING thì sáng vàng */
 .member-info span[data-status="PENDING"] {
   color: #ffd54f;
   text-shadow: 0 0 12px rgba(255, 220, 130, 0.7);
+}
+
+/* =============== MODAL ĐĂNG KÝ DOANH NGHIỆP =============== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(5px);
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #111;
+  border: 2px solid #00ffaa;
+  border-radius: 10px;
+  padding: 25px;
+  box-shadow: 0 0 25px #00ffaa90;
+  width: 400px;
+  color: #fff;
+  animation: fadeIn 0.25s ease;
+}
+
+.modal-content h2 {
+  text-align: center;
+  color: #00ffaa;
+  margin-bottom: 20px;
+}
+
+.modal-content input {
+  width: 100%;
+  background: #0e0e0e;
+  color: #fff;
+  border: 1px solid #0aff9d;
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-bottom: 12px;
+}
+
+.modal-content input:focus {
+  outline: none;
+  border-color: #00ffaa;
+  box-shadow: 0 0 8px #00ffaa;
+}
+
+.form-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
 }
 
 /* =============== RESPONSIVE =============== */
@@ -311,32 +329,10 @@
   .detail-card h2 {
     font-size: 22px;
   }
-/* === NÚT QUAY LẠI DƯỚI CÙNG (TRONG THẺ HỘI VIÊN) === */
-.back-btn-bottom {
-  margin-top: 22px;
-  width: 100%;
-  padding: 10px 0;
-  border-radius: 10px;
-  border: 1px solid rgba(0, 255, 150, 0.4);
-  background: rgba(0, 255, 150, 0.08);
-  color: #bfffea;
-  font-weight: 600;
-  font-size: 15px;
-  cursor: pointer;
-  text-align: center;
-  transition: all 0.25s ease;
-  box-shadow: 0 0 6px rgba(0, 255, 150, 0.25);
+  .confirm-btn,
+  .back-btn-bottom {
+    width: 70%;
+    font-size: 14px;
+    padding: 10px;
+  }
 }
-
-.back-btn-bottom:hover {
-  background: rgba(0, 255, 150, 0.15);
-  color: #00ffa3;
-  border-color: rgba(0, 255, 150, 0.9);
-  transform: scale(1.05);
-  box-shadow: 0 0 15px rgba(0, 255, 150, 0.6);
-}
-
-
-}
-
-

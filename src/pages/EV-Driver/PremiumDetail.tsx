@@ -13,10 +13,19 @@ const PremiumDetail: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
   const [isBusiness, setIsBusiness] = useState(false);
+  const [isPendingBusiness, setIsPendingBusiness] = useState(false);
   const [membership, setMembership] = useState<any>(null);
   const [user, setUser] = useState<any>(null);
 
-  // ✅ Lấy thông tin người dùng (luôn cập nhật mới)
+  const [showForm, setShowForm] = useState(false);
+  const [company, setCompany] = useState({
+    companyName: "",
+    address: "",
+    mail: "",
+    phone: "",
+  });
+
+  // ✅ Lấy thông tin người dùng
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -25,8 +34,11 @@ const PremiumDetail: React.FC = () => {
         setUser(u);
 
         const role = (u?.roleName || u?.role || "").toUpperCase();
-        setIsPremium(u?.isPremium === true || role === "PREMIUM");
+        const status = (u?.status || u?.Status || "").toUpperCase();
+
+        setIsPremium(role === "PREMIUM");
         setIsBusiness(role === "BUSINESS");
+        setIsPendingBusiness(status === "PENDING");
       } catch (err) {
         console.warn("⚠️ Không thể lấy thông tin người dùng:", err);
       }
@@ -34,21 +46,47 @@ const PremiumDetail: React.FC = () => {
     fetchUser();
   }, []);
 
-  // ✅ Nếu là hội viên Premium thì load thông tin gói hiện tại
+  // 🟢 Kiểm tra gói Premium hiện tại
   useEffect(() => {
-    if (!isPremium) return;
-    const fetchSubscription = async () => {
+    const checkCurrentSubscription = async () => {
       try {
         const res = await premiumService.getCurrentSubscription();
-        if (res?.data) setMembership(res.data);
+        if (res?.success && res?.data) {
+          const sub = res.data;
+          if (sub.SubStatus === "ACTIVE") {
+            setIsPremium(true);
+            setMembership(sub);
+          }
+        }
       } catch (err) {
-        console.warn("⚠️ Không thể lấy thông tin gói Premium:", err);
+        console.warn("⚠️ Không thể kiểm tra gói Premium:", err);
       }
     };
-    fetchSubscription();
-  }, [isPremium]);
+    checkCurrentSubscription();
+  }, []);
 
-  // ✅ Danh sách gói
+  // ✅ Khi quay lại sau thanh toán VNPay
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+    const txnRef = params.get("txnRef");
+
+    if (code === "00" && txnRef?.startsWith("SUB_")) {
+      const refreshAfterPayment = async () => {
+        try {
+          const res = await premiumService.getCurrentSubscription();
+          if (res.success && res.data) {
+            setIsPremium(true);
+            setMembership(res.data);
+          }
+        } catch (err) {
+          console.error("❌ Lỗi khi cập nhật Premium sau thanh toán:", err);
+        }
+      };
+      refreshAfterPayment();
+    }
+  }, []);
+
   const packages = {
     "plan-premium": {
       id: 1,
@@ -92,7 +130,7 @@ const PremiumDetail: React.FC = () => {
     );
   }
 
-  // ✅ Xử lý hành động xác nhận
+  // ✅ Xử lý xác nhận
   const handleConfirm = async () => {
     setError("");
     if (!user) {
@@ -100,52 +138,70 @@ const PremiumDetail: React.FC = () => {
       return;
     }
 
-    try {
-      setLoading(true);
+    if (current.paymentType === "VNPay") {
+      if (isPremium) {
+        alert("✅ Bạn đã là hội viên Premium đang hoạt động!");
+        return;
+      }
 
-      if (current.paymentType === "VNPay") {
-        if (isPremium) {
-          alert("✅ Bạn đã là hội viên Premium!");
-          return;
-        }
-
+      try {
+        setLoading(true);
         const payload = {
           PackageId: current.id,
           StartDate: new Date().toISOString().split("T")[0],
           DurationMonth: "1",
         };
-
         const res = await premiumService.createSubscription(payload);
-        const vnpUrl = res?.data?.vnpUrl || res?.vnpUrl || res?.url;
-
-        if (res?.success && vnpUrl) {
-          window.location.href = vnpUrl.replace(/&amp;/g, "&");
+        if (res?.vnpUrl) {
+          window.location.href = res.vnpUrl.replace(/&amp;/g, "&");
         } else {
           setError(res?.message || "Không nhận được đường dẫn thanh toán.");
         }
-      } else {
-        if (isBusiness) {
-          alert("✅ Tài khoản này đã là doanh nghiệp!");
-          return;
-        }
-
-        const res = await businessService.requestUpgrade(user.userId);
-        if (res.success) {
-          alert("🎯 Yêu cầu nâng cấp doanh nghiệp đã được gửi! Vui lòng chờ admin duyệt.");
-          navigate("/premium");
-        } else {
-          setError(res.message || "Không thể gửi yêu cầu nâng cấp.");
-        }
+      } catch (err) {
+        console.error("❌ Lỗi khi thanh toán Premium:", err);
+        setError("Có lỗi khi xử lý thanh toán.");
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error("❌ Lỗi khi xử lý:", err);
-      setError("❌ Có lỗi xảy ra khi xử lý.");
-    } finally {
-      setLoading(false);
+    } else {
+      if (isBusiness) {
+        alert("✅ Tài khoản này đã là doanh nghiệp!");
+        return;
+      }
+      if (isPendingBusiness) {
+        alert("🕓 Yêu cầu của bạn đang được xét duyệt!");
+        return;
+      }
+      setShowForm(true);
     }
   };
 
-  // ✅ Giao diện hiển thị
+  // 🏢 Gửi form đăng ký doanh nghiệp
+  const handleSubmitBusiness = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        userId: user?.UserId || user?.userId,
+        companyName: company.companyName,
+        address: company.address,
+        mail: company.mail,
+        phone: company.phone,
+      };
+
+      const res = await businessService.createCompany(payload);
+      if (res?.companyId) {
+        alert("🎯 Gửi yêu cầu nâng cấp doanh nghiệp thành công! Vui lòng chờ admin duyệt.");
+        setShowForm(false);
+        setIsPendingBusiness(true);
+      } else {
+        setError(res?.message || "Không thể gửi yêu cầu nâng cấp.");
+      }
+    } catch (err) {
+      console.error("❌ Lỗi khi gửi yêu cầu doanh nghiệp:", err);
+      setError("Có lỗi xảy ra, vui lòng thử lại sau.");
+    }
+  };
+
   return (
     <div className="detail-container">
       <div className="detail-card fade-in">
@@ -161,40 +217,22 @@ const PremiumDetail: React.FC = () => {
 
         {error && <p className="error-text">{error}</p>}
 
-        {/* 🟢 Premium */}
-        {isPremium && type === "plan-premium" && membership && (
-          <div className="membership-info">
-            <h3>🎉 Bạn đã là hội viên <span className="highlight">Premium</span></h3>
-            <p><b>Mã gói:</b> {membership.PackageId}</p>
-            <p><b>Mã giao dịch:</b> {membership.TxnRef}</p>
-            <p><b>Phương thức:</b> {membership.PaymentMethod}</p>
-            <p><b>Ngày thanh toán:</b> {new Date(membership.PaymentDate).toLocaleString()}</p>
-            <p><b>Bắt đầu:</b> {new Date(membership.StartDate).toLocaleDateString()}</p>
-            <p><b>Hết hạn:</b> {new Date(membership.ExpireDate).toLocaleDateString()}</p>
-            <button className="back-btn-bottom" onClick={() => navigate("/premium")}>← Quay lại</button>
-          </div>
-        )}
-
-        {/* 🟣 Business */}
+        {/* 🟣 Gói Business */}
         {type === "plan-business" && (
           <div className="membership-info">
             {isBusiness ? (
               <>
                 <h3>💼 Bạn đang sử dụng <span className="highlight">Tài Khoản Doanh Nghiệp</span></h3>
-                <p>
-                  🔹 Truy cập đầy đủ các chức năng doanh nghiệp:
-                  <br />– Quản lý nhân viên & phương tiện
-                  <br />– Theo dõi doanh thu & hiệu suất sạc
-                  <br />– Thanh toán định kỳ qua Ví Trả Sau
-                </p>
-                <p>✅ Tài khoản đã được duyệt và kích hoạt.</p>
+                <p>Quản lý nhiều phương tiện, nhân viên và doanh thu định kỳ.</p>
+              </>
+            ) : isPendingBusiness ? (
+              <>
+                <h3>🕓 Yêu cầu nâng cấp đang chờ admin duyệt</h3>
+                <p>Chúng tôi sẽ gửi thông báo ngay khi tài khoản của bạn được phê duyệt.</p>
               </>
             ) : (
               <>
-                <p>
-                  Bạn có thể gửi yêu cầu nâng cấp tài khoản doanh nghiệp để quản lý nhiều phương tiện
-                  và nhân viên hiệu quả hơn.
-                </p>
+                <p>Gửi yêu cầu nâng cấp tài khoản doanh nghiệp để quản lý nhiều phương tiện và nhân viên.</p>
                 <button className="confirm-btn" onClick={handleConfirm} disabled={loading}>
                   {loading ? "Đang xử lý..." : "Gửi Yêu Cầu Nâng Cấp"}
                 </button>
@@ -206,18 +244,91 @@ const PremiumDetail: React.FC = () => {
           </div>
         )}
 
-        {/* 🔹 Nếu chưa có gói Premium */}
-        {!isPremium && type === "plan-premium" && (
-          <div className="action-group">
-            <button className="confirm-btn" onClick={handleConfirm} disabled={loading}>
-              {loading ? "Đang xử lý..." : "Xác nhận & Thanh toán"}
-            </button>
-            <button className="back-btn-bottom" onClick={() => navigate("/premium")}>
-              ← Quay lại
-            </button>
-          </div>
+        {/* 🔹 Premium */}
+        {type === "plan-premium" && (
+          <>
+            {isPremium ? (
+              <div className="membership-info">
+                <h3>✅ Bạn hiện đang là <span className="highlight">Hội Viên Premium</span></h3>
+                <p>
+                  📅 <strong>Hiệu lực:</strong>{" "}
+                  {membership?.StartDate
+                    ? new Date(membership.StartDate).toLocaleDateString()
+                    : "N/A"}{" "}
+                  -{" "}
+                  {membership?.EndDate
+                    ? new Date(membership.EndDate).toLocaleDateString()
+                    : "N/A"}
+                </p>
+                <p>💎 Trạng thái: <strong>{membership?.SubStatus || "ACTIVE"}</strong></p>
+                <button className="back-btn-bottom" onClick={() => navigate("/premium")}>
+                  ← Quay lại
+                </button>
+              </div>
+            ) : (
+              <div className="action-group">
+                <button className="confirm-btn" onClick={handleConfirm} disabled={loading}>
+                  {loading ? "Đang xử lý..." : "Xác nhận & Thanh toán"}
+                </button>
+                <button className="back-btn-bottom" onClick={() => navigate("/premium")}>
+                  ← Quay lại
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
+
+      {/* 🏢 Modal form doanh nghiệp */}
+      {showForm && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>🏢 Đăng Ký Tài Khoản Doanh Nghiệp</h2>
+            <form onSubmit={handleSubmitBusiness}>
+              <label>Tên công ty</label>
+              <input
+                type="text"
+                value={company.companyName}
+                onChange={(e) => setCompany({ ...company, companyName: e.target.value })}
+                required
+              />
+
+              <label>Địa chỉ</label>
+              <input
+                type="text"
+                value={company.address}
+                onChange={(e) => setCompany({ ...company, address: e.target.value })}
+                required
+              />
+
+              <label>Email công ty</label>
+              <input
+                type="email"
+                value={company.mail}
+                onChange={(e) => setCompany({ ...company, mail: e.target.value })}
+                required
+              />
+
+              <label>Số điện thoại</label>
+              <input
+                type="tel"
+                value={company.phone}
+                onChange={(e) => setCompany({ ...company, phone: e.target.value })}
+                required
+              />
+
+              <div className="form-buttons">
+                <button type="submit" className="confirm-btn">
+                  Gửi Yêu Cầu
+                </button>
+                <button className="back-btn-bottom" onClick={() => navigate("/premium")}>
+                  ← hủy
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

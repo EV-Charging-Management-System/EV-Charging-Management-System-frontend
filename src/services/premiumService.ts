@@ -3,7 +3,7 @@ import { apiClient } from "../utils/api";
 export const premiumService = {
   /**
    * 💳 1️⃣ Tạo đăng ký gói Premium & nhận URL thanh toán VNPay
-   * Endpoint: POST /api/vnpay/create
+   * Endpoint: POST /api/subscriptions
    */
   async createSubscription(payload: {
     PackageId: number;
@@ -13,30 +13,46 @@ export const premiumService = {
     try {
       console.log("[premiumService] ➜ Sending payload:", payload);
 
-      const res = await apiClient.post("/vnpay/create", {
-        subscriptionId: payload.PackageId,
-        amount: 299000, // 💰 giá gói Premium
-        orderInfo: "Thanh toán gói Premium",
+      const res = await apiClient.post("/subscriptions", {
+        PackageId: payload.PackageId,
+        StartDate: payload.StartDate,
+        DurationMonth: payload.DurationMonth,
       });
 
       console.log("[premiumService] 🔁 Response:", res.data);
 
-      if (res.data?.success) {
-        const data = res.data?.data || {};
+      const data = res?.data?.data || {};
+      const vnpUrl = data?.vnpUrl || res?.data?.vnpUrl || res?.vnpUrl || "";
+
+      // 🧩 Kiểm tra backend trả lỗi "đã có gói ACTIVE"
+      if (res?.data?.success === false) {
+        return {
+          success: false,
+          message: res?.data?.message || "Không thể tạo gói Premium mới.",
+        };
+      }
+
+      if (vnpUrl && vnpUrl.startsWith("http")) {
         return {
           success: true,
-          vnpUrl: data.vnpUrl || res.data.vnpUrl || "",
-          txnRef: data.txnRef || "",
-          message: res.data.message || "Tạo URL thanh toán thành công.",
+          vnpUrl,
+          txnRef: data?.TxnRef || "",
+          message: res?.data?.message || "Tạo URL thanh toán thành công.",
         };
       }
 
       return {
         success: false,
-        message: res.data?.message || "Không nhận được phản hồi hợp lệ từ server.",
+        message:
+          res?.data?.message ||
+          "Không nhận được đường dẫn thanh toán từ máy chủ.",
       };
     } catch (error: any) {
-      console.error("[premiumService] ❌ Error creating subscription:", error?.response?.data || error.message);
+      console.error(
+        "[premiumService] ❌ Error creating subscription:",
+        error?.response?.data || error.message
+      );
+
       return {
         success: false,
         message:
@@ -56,12 +72,15 @@ export const premiumService = {
       console.log("[premiumService] ✅ Current subscription:", res.data);
 
       return {
-        success: res.data.success,
+        success: res.data.success ?? true,
         message: res.data.message,
         data: res.data.data || null,
       };
     } catch (error: any) {
-      console.error("[premiumService] ❌ getCurrentSubscription error:", error?.response?.data || error.message);
+      console.error(
+        "[premiumService] ❌ getCurrentSubscription error:",
+        error?.response?.data || error.message
+      );
       return {
         success: false,
         message: "Không thể lấy thông tin hội viên hiện tại.",
@@ -72,15 +91,17 @@ export const premiumService = {
 
   /**
    * 🌟 3️⃣ Kiểm tra trạng thái hội viên (Premium hay không)
-   * Giúp FE ẩn/hiện nút hoặc alert.
    */
   async checkPremiumStatus() {
     try {
       const res = await apiClient.get("/subscriptions/current");
       const sub = res.data?.data;
-      const isPremium = !!(sub && sub.Status === "ACTIVE");
+      const isPremium = !!(sub && sub.SubStatus === "ACTIVE");
 
-      console.log("[premiumService] 🔎 Premium status:", isPremium ? "ACTIVE" : "NOT ACTIVE");
+      console.log(
+        "[premiumService] 🔎 Premium status:",
+        isPremium ? "ACTIVE" : "NOT ACTIVE"
+      );
 
       return {
         isPremium,
