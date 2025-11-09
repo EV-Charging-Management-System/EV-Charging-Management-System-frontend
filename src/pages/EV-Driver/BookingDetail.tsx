@@ -11,7 +11,8 @@ import {
   PointGrid,
   useBookingForm,
   usePoints,
-  usePorts
+  usePorts,
+  useVehicles
 } from '../../components/evdriver/bookingDetail'
 
 const BookingDetail: React.FC = () => {
@@ -26,6 +27,7 @@ const BookingDetail: React.FC = () => {
   const { formData, setFormData } = useBookingForm()
   const { points } = usePoints(stationId)
   const { ports } = usePorts(selectedPointId)
+  const { vehicles, loading: vehiclesLoading } = useVehicles(formData.userId)
 
   // ✅ Tự động chọn port đầu tiên available khi load ports
   useEffect(() => {
@@ -44,6 +46,10 @@ const BookingDetail: React.FC = () => {
     }
     if (!formData.userId) {
       alert('⚠️ Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại!')
+      return
+    }
+    if (!formData.vehicleId) {
+      alert('⚠️ Vui lòng chọn xe của bạn!')
       return
     }
 
@@ -84,7 +90,7 @@ const BookingDetail: React.FC = () => {
         stationId,
         pointId: selectedPointId,
         portId: selectedPortId,
-        vehicleId: Number(formData.vehicleId) || 1,
+        vehicleId: Number(formData.vehicleId),
         startTime,
         depositAmount: 30000,
         userId: Number(formData.userId),
@@ -122,8 +128,10 @@ const BookingDetail: React.FC = () => {
           <BookingForm
             formData={formData}
             ports={ports}
+            vehicles={vehicles}
             selectedPortId={selectedPortId}
             payLoading={payLoading}
+            vehiclesLoading={vehiclesLoading}
             onFormDataChange={(data) => setFormData({ ...formData, ...data })}
             onPortChange={setSelectedPortId}
             onSubmit={handleSubmit}

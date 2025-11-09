@@ -1,11 +1,13 @@
 import React from 'react'
-import type { BookingFormData, Port } from './types'
+import type { BookingFormData, Port, Vehicle } from './types'
 
 interface BookingFormProps {
   formData: BookingFormData
   ports: Port[]
+  vehicles: Vehicle[]
   selectedPortId: number | null
   payLoading: boolean
+  vehiclesLoading?: boolean
   onFormDataChange: (data: Partial<BookingFormData>) => void
   onPortChange: (portId: number) => void
   onSubmit: (e: React.FormEvent) => void
@@ -17,8 +19,10 @@ interface BookingFormProps {
 export const BookingForm: React.FC<BookingFormProps> = ({
   formData,
   ports,
+  vehicles,
   selectedPortId,
   payLoading,
+  vehiclesLoading,
   onFormDataChange,
   onPortChange,
   onSubmit
@@ -36,20 +40,25 @@ export const BookingForm: React.FC<BookingFormProps> = ({
 
         <label>Hãng xe</label>
         <select
-          value={formData.carBrand}
-          onChange={(e) =>
+          value={formData.vehicleId}
+          onChange={(e) => {
+            const selectedVehicle = vehicles.find((v) => v.VehicleId === Number(e.target.value))
             onFormDataChange({
-              carBrand: e.target.value,
-              vehicleId:
-                e.target.value === 'VinFast' ? '1' : e.target.value === 'Hyundai' ? '2' : e.target.value === 'Tesla' ? '3' : ''
+              vehicleId: e.target.value,
+              carBrand: selectedVehicle?.VehicleName || ''
             })
-          }
+          }}
           required
+          disabled={vehiclesLoading}
         >
-          <option value=''>Chọn hãng xe</option>
-          <option value='VinFast'>VF e34</option>
-          <option value='Hyundai'>Hyundai</option>
-          <option value='Tesla'>Tesla</option>
+          <option value=''>
+            {vehiclesLoading ? 'Đang tải...' : vehicles.length === 0 ? 'Không có xe nào' : 'Chọn hãng xe'}
+          </option>
+          {vehicles.map((vehicle) => (
+            <option key={vehicle.VehicleId} value={vehicle.VehicleId}>
+              {vehicle.VehicleName} - {vehicle.VehicleType} ({vehicle.LicensePlate})
+            </option>
+          ))}
         </select>
 
         <label>Giờ đến sạc</label>
