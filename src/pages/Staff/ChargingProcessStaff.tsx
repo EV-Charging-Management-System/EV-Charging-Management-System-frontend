@@ -1,9 +1,11 @@
+
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import ProfileStaff from "../../components/ProfileStaff";
 import StaffSidebar from "../../pages/layouts/staffSidebar";
 import "../../css/ChargingProcessStaff.css";
 import { FaMapMarkerAlt, FaBolt, FaCalendarAlt, FaClock, FaHashtag, FaSyncAlt } from "react-icons/fa";
+import { Battery } from "lucide-react";
 
 interface Session {
   SessionId: number;
@@ -158,18 +160,33 @@ const ChargingProcessStaff: React.FC = () => {
 
     const pricePerKwh = Number(session.portPrice) || 0;
     const power = Number(session.power?.replace(" kW", "")) || 0;
+  
+const timeMultiplier = 60; // 1 giây thật = 1 phút mô phỏng
 
-    const chargeRate = (power / 100) / 3600 * 100; // % pin mỗi giây
-    const costPerSecond = (power * pricePerKwh) / 3600;
+const chargeRate = (power / 100) / 3600 * 100; // % pin mỗi giây thật
+const costPerSecond = (power * pricePerKwh) / 3600; // tiền mỗi giây thật
 
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    intervalRef.current = setInterval(() => {
-      setElapsedSeconds(prev => prev + 1);
-      setBattery(prev => Math.min(prev + chargeRate, 100));
-      setCost(prev => prev + costPerSecond);
-    }, 1000);
+intervalRef.current = setInterval(() => {
+  setElapsedSeconds(prev => prev + timeMultiplier);
+  setBattery(prev => Math.min(prev + chargeRate * timeMultiplier, 100));
+  setCost(prev => prev + costPerSecond * timeMultiplier);
+}, 1000);
+
 
     alert(`✅ Bắt đầu sạc, pin hiện tại ${randomBattery}%`);
+    const token = localStorage.getItem("accessToken");
+    if (!token) { navigate("/login"); return; }
+    const bodyreq = {
+        "id": session.SessionId,
+        "batteryPercentage" : randomBattery,
+  }
+    const res = await fetch(`${API_BASE}/api/charging-session/setBatteryPercentage`, {
+      method: "PUT",
+      headers: { 
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}` },
+      body: JSON.stringify(bodyreq),
+ });
     fetchSessions();
   };
 
@@ -237,7 +254,7 @@ const ChargingProcessStaff: React.FC = () => {
                   <h3>Xe & Trạm</h3>
                   <p><FaMapMarkerAlt /> {activeSession.StationName}</p>
                   <p><FaBolt /> {activeSession.chargerName} ({activeSession.power})</p>
-                  <p>{activeSession.userType === "guest" ? `Pin: ${activeSession.batteryPercentage}%` : `Biển số: ${activeSession.LicensePlate}`}</p>
+                  <p>{activeSession.userType === "guest" ? `Pin: ${activeSession.batteryPercentage}` : `Biển số: ${activeSession.LicensePlate}`}</p>
                   <p>Giá: {activeSession.portPrice?.toLocaleString()} ₫/kWh</p>
                 </div>
                 <div className="info-box">

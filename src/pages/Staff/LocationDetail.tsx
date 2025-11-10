@@ -360,7 +360,7 @@ const LocationDetail: React.FC = () => {
 
 
                   {/* Pin */}
-                  <label>Số pin hiện tại (%)</label>
+                  <label>Số pin hiện tại</label>
                   <input
                     type="Text"
                     value={form.battery}
