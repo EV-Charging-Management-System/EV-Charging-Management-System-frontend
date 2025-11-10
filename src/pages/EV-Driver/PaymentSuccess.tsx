@@ -100,7 +100,7 @@ const PaymentSuccess: React.FC = () => {
           }
         } catch (error) {
           console.error("❌ [PaymentSuccess] Lỗi khi thanh toán invoice:", error);
-          alert("Thanh toán thành công nhưng không thể cập nhật hóa đơn. Vui lòng liên hệ hỗ trợ!");
+          alert("Thanh toán thành công ");
           navigate("/payment-fail");
         }
       } else if (savedBookingPayload) {
@@ -119,7 +119,7 @@ const PaymentSuccess: React.FC = () => {
             localStorage.removeItem("bookingPayload");
             console.log("🎉 Booking created successfully!");
           } else {
-            alert("⚠️ Thanh toán thành công nhưng tạo booking thất bại!");
+            alert("⚠️ Thanh toán thành công nhưng tạo booking thất bại!....");
             navigate("/payment-fail");
           }
         } catch (error) {
