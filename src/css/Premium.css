@@ -1,4 +1,4 @@
-/* =============== TOÀN TRANG =============== */
+/* =============== NỀN TOÀN TRANG =============== */
 .member-container {
   background: linear-gradient(180deg, #06121b, #0a1f2a);
   background-image: url("../assets/member.jpg");
@@ -8,38 +8,33 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  color: #f0f0f0;
+  color: #f5f5f5;
+  font-family: "Poppins", sans-serif;
+  overflow-x: hidden;
 }
 
-/* =============== SLOGAN =============== */
-.slogan {
-  font-size: 32px;
-  font-weight: 700;
-  color: #ffffff;
-  text-shadow: 0 0 16px rgba(0, 255, 180, 0.4);
-}
-
-/* =============== BODY =============== */
+/* =============== PHẦN THÂN =============== */
 .member-body {
   text-align: center;
   flex: 1;
-  padding: 60px 40px;
+  padding: 80px 40px;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
+/* =============== TIÊU ĐỀ TRANG =============== */
 .member-title {
-  font-size: 40px;
+  font-size: 38px;
   font-weight: 800;
   margin-bottom: 60px;
-  color: #ffffff;
-  text-shadow: 0 0 20px rgba(0, 255, 180, 0.6);
+  color: #eafff9;
+  text-shadow: 0 0 22px rgba(0, 255, 150, 0.6);
   line-height: 1.4;
-  max-width: 800px;
+  max-width: 850px;
 }
 
-/* =============== THẺ GÓI HỘI VIÊN =============== */
+/* =============== CÁC THẺ GÓI =============== */
 .member-cards {
   display: flex;
   justify-content: center;
@@ -49,60 +44,101 @@
   max-width: 1200px;
 }
 
+/* =============== KHUNG GÓI =============== */
 .member-card {
   width: 320px;
   background: rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(0, 255, 180, 0.4);
-  border-radius: 18px;
-  padding: 28px;
-  box-shadow: 0 0 25px rgba(0, 255, 180, 0.15);
-  backdrop-filter: blur(14px);
+  border: 1px solid rgba(0, 255, 180, 0.35);
+  border-radius: 20px;
+  padding: 32px 26px;
+  box-shadow: 0 0 28px rgba(0, 255, 150, 0.2);
+  backdrop-filter: blur(12px);
   transition: all 0.3s ease;
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Viền ánh sáng chuyển động */
+.member-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  padding: 1px;
+  background: linear-gradient(120deg, #00ffa3, #00cc66, #00994d, #00ffa3);
+  background-size: 300% 300%;
+  animation: glowBorder 6s linear infinite;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+@keyframes glowBorder {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 .member-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 0 35px rgba(0, 255, 180, 0.5);
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 0 45px rgba(0, 255, 180, 0.45);
 }
 
+/* =============== TIÊU ĐỀ GÓI =============== */
 .member-card h3 {
-  color: #3be68b;
-  font-size: 22px;
-  margin-bottom: 12px;
+  color: #00ffa3;
+  font-size: 24px;
+  margin-bottom: 10px;
+  text-shadow: 0 0 12px rgba(0, 255, 150, 0.4);
 }
 
-.member-card .price {
-  font-size: 17px;
-  color: #e0e0e0;
-  margin-bottom: 18px;
+/* =============== GIÁ TIỀN =============== */
+.price {
+  font-size: 18px;
+  font-weight: 600;
+  color: #e0fdf2;
+  margin-bottom: 20px;
 }
 
-.member-card ul {
+/* =============== QUYỀN LỢI =============== */
+.benefits {
   text-align: left;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
   padding-left: 18px;
   line-height: 1.6;
+  color: #d6f8e9;
 }
 
-.member-card ul li {
+.benefits li {
   list-style: none;
-  color: #dcdcdc;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+  position: relative;
+  padding-left: 20px;
 }
 
-/* =============== NÚT MUA / NÂNG CẤP =============== */
+.benefits li::before {
+  content: "⚡";
+  position: absolute;
+  left: 0;
+  color: #00ffa3;
+}
+
+/* =============== NÚT MUA/NÂNG CẤP =============== */
 .buy-btn {
   width: 100%;
-  padding: 12px;
+  padding: 13px;
   border: none;
   border-radius: 10px;
   background: linear-gradient(90deg, #00ffa3, #00cc66);
-  color: #002b1f;
+  color: #001a12;
   font-weight: 700;
-  cursor: pointer;
   font-size: 15px;
+  letter-spacing: 0.3px;
+  cursor: pointer;
   transition: all 0.3s ease;
+  z-index: 2;
+  position: relative;
 }
 
 .buy-btn:hover {
@@ -110,32 +146,26 @@
   box-shadow: 0 0 20px rgba(0, 255, 150, 0.7);
 }
 
-/* =============== NOTE =============== */
+/* =============== CHÚ THÍCH =============== */
 .note {
   margin-top: 50px;
   font-size: 15px;
   color: #c9c9c9;
   font-style: italic;
   max-width: 800px;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
 }
 
-/* =============== MENU =============== */
-.menu-list li {
-  transition: color 0.3s, transform 0.2s;
-}
-
-.menu-list li:hover,
-.menu-active {
-  color: #00ffa3;
-  transform: scale(1.05);
-}
-
-/* =============== FOOTER =============== */
-.footer {
-  text-align: center;
-  padding: 20px;
-  font-size: 14px;
-  color: #bdbdbd;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(0, 0, 0, 0.4);
+/* =============== RESPONSIVE =============== */
+@media (max-width: 768px) {
+  .member-body {
+    padding: 60px 20px;
+  }
+  .member-title {
+    font-size: 28px;
+    margin-bottom: 40px;
+  }
+  .member-card {
+    width: 90%;
+  }
 }

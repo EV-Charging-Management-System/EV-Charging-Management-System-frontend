@@ -1,21 +1,25 @@
 import { apiClient } from "../utils/api";
 
 export const adminService = {
-  // 👤 Lấy danh sách người dùng
+  // 👥 Lấy danh sách người dùng
   async getAllUsers() {
-    const res = await apiClient.get("/admin/users");
-    return res.data.data;
+    try {
+      const res = await apiClient.get("/admin/users");
+      return Array.isArray(res.data?.data) ? res.data.data : [];
+    } catch (error) {
+      console.error("⚠️ Lỗi lấy danh sách người dùng:", error);
+      return [];
+    }
   },
 
   // ⚡ Lấy danh sách trạm sạc
-   async getAllStations(): Promise<any[]> {
+  async getAllStations(): Promise<any[]> {
     try {
-      const res = await apiClient.get("/station/getAllSations");
-      // Backend returns { data: [...] }
-      return res.data?.data || [];
+      const res = await apiClient.get("/station/getAllStations");
+      return Array.isArray(res.data?.data) ? res.data.data : res.data || [];
     } catch (error) {
-      console.warn("adminservices.getAllStations failed:", error);
-      throw error;
+      console.error("⚠️ Lỗi lấy danh sách trạm sạc:", error);
+      return [];
     }
   },
 
@@ -23,40 +27,290 @@ export const adminService = {
   async getAllPayments() {
     try {
       const res = await apiClient.get("/payment/getInvoices");
-      return res.data.data;
+      return Array.isArray(res.data?.data) ? res.data.data : res.data || [];
     } catch (error) {
-      console.warn("⚠️ Không lấy được danh sách thanh toán:", error);
+      console.error("⚠️ Lỗi lấy danh sách thanh toán:", error);
       return [];
     }
   },
 
-  // 🆕 Lấy danh sách đặt lịch (mock hoặc BE thật sau này)
+  // 📅 Lấy danh sách đặt lịch
   async getAllBookings() {
     try {
-      const res = await apiClient.get("/admin/bookings"); // khi BE có endpoint
-      return res.data.data;
+      const res = await apiClient.get("/admin/bookings");
+      return Array.isArray(res.data?.data) ? res.data.data : res.data || [];
     } catch (error) {
-      console.warn("⚠️ Không lấy được danh sách đặt lịch:", error);
-
-      // Dữ liệu giả tạm thời nếu BE chưa có
-      return [
-        {
-          BookingId: 1,
-          UserName: "driver01",
-          StationName: "Trạm Sạc Trung Tâm",
-          StartTime: "2025-10-26T08:00:00Z",
-          EndTime: "2025-10-26T09:00:00Z",
-          Status: "Completed",
-        },
-        {
-          BookingId: 2,
-          UserName: "driver02",
-          StationName: "Trạm EV Nguyễn Huệ",
-          StartTime: "2025-10-26T10:30:00Z",
-          EndTime: "2025-10-26T12:00:00Z",
-          Status: "Pending",
-        },
-      ];
+      console.error("⚠️ Lỗi lấy danh sách đặt lịch:", error);
+      return [];
     }
   },
+
+  // 🏢 Lấy danh sách tài khoản doanh nghiệp chờ duyệt
+  async getBusinessAccounts() {
+    try {
+      const res = await apiClient.get("/admin/approvals");
+      return Array.isArray(res.data?.data) ? res.data.data : res.data || [];
+    } catch (error) {
+      console.error("⚠️ Lỗi lấy danh sách doanh nghiệp:", error);
+      return [];
+    }
+  },
+
+  // ✅ Duyệt tài khoản doanh nghiệp
+  async approveBusinessAccount(id: number) {
+    try {
+      const res = await apiClient.patch(`/admin/approvals/${id}/approve`);
+      return {
+        success: res.data?.success ?? res.status === 200,
+        message: res.data?.message || "Duyệt doanh nghiệp thành công!",
+      };
+    } catch (error) {
+      console.error("❌ Lỗi duyệt doanh nghiệp:", error);
+      return { success: false, message: "Lỗi khi duyệt doanh nghiệp!" };
+    }
+  },
+
+  // ❌ Từ chối tài khoản doanh nghiệp
+  async rejectBusinessAccount(id: number) {
+    try {
+      const res = await apiClient.patch(`/admin/approvals/${id}/reject`);
+      return {
+        success: res.data?.success ?? res.status === 200,
+        message: res.data?.message || "Từ chối doanh nghiệp thành công!",
+      };
+    } catch (error) {
+      console.error("❌ Lỗi từ chối doanh nghiệp:", error);
+      return { success: false, message: "Lỗi khi từ chối doanh nghiệp!" };
+    }
+  },
+
+  // 👨‍💼 Lấy danh sách staff
+  async getAllStaff() {
+    try {
+      const res = await apiClient.get("/admin/getAllStaff");
+      return Array.isArray(res.data?.data) ? res.data.data : res.data || [];
+    } catch (error) {
+      console.error("⚠️ Lỗi lấy danh sách staff:", error);
+      return [];
+    }
+  },
+
+  // ➕ Tạo staff mới
+  async createStaff(email: string, password: string, fullName: string) {
+    try {
+      const payload = {
+        Email: email,
+        PasswordHash: password,
+        FullName: fullName,
+      };
+      const res = await apiClient.post("/admin/createstaff", payload);
+      return {
+        success: res.data?.success ?? res.status === 200,
+        message: res.data?.message || "Tạo tài khoản staff thành công!",
+      };
+    } catch (error) {
+      console.error("❌ Lỗi tạo staff:", error);
+      return { success: false, message: "Lỗi khi tạo tài khoản staff!" };
+    }
+  },
+  // 📊 Thống kê tổng quan Dashboard
+async getDashboardStats() {
+  try {
+    const res = await apiClient.get("/admin/dashboard");
+    return res.data?.data || res.data || {};
+  } catch (error) {
+    console.error("⚠️ Lỗi lấy thống kê dashboard:", error);
+    return {};
+  }
+},
+// 🔍 Xem chi tiết yêu cầu doanh nghiệp
+async getBusinessDetail(userId: number) {
+  try {
+    const res = await apiClient.get(`/admin/approvals/${userId}`);
+    return res.data;
+  } catch (error) {
+    console.error("❌ Lỗi xem chi tiết doanh nghiệp:", error);
+    return { success: false, message: "Lỗi khi xem chi tiết doanh nghiệp!" };
+  }
+},
+
+// 🗑️ Xóa trạm sạc
+async deleteStation(stationId: number) {
+  try {
+    const res = await apiClient.patch("/admin/deleteStation", { stationId });
+    return {
+      success: res.data?.success ?? res.status === 200,
+      message: res.data?.message || "Xóa trạm sạc thành công!",
+    };
+  } catch (error) {
+    console.error("❌ Lỗi xóa trạm sạc:", error);
+    return { success: false, message: "Lỗi khi xóa trạm sạc!" };
+  }
+},
+
+// ➕ Tạo Point mới
+async createPoint(stationId: number, numberOfPort: number) {
+  try {
+    const payload = { stationId, numberOfPort };
+    const res = await apiClient.post("/admin/createPoint", payload);
+    return {
+      success: res.data?.success ?? res.status === 201,
+      message: res.data?.message || "Tạo Point thành công!",
+      data: res.data?.data,
+    };
+  } catch (error) {
+    console.error("❌ Lỗi tạo Point:", error);
+    return { success: false, message: "Lỗi khi tạo Point!" };
+  }
+},
+
+// ✏️ Cập nhật Point
+async updatePoint(pointId: number, numberOfPort: number, chargingPointStatus: string) {
+  try {
+    const payload = { pointId, numberOfPort, chargingPointStatus };
+    const res = await apiClient.put("/admin/updatePoint", payload);
+    return {
+      success: res.data?.success ?? res.status === 200,
+      message: res.data?.message || "Cập nhật Point thành công!",
+    };
+  } catch (error) {
+    console.error("❌ Lỗi cập nhật Point:", error);
+    return { success: false, message: "Lỗi khi cập nhật Point!" };
+  }
+},
+
+// 🗑️ Xóa Point (chỉ khi không còn port nào)
+async deletePoint(pointId: number) {
+  try {
+    const res = await apiClient.delete("/admin/deletePoint", { 
+      data: { pointId } 
+    });
+    return {
+      success: res.data?.success ?? res.status === 200,
+      message: res.data?.message || "Xóa Point thành công!",
+    };
+  } catch (error) {
+    console.error("❌ Lỗi xóa Point:", error);
+    return { success: false, message: "Lỗi khi xóa Point!" };
+  }
+},
+
+// ➕ Tạo Port mới
+async createPort(pointId: number, portName: string, portType: string, portStatus: string) {
+  try {
+    const payload = { 
+      pointId, 
+      portName, 
+      portType, 
+      portStatus 
+    };
+    const res = await apiClient.post("/admin/createPort", payload);
+    return {
+      success: res.data?.success ?? res.status === 201,
+      message: res.data?.message || "Tạo Port thành công!",
+      data: res.data?.data,
+    };
+  } catch (error) {
+    console.error("❌ Lỗi tạo Port:", error);
+    return { success: false, message: "Lỗi khi tạo Port!" };
+  }
+},
+
+// ✏️ Cập nhật Port
+async updatePort(portId: number, portName: string, portType: string, portStatus: string) {
+  try {
+    const payload = { 
+      portId, 
+      portName, 
+      portType, 
+      portStatus 
+    };
+    const res = await apiClient.put("/admin/updatePort", payload);
+    return {
+      success: res.data?.success ?? res.status === 200,
+      message: res.data?.message || "Cập nhật Port thành công!",
+    };
+  } catch (error) {
+    console.error("❌ Lỗi cập nhật Port:", error);
+    return { success: false, message: "Lỗi khi cập nhật Port!" };
+  }
+},
+
+// 🗑️ Xóa Port
+async deletePort(portId: number) {
+  try {
+    const res = await apiClient.delete("/admin/deletePort", { 
+      data: { portId } 
+    });
+    return {
+      success: res.data?.success ?? res.status === 200,
+      message: res.data?.message || "Xóa Port thành công!",
+    };
+  } catch (error) {
+    console.error("❌ Lỗi xóa Port:", error);
+    return { success: false, message: "Lỗi khi xóa Port!" };
+  }
+},
+
+// 📋 Lấy danh sách Points theo Station
+async getPointsByStation(stationId: number) {
+  try {
+    const res = await apiClient.get(`/station/getPoint?stationId=${stationId}`);
+    return Array.isArray(res.data?.data) ? res.data.data : res.data || [];
+  } catch (error) {
+    console.error("⚠️ Lỗi lấy danh sách Points:", error);
+    return [];
+  }
+},
+
+// 📋 Lấy danh sách Ports theo Point
+async getPortsByPoint(pointId: number) {
+  try {
+    const res = await apiClient.get(`/station/getPort?pointId=${pointId}`);
+    return Array.isArray(res.data?.data) ? res.data.data : res.data || [];
+  } catch (error) {
+    console.error("⚠️ Lỗi lấy danh sách Ports:", error);
+    return [];
+  }
+},
+
+// 📊 Lấy báo cáo doanh thu
+async getRevenueReport() {
+  try {
+    const res = await apiClient.get("/admin/revenue");
+    return res.data;
+  } catch (error) {
+    console.error("⚠️ Lỗi lấy báo cáo doanh thu:", error);
+    return {};
+  }
+},
+
+// ✏️ Cập nhật user
+async updateUser(userId: number, userData: any) {
+  try {
+    const res = await apiClient.put(`/admin/users/${userId}`, userData);
+    return {
+      success: res.data?.success ?? res.status === 200,
+      message: res.data?.message || "Cập nhật người dùng thành công!",
+    };
+  } catch (error) {
+    console.error("❌ Lỗi cập nhật user:", error);
+    return { success: false, message: "Lỗi khi cập nhật người dùng!" };
+  }
+},
+
+// 🗑️ Xóa user
+async deleteUser(userId: number) {
+  try {
+    const res = await apiClient.delete(`/admin/users/${userId}`);
+    return {
+      success: res.data?.success ?? res.status === 200,
+      message: res.data?.message || "Xóa người dùng thành công!",
+    };
+  } catch (error) {
+    console.error("❌ Lỗi xóa user:", error);
+    return { success: false, message: "Lỗi khi xóa người dùng!" };
+  }
+},
+
 };
