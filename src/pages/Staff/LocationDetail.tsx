@@ -32,6 +32,7 @@ const LocationDetail: React.FC = () => {
     portType: "",
     kwh: "",
     price: "",
+    userId: "", // ✅ Thêm userId để lưu khi tra cứu
   });
 
   const [loadingStation, setLoadingStation] = useState(false);
@@ -60,13 +61,20 @@ const LocationDetail: React.FC = () => {
   }, [decodedAddress]);
 
   useEffect(() => {
-    if (!station?.StationId) return;
+    if (!station?.StationId) {
+      console.log("⚠️ Station or StationId is missing:", station);
+      return;
+    }
+    console.log("🔹 Fetching charging points for StationId:", station.StationId);
     setLoadingChargers(true);
     (async () => {
       try {
         const list = await chargingPointService.getByStationId(station.StationId);
+        console.log("✅ Charging points received:", list);
+        console.log("📊 Number of points:", list.length);
         setChargers(list);
-      } catch {
+      } catch (error) {
+        console.error("❌ Error fetching charging points:", error);
         alert("⚠️ Lỗi khi lấy danh sách điểm sạc");
       } finally {
         setLoadingChargers(false);
@@ -101,6 +109,7 @@ const LocationDetail: React.FC = () => {
       portType: "",
       kwh: "",
       price: "",
+      userId: "", // ✅ Reset userId
     });
   };
 
@@ -119,32 +128,57 @@ const LocationDetail: React.FC = () => {
 
     try {
       const v = await vehicleService.getVehicleByLicensePlate(plate);
-      if (!v) {
-        setForm(prev => ({ ...prev, displayName: "", battery: "" }));
-        return alert("⚠️ Xe chưa đăng ký — nhập pin thủ công!");
+      if (!v || !v.userId) {
+        setForm(prev => ({ ...prev, displayName: "", battery: "", userId: "" }));
+        return alert("⚠️ Xe chưa đăng ký trong hệ thống!\n\nVui lòng nhập % pin thủ công để tiếp tục.");
       }
 
-      const display = v.companyName
-        ? `Công ty: ${v.companyName} - Pin: ${v.battery}`
-        : `Khách: ${v.userName} - Pin: ${v.battery}`;
+      // Tạo chuỗi hiển thị
+      let display = `UserId: ${v.userId} - Xe: ${v.licensePlate}`;
+      if (v.companyName) {
+        display = `Công ty: ${v.companyName} - UserId: ${v.userId}`;
+      } else if (v.userName) {
+        display = `Khách hàng: ${v.userName} - UserId: ${v.userId}`;
+      }
+      
+      // Nếu có battery thì thêm vào display
+      if (v.battery) {
+        display += ` - Pin: ${v.battery}%`;
+      }
 
       setForm(prev => ({
         ...prev,
         displayName: display,
-        battery: v.battery != null ? String(v.battery) : "",
+        battery: v.battery ? String(v.battery) : "", // ⚠️ Nếu không có battery, để trống để user nhập
+        userId: v.userId ? String(v.userId) : "",
       }));
-    } catch {
-      alert("⚠️ Lỗi tra cứu xe");
+      
+      console.log("✅ Tra cứu thành công:");
+      console.log("   - userId:", v.userId);
+      console.log("   - licensePlate:", v.licensePlate);
+      console.log("   - companyName:", v.companyName);
+      console.log("   - userName:", v.userName);
+      console.log("   - battery:", v.battery);
+      
+      if (!v.battery) {
+        alert("✅ Tra cứu thành công!\n\n⚠️ Xe chưa có thông tin % pin trong hệ thống.\nVui lòng nhập % pin thủ công.");
+      } else {
+        alert("✅ Tra cứu thành công!");
+      }
+    } catch (error: any) {
+      console.error("❌ Lỗi tra cứu:", error);
+      alert(`⚠️ Lỗi tra cứu xe: ${error.message || error}\n\nVui lòng thử lại hoặc nhập thông tin thủ công.`);
     }
   };
 
-  // Tạo phiên sạc EV-Driver gọi staff API với licensePlate
+  // Tạo phiên sạc EV-Driver gọi staff API với licensePlate và userId
   const createChargingSession = async (
     licensePlate: string,
     stationId: number,
     pointId: number,
     portId: number,
-    battery: number
+    battery: number,
+    userId?: string // ✅ Thêm userId parameter
   ) => {
     setLoadingSubmit(true);
     try {
@@ -155,19 +189,27 @@ const LocationDetail: React.FC = () => {
         return;
       }
 
+      const requestBody: any = {
+        licensePlate,
+        stationId,
+        pointId,
+        portId,
+        batteryPercentage: battery,
+      };
+
+      // ✅ Nếu có userId từ tra cứu vehicle, gửi kèm để backend tạo invoice đúng user
+      if (userId) {
+        requestBody.userId = Number(userId);
+        console.log("✅ Gửi userId kèm request:", userId);
+      }
+
       const res = await fetch(`${API_BASE_URL}/staff/start`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({
-          licensePlate,
-          stationId,
-          pointId,
-          portId,
-          batteryPercentage: battery,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       const data = await res.json();
@@ -230,20 +272,36 @@ const LocationDetail: React.FC = () => {
 
       if (userType === "EV-Driver") {
         if (!form.licensePlate) return alert("⚠️ Nhập biển số xe");
+        
+        console.log("🚗 Creating EV-Driver session:");
+        console.log("   - LicensePlate:", form.licensePlate);
+        console.log("   - UserId:", form.userId);
+        console.log("   - Battery:", form.battery);
+        
+        // ✅ Truyền userId vào để backend tạo invoice đúng user
         sessionData = await createChargingSession(
           form.licensePlate,
           station!.StationId,
           selectedCharger.PointId,
           Number(form.portId),
-          Number(form.battery)
+          Number(form.battery),
+          form.userId // ✅ Gửi userId đã tra cứu được
         );
+        
+        const sessionId = sessionData?.data?.sessionId ?? sessionData?.sessionId ?? "unknown";
+        const userInfo = form.userId ? `UserId: ${form.userId}` : 'Xe chưa đăng ký (Guest mode)';
+        alert(`✅ Tạo phiên sạc thành công!\n\nXe: ${form.licensePlate}\n${userInfo}\nSession ID: ${sessionId}\n\n✅ Hóa đơn sẽ được tạo với userId của chủ xe sau khi kết thúc sạc.\n✅ User sẽ thanh toán ở trang Payment của mình.`);
       } else {
+        console.log("👤 Creating Guest session");
         sessionData = await createChargingSessionGuest(
           station!.StationId,
           selectedCharger.PointId,
           Number(form.portId),
           Number(form.battery)
         );
+        
+        const sessionId = sessionData?.data?.sessionId ?? sessionData?.sessionId ?? "unknown";
+        alert(`✅ Tạo phiên sạc thành công!\n\nKhách vãng lai (Guest)\nSession ID: ${sessionId}\n\n⚠️ Vui lòng thu tiền mặt sau khi kết thúc sạc.`);
       }
 
       setChargers(prev =>
@@ -251,9 +309,6 @@ const LocationDetail: React.FC = () => {
           c.PointId === selectedCharger.PointId ? { ...c, ChargingPointStatus: "BUSY" } : c
         )
       );
-
-      const sessionId = sessionData?.data?.sessionId ?? sessionData?.sessionId ?? "unknown";
-      alert(`✅ Tạo phiên sạc thành công! Session ID: ${sessionId}`);
 
       setShowForm(false);
     } catch (err: any) {
