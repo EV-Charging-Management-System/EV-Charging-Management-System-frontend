@@ -104,11 +104,11 @@ export const useChargingSession = (bookingId?: number, bookingData?: any) => {
       const res = await chargingSessionService.startSession(payload)
       console.log('✅ Session started:', res)
 
-      if (res.success && res.data?.sessionId) {
+      if (res.success && res.data) {
         setState((prev) => ({
           ...prev,
-          sessionId: res.data.sessionId,
-          startTimestamp: res.data.checkinTime || new Date().toISOString(),
+          sessionId: res.data!.sessionId,
+          startTimestamp: res.data!.checkinTime || new Date().toISOString(),
           battery: randomBattery,
           isCharging: true
         }))
@@ -153,29 +153,48 @@ export const useChargingSession = (bookingId?: number, bookingData?: any) => {
         finished: true
       }))
 
-      // Step 2: Apply penalty if exists
+      // Step 2: Apply penalty if exists (PHẢI gọi TRƯỚC khi tạo invoice)
       if (state.penaltyMinutes > 0) {
         const calculatedPenaltyFee = state.penaltyMinutes * 5000
-        console.log(`💰 Step 2: Áp dụng phí phạt: ${state.penaltyMinutes} giây x 5.000đ = ${calculatedPenaltyFee}đ`)
+        console.log(`⚠️ Step 2: Áp dụng phí phạt: ${state.penaltyMinutes} giây x 5.000đ = ${calculatedPenaltyFee.toLocaleString()}đ`)
         
         try {
           const penaltyRes = await chargingSessionService.applyPenalty(state.sessionId, calculatedPenaltyFee)
           console.log('✅ Penalty applied:', penaltyRes)
         } catch (penaltyError: any) {
           console.error('❌ Penalty API error:', penaltyError)
+          alert('⚠️ Không thể áp dụng phí phạt. Vui lòng liên hệ hỗ trợ!')
         }
       } else {
-        console.log('ℹ️ Step 2: Không có phí phạt')
+        console.log('ℹ️ Step 2: Không có phí phạt (pin chưa đạt 100% hoặc dừng kịp thời)')
       }
 
-      // Step 3: Create invoice
+      // Step 3: Create invoice (Backend đã có penalty từ Step 2)
       console.log('📄 Step 3: CREATE invoice...')
       const invoiceRes = await chargingSessionService.createInvoice(state.sessionId)
       console.log('✅ Invoice created:', invoiceRes)
 
       if (invoiceRes.success) {
-        const penaltyText = state.penaltyMinutes > 0 ? `\n- Phí phạt: ${(state.penaltyMinutes * 5000).toLocaleString()}đ (${state.penaltyMinutes} giây)` : ''
-        alert(`✅ Phiên sạc đã kết thúc!\n\n📄 Hóa đơn đã được tạo:\n- Mã hóa đơn: #${invoiceRes.data?.invoiceId || 'N/A'}\n- Tổng chi phí: ${invoiceRes.data?.sessionPrice?.toLocaleString() || state.cost.toLocaleString()}đ${penaltyText}\n- Thanh toán: Ví trả sau`)
+        const backendSessionPrice = invoiceRes.data?.sessionPrice || 0
+        const backendPenaltyFee = invoiceRes.data?.penaltyFee || 0
+        const backendTotalAmount = invoiceRes.data?.totalAmount || (backendSessionPrice + backendPenaltyFee)
+        
+        console.log(`💰 Backend calculated costs:`)
+        console.log(`   - Session Price: ${backendSessionPrice.toLocaleString()}đ`)
+        console.log(`   - Penalty Fee: ${backendPenaltyFee.toLocaleString()}đ`)
+        console.log(`   - Total Amount: ${backendTotalAmount.toLocaleString()}đ`)
+        
+        const penaltyText = backendPenaltyFee > 0 
+          ? `\n- Phí phạt: ${backendPenaltyFee.toLocaleString()}đ` 
+          : ''
+        
+        alert(`✅ Phiên sạc đã kết thúc!\n\n📄 Hóa đơn đã được tạo:\n- Mã hóa đơn: #${invoiceRes.data?.invoiceId || 'N/A'}\n- Chi phí sạc: ${backendSessionPrice.toLocaleString()}đ${penaltyText}\n- Tổng thanh toán: ${backendTotalAmount.toLocaleString()}đ\n- Thanh toán: Ví trả sau`)
+        
+        // Cập nhật cost từ backend để hiển thị chính xác
+        setState((prev) => ({
+          ...prev,
+          cost: backendTotalAmount
+        }))
       } else {
         alert('⚠️ Phiên sạc đã kết thúc nhưng không tạo được hóa đơn. Vui lòng liên hệ hỗ trợ!')
       }

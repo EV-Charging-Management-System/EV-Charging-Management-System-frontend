@@ -153,6 +153,8 @@ const PremiumDetail: React.FC = () => {
         };
         const res = await premiumService.createSubscription(payload);
         if (res?.vnpUrl) {
+          // ✅ Lưu payment type để phân biệt khi redirect về
+          localStorage.setItem("paymentType", "premium");
           window.location.href = res.vnpUrl.replace(/&amp;/g, "&");
         } else {
           setError(res?.message || "Không nhận được đường dẫn thanh toán.");

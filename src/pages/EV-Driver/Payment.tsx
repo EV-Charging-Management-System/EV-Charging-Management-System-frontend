@@ -47,6 +47,7 @@ const Payment: React.FC = () => {
       if (vnpayRes?.success && vnpayRes?.data?.url) {
         // Lưu thông tin để xử lý sau khi thanh toán thành công
         localStorage.setItem("payingInvoiceId", invoice.InvoiceId.toString());
+        localStorage.setItem("paymentType", "invoice"); // ✅ Thêm type để phân biệt
 
         // Chuyển hướng đến VNPay
         console.log("🔄 Redirecting to VNPay:", vnpayRes.data.url);
