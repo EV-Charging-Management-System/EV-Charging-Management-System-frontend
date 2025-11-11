@@ -35,7 +35,7 @@ const PaymentSuccess: React.FC = () => {
     setTimeout(() => navigate(path), delay);
   };
 
-  // ===== Fetch Premium Membership =====
+  // ===== Fetch Premium Membership    =====
   useEffect(() => {
     const fetchMembership = async () => {
       try {
