@@ -55,7 +55,7 @@ export const SessionInfo: React.FC<SessionInfoProps> = ({ booking, bookingData, 
           Mức pin hiện tại: <strong>{battery}%</strong>
         </p>
         <p>
-          Năng lượng tiêu thụ: <strong>{Math.max(0, (battery - 45) * 0.2)} kWh</strong>
+          Năng lượng tiêu thụ: <strong>{Math.max(0, (battery - 45) * 0.2).toFixed(2)} kWh</strong>
         </p>
         <p>
           Công suất: <strong>{loading ? 'Đang tải...' : portTypeOfKwh ? `${portTypeOfKwh} kW` : booking?.power || '80 kW'}</strong>
