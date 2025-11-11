@@ -78,6 +78,7 @@ const chargingSessionService = {
   /**
    * ✅ Tạo hóa đơn sau khi kết thúc phiên sạc
    * POST /api/charging-session/:id/invoice
+   * Backend tự tính sessionPrice và penaltyFee dựa trên thời gian start -> end
    */
   async createInvoice(sessionId: number): Promise<any> {
     try {

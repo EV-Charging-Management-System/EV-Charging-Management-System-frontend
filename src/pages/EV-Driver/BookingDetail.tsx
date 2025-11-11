@@ -100,6 +100,7 @@ const BookingDetail: React.FC = () => {
 
       // 💾 Lưu localStorage để tạo booking sau khi thanh toán thành công
       localStorage.setItem('bookingPayload', JSON.stringify(bookingData))
+      localStorage.setItem('paymentType', 'booking') // ✅ Thêm type để phân biệt
       console.log('[BookingDetail] bookingPayload saved with txnRef:', bookingData)
 
       // Mở VNPay
