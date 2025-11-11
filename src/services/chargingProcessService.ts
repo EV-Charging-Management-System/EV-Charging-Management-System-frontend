@@ -16,14 +16,14 @@ export const chargingService = {
 
   // Lấy session của nhân viên
   async getStaffSessions(stationId: number, token: string) {
-    const res = await fetch(`${API_BASE}/api/staff/station/${stationId}/sessions`, {
+    const res = await fetch(`${API_BASE}/api/staff/station/sessions`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) throw new Error("Lỗi khi tải session nhân viên");
     const json = await res.json();
     return json.data || [];
   },
-
+  
   // Lấy session của khách
   async getGuestSessions(stationId: number, token: string) {
     const res = await fetch(`${API_BASE}/api/charging-session/guest?stationId=${stationId}`, {

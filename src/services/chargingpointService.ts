@@ -24,10 +24,8 @@ class ChargingPointService {
   }
 
   async getPortsByPoint(pointId: number): Promise<ChargingPort[]> {
-    const res = await apiClient.get("/station/getPort", {  // Sửa URL ở đây
-      params: { pointId }
-    });
-    return res.data?.data ?? [];
+    const res = await apiClient.get(`/station/getPortById/${pointId}`);
+    return Array.isArray(res.data?.data) ? res.data.data : [];
   }
 }
 

@@ -8,7 +8,14 @@ export interface Station {
   StationDescrip: string
   ChargingPointTotal: number
 }
-
+export interface StaffAddress {
+  StationId: number
+  address: string
+  StationName: string
+  status: string
+   lat: number | null
+  lng: number | null
+}
 export interface MappedStation {
   id: number
   name: string
@@ -38,6 +45,24 @@ class LocationService {
         lng: lngMatch ? parseFloat(lngMatch[1]) : null,
         status: item.StationStatus?.toLowerCase() || 'unknown',
         ChargingPointTotal: item.ChargingPointTotal
+      }
+    })
+  }
+  async getStaffAddress(): Promise<StaffAddress[]> {
+    const res = await apiClient.get('/staff/address/stations');
+   const apiData = res.data?.data || []
+
+     return apiData.map((item: Station) => {
+      const latMatch = item.Address.match(/lat:\s*([\d.]+)/)
+      const lngMatch = item.Address.match(/lng:\s*([\d.]+)/)
+
+      return {
+        id: item.StationId,
+        address: item.Address,
+        StationName: item.StationName,
+        status: item.StationStatus?.toLowerCase() || 'unknown',
+        lat: latMatch ? parseFloat(latMatch[1]) : null,
+        lng: lngMatch ? parseFloat(lngMatch[1]) : null
       }
     })
   }

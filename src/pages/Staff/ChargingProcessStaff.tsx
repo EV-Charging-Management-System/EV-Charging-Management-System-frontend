@@ -75,7 +75,7 @@ const ChargingProcessStaff: React.FC = () => {
     
     try {
       // Fetch staff sessions
-      const staffRes = await fetch(`${API_BASE}/api/staff/station/${stationId}/sessions`, {
+      const staffRes = await fetch(`${API_BASE}/api/staff/station/sessions`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const staffJson = await staffRes.json();
@@ -200,132 +200,108 @@ const ChargingProcessStaff: React.FC = () => {
 
   // --------------------- START CHARGING ---------------------
   const startCharging = async (session: Session) => {
-    const randomBattery = session.userType === "guest"
-      ? session.inputBattery ?? Math.floor(Math.random() * (90 - 30 + 1)) + 30
-      : Math.floor(Math.random() * (90 - 30 + 1)) + 30;
+  const randomBattery = session.userType === "guest"
+    ? session.inputBattery ?? Math.floor(Math.random() * (90 - 30 + 1)) + 30
+    : Math.floor(Math.random() * (90 - 30 + 1)) + 30;
 
-    setActiveSession({ ...session, Status: "charging" });
-    setBattery(randomBattery);
-    setElapsedSeconds(0);
-    setStartTime(new Date());
-    setCost(0);
+  // Cập nhật state trước khi gọi interval
+  setActiveSession({ ...session, Status: "charging" });
+  setBattery(randomBattery);
+  setElapsedSeconds(0);
+  setStartTime(new Date());
+  setCost(0);
 
-    const pricePerKwh = Number(session.portPrice) || 0;
-    const power = Number(session.power?.replace(" kW", "")) || 0;
-  
-const timeMultiplier = 60; // 1 giây thật = 1 phút mô phỏng
+  const pricePerKwh = Number(session.portPrice) || 0;
+  const power = Number(session.power?.replace(" kW", "")) || 0;
 
-const chargeRate = (power / 100) / 3600 * 100; // % pin mỗi giây thật
-const costPerSecond = (power * pricePerKwh) / 3600; // tiền mỗi giây thật
+  const timeMultiplier = 60; // 1 giây = 1 phút mô phỏng
+  const chargeRate = (power / 100) / 3600 * 100; // % pin mỗi giây thật
+  const costPerSecond = (power * pricePerKwh) / 3600; // tiền mỗi giây thật
 
-intervalRef.current = setInterval(() => {
-  setElapsedSeconds(prev => prev + timeMultiplier);
-  setBattery(prev => Math.min(prev + chargeRate * timeMultiplier, 100));
-  setCost(prev => prev + costPerSecond * timeMultiplier);
-}, 1000);
+  // Đảm bảo interval luôn lấy giá trị state mới nhất
+  intervalRef.current = setInterval(() => {
+    setElapsedSeconds(prev => prev + timeMultiplier);
+    setBattery(prev => Math.min(prev + chargeRate * timeMultiplier, 100));
+    setCost(prev => prev + costPerSecond * timeMultiplier);
+  }, 1000);
 
+  alert(`✅ Bắt đầu sạc, pin hiện tại ${randomBattery}%`);
 
-    alert(`✅ Bắt đầu sạc, pin hiện tại ${randomBattery}%`);
-    const token = localStorage.getItem("accessToken");
-    if (!token) { navigate("/login"); return; }
+  // Cập nhật batteryPercentage lên server
+  const token = localStorage.getItem("accessToken");
+  if (!token) { navigate("/login"); return; }
+
+  try {
     const bodyreq = {
-        "id": session.SessionId,
-        "batteryPercentage" : randomBattery,
-  }
+      id: session.SessionId,
+      batteryPercentage: randomBattery,
+    };
+
     const res = await fetch(`${API_BASE}/api/charging-session/setBatteryPercentage`, {
       method: "PUT",
-      headers: { 
+      headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}` },
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify(bodyreq),
- });
-    fetchSessions();
-  };
+    });
 
-  // --------------------- END CHARGING ---------------------
-  const endCharging = async () => {
-    if (!activeSession) return;
-    if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null; }
-
-    const token = localStorage.getItem("accessToken");
-    if (!token) { navigate("/login"); return; }
-
-    try {
-      const url = activeSession.userType === "guest"
-        ? `${API_BASE}/api/charging-session/guest/${activeSession.SessionId}/end`
-        : `${API_BASE}/api/charging-session/staff/${activeSession.SessionId}/end`;
-
-      console.log("🔚 Ending session:", {
-        sessionId: activeSession.SessionId,
-        userType: activeSession.userType,
-        licensePlate: activeSession.LicensePlate,
-        url: url
-      });
-
-      const res = await fetch(url, { method:"PATCH", headers:{ Authorization:`Bearer ${token}` } });
-      const data = await res.json();
-      
-      console.log("📥 End session response:", data);
-      console.log("📊 Response status:", res.status);
-      console.log("📋 Response data:", JSON.stringify(data, null, 2));
-      
-      if (!res.ok) throw new Error(data.message || "Lỗi kết thúc phiên sạc");
-
-      setSessions(prev => prev.filter(s => s.SessionId !== activeSession.SessionId));
-
-      // ✅ Nếu là EV-Driver: Fetch invoice và hiển thị thông tin
-      if (activeSession.userType === "staff" || activeSession.LicensePlate) {
-        console.log("🔍 Fetching invoice for session:", activeSession.SessionId);
-        
-        try {
-          // Gọi API lấy invoice theo sessionId
-          const invoiceData = await invoiceService.getInvoiceBySessionId(activeSession.SessionId);
-          console.log("✅ Invoice fetched successfully:", invoiceData);
-          
-          const invoice = invoiceData.data || invoiceData;
-          const invoiceId = invoice?.invoiceId || "N/A";
-          const totalAmount = invoice?.totalAmount || 0;
-          const paidStatus = invoice?.PaidStatus || "UNKNOWN";
-          
-          alert(
-            `✅ Kết thúc sạc thành công!\n\n` +
-            `🚗 Xe: ${activeSession.LicensePlate}\n` +
-            `💰 Tổng tiền: ${totalAmount.toLocaleString()}₫\n\n` +
-            `🧾 INVOICE ĐÃ TẠO:\n` +
-            `   - Invoice ID: ${invoiceId}\n` +
-            `   - Session ID: ${activeSession.SessionId}\n` +
-            `   - Trạng thái: ${paidStatus}\n\n` +
-            `✅ Hóa đơn đã được gửi đến tài khoản khách hàng.\n` +
-            `📱 Khách hàng sẽ thanh toán qua app của họ.`
-          );
-        } catch (invoiceError: any) {
-          console.error("❌ Failed to fetch invoice:", invoiceError);
-          alert(
-            `✅ Kết thúc sạc thành công!\n\n` +
-            `🚗 Xe: ${activeSession.LicensePlate}\n` +
-            `💰 Chi phí ước tính: ${cost.toFixed(0)}₫\n\n` +
-            `⚠️ Không thể lấy thông tin invoice:\n${invoiceError.message}\n\n` +
-            `Vui lòng kiểm tra lại trong hệ thống.`
-          );
-        }
-        
-        setActiveSession(null);
-        setElapsedSeconds(0);
-        setCost(0);
-      } else {
-        // Nếu là Guest: Chuyển sang trang Invoice để thu tiền ngay
-        alert(`✅ Kết thúc sạc. Tổng tiền: ${cost.toFixed(0)}₫\n\nChuyển sang thanh toán...`);
-        navigate('/staff/invoice', { state: { session: activeSession, cost } });
-        setActiveSession(null);
-        setElapsedSeconds(0);
-        setCost(0);
-      }
-
-    } catch (err: any) {
-      console.error("❌ End charging error:", err);
-      alert(`⚠️ Lỗi kết thúc sạc: ${err.message}`);
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.message || "Lỗi cập nhật battery");
     }
-  };
+
+    await fetchSessions(); // refresh danh sách sessions
+  } catch (err: any) {
+    console.error("❌ Update battery error:", err);
+    alert(`⚠️ Lỗi cập nhật pin: ${err.message}`);
+  }
+};
+
+// --------------------- END CHARGING ---------------------
+const endCharging = async () => {
+  if (!activeSession) {
+    console.warn("⚠️ Không có activeSession, không thể kết thúc sạc");
+    return;
+  }
+
+  if (intervalRef.current) {
+    clearInterval(intervalRef.current);
+    intervalRef.current = null;
+  }
+
+  const token = localStorage.getItem("accessToken");
+  if (!token) { navigate("/login"); return; }
+
+  try {
+    const url = activeSession.userType === "guest"
+      ? `${API_BASE}/api/charging-session/guest/${activeSession.SessionId}/end`
+      : `${API_BASE}/api/charging-session/staff/${activeSession.SessionId}/end`;
+
+    console.log("🔚 Ending session:", { sessionId: activeSession.SessionId, url });
+
+    const res = await fetch(url, {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    
+
+    const data = await res.json();
+    console.log("📥 End session response:", data);
+
+    if (!res.ok) throw new Error(data.message || "Lỗi kết thúc phiên sạc");
+
+    setSessions(prev => prev.filter(s => s.SessionId !== activeSession.SessionId));
+    setActiveSession(null);
+    setElapsedSeconds(0);
+    setCost(0);
+
+    alert("✅ Kết thúc sạc thành công!");
+  } catch (err: any) {
+    console.error("❌ End charging error:", err);
+    alert(`⚠️ Lỗi kết thúc sạc: ${err.message}`);
+  }
+};
 
   useEffect(() => {
     const loadData = async () => { await fetchPorts(1); await fetchSessions(); };

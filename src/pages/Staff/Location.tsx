@@ -4,7 +4,7 @@ import { GoogleMap, Marker, InfoWindow, useJsApiLoader } from '@react-google-map
 import ProfileStaff from '../../components/ProfileStaff'
 import StaffSideBar from '../../pages/layouts/staffSidebar'
 import locationService from '../../services/locationService'
-import type { MappedStation } from '../../services/locationService'
+import type { StaffAddress } from '../../services/locationService'
 import '../../css/Location.css'
 
 const defaultCenter = { lat: 10.7765, lng: 106.7009 }
@@ -15,43 +15,47 @@ const Location: React.FC = () => {
   const [mapCenter, setMapCenter] = useState(defaultCenter)
   const [activeMarker, setActiveMarker] = useState<number | null>(null)
   const [selectedStationId, setSelectedStationId] = useState<number | null>(null)
-  const [stations, setStations] = useState<MappedStation[]>([])
+  const [stations, setStations] = useState<StaffAddress[]>([])
   const [fetchError, setFetchError] = useState<string | null>(null)
 
-  const { isLoaded } = useJsApiLoader({
+  const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: 'AIzaSyDdxswSYXCcEgs8I4GJTPR82Dqpjkon1TM'
   })
 
+  // Lấy dữ liệu trạm
   useEffect(() => {
     const fetchStations = async () => {
       try {
-        const data = await locationService.getAllStations()
+        const data = await locationService.getStaffAddress()
+        const stationsArray = Array.isArray(data) ? data : []
 
-        const mappedWithFallback = data.map((station, idx) => ({
-          ...station,
-          lat: station.lat ?? (10.776 + (idx % 10) * 0.002),
-          lng: station.lng ?? (106.700 + Math.floor(idx / 10) * 0.002)
-        }))
+   const mappedWithFallback = (stationsArray ?? []).map((station, idx) => ({
+  ...station,
+  lat: station.lat ?? (10.776 + (idx % 10) * 0.002),
+  lng: station.lng ?? (106.700 + Math.floor(idx / 10) * 0.002)
+}))
 
         setStations(mappedWithFallback)
         setFetchError(null)
       } catch (error) {
-        setFetchError((error as any)?.message || String(error))
+        setFetchError((error as any)?.message || 'Lỗi tải dữ liệu trạm')
       }
     }
-
     fetchStations()
   }, [])
 
+  // Hiệu ứng fade-in
   useEffect(() => {
     const timer = setTimeout(() => setShowContent(true), 100)
     return () => clearTimeout(timer)
   }, [])
 
+  if (loadError) return <div style={{ color: 'red' }}>Không thể tải Google Maps</div>
   if (!isLoaded) return <div className='map-loading'>Đang tải bản đồ trạm sạc...</div>
-
+console.log('stations:', stations);
+console.log('selectedStationId:', selectedStationId);
   const markersToShow = selectedStationId != null
-    ? stations.filter((s) => s.id === selectedStationId)
+    ? stations.filter((s) => s.StationId === selectedStationId)
     : stations
 
   return (
@@ -72,7 +76,6 @@ const Location: React.FC = () => {
               {/* ===== LEFT PANEL ===== */}
               <div className='location-left-panel center-panel'>
                 <h2>Danh sách Trạm sạc - TP.HCM</h2>
-
                 <label>Chọn trạm để xem trên bản đồ:</label>
                 <select
                   onChange={(e) => {
@@ -85,22 +88,22 @@ const Location: React.FC = () => {
                     const stationId = Number(val)
                     if (Number.isNaN(stationId)) return
                     setSelectedStationId(stationId)
-                    const station = stations.find((s) => s.id === stationId)
-                    if (station) setMapCenter({ lat: station.lat!, lng: station.lng! })
+                    const station = stations.find((s) => s.StationId === stationId)
+                    if (station) setMapCenter({ lat: station.lat ?? defaultCenter.lat, lng: station.lng ?? defaultCenter.lng })
                   }}
                   value={selectedStationId ?? ''}
                 >
                   <option value=''>-- Hiển thị tất cả trạm --</option>
                   {stations.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.name}
+                    <option key={s.StationId} value={s.StationId}>
+                      {s.StationName}
                     </option>
                   ))}
                 </select>
 
                 <div style={{ marginTop: 8 }}>
                   <small>Tổng số trạm đang quản lý: {stations.length}</small>
-                  {fetchError && <div style={{ color: 'red' }}>Không thể tải dữ liệu trạm!</div>}
+                  {fetchError && <div style={{ color: 'red' }}>{fetchError}</div>}
                 </div>
               </div>
 
@@ -109,29 +112,29 @@ const Location: React.FC = () => {
                 <GoogleMap mapContainerClassName='map-container' center={mapCenter} zoom={15}>
                   {markersToShow.map((station) => (
                     <Marker
-                      key={station.id}
-                      position={{ lat: station.lat!, lng: station.lng! }}
-                      onClick={() => setActiveMarker(station.id)}
-                      title={station.name}
+                      key={station.StationId}
+                      position={{ lat: station.lat ?? defaultCenter.lat, lng: station.lng ?? defaultCenter.lng }}
+                      onClick={() => setActiveMarker(station.StationId)}
+                      title={station.StationName}
                       icon={{
                         url:
-                          station.id === selectedStationId
+                          station.StationId === selectedStationId
                             ? 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
                             : 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
                       }}
                     >
-                      {activeMarker === station.id && (
+                      {activeMarker === station.StationId && (
                         <InfoWindow
-                          options={{ pixelOffset: new window.google.maps.Size(0, -35), maxWidth: 0 }}
+                          options={{ pixelOffset: new window.google.maps.Size(0, -35) }}
                           onCloseClick={() => setActiveMarker(null)}
                         >
                           <div className='info-window'>
-                            <p><strong>{station.name}</strong></p>
+                            <p><strong>{station.StationName}</strong></p>
                             <p>📍 Địa chỉ: {station.address}</p>
                             <p>⚡ Trạng thái: {station.status}</p>
                             <button
                               onClick={() =>
-                                navigate(`/staff/locationDetail/${encodeURIComponent(station.fullAddress)}`)
+                                navigate(`/staff/locationDetail/${encodeURIComponent(station.address)}`)
                               }
                             >
                               Xem chi tiết trạm
@@ -143,6 +146,7 @@ const Location: React.FC = () => {
                   ))}
                 </GoogleMap>
               </div>
+
             </div>
           </section>
         </main>

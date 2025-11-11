@@ -93,7 +93,9 @@ const LocationDetail: React.FC = () => {
     setLoadingPorts(true);
     try {
       const portsList = await chargingPointService.getPortsByPoint(charger.PointId);
-      setPorts(portsList);
+    
+      
+       setPorts(Array.isArray(portsList) ? portsList : []);
     } catch {
       alert("⚠️ Lỗi lấy cổng sạc");
       setPorts([]);
