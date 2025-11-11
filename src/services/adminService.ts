@@ -1,3 +1,4 @@
+import type { StationAddress } from "utils/types";
 import { apiClient } from "../utils/api";
 
 export const adminService = {
@@ -13,7 +14,7 @@ export const adminService = {
   },
 
   // ⚡ Lấy danh sách trạm sạc
-  async getAllStations(): Promise<any[]> {
+  async getAllStations(): Promise<StationAddress[]> {
     try {
       const res = await apiClient.get("/station/getAllStations");
       return Array.isArray(res.data?.data) ? res.data.data : res.data || [];
@@ -96,12 +97,13 @@ export const adminService = {
   },
 
   // ➕ Tạo staff mới
-  async createStaff(email: string, password: string, fullName: string) {
+  async createStaff(email: string, password: string, fullName: string, address: string) {
     try {
       const payload = {
         Email: email,
         PasswordHash: password,
         FullName: fullName,
+        Address: address,
       };
       const res = await apiClient.post("/admin/createstaff", payload);
       return {
