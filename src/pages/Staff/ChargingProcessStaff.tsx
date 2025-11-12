@@ -371,19 +371,52 @@ const endCharging = async () => {
         setCost(0);
       }
     } else {
-      // ⚡ GUEST SESSION: Thu tiền mặt và chuyển sang trang Invoice
-      console.log("💰 Guest session - Redirecting to Invoice page");
+      // ⚡ GUEST SESSION: Tạo hóa đơn ngay sau khi kết thúc sạc và chuyển sang màn thanh toán
+      console.log("💰 Guest session - Creating invoice and redirecting to Invoice page");
 
-      setSessions(prev => prev.filter(s => s.SessionId !== activeSession.SessionId));
       const sessionId = activeSession.SessionId;
-      setActiveSession(null);
-      setElapsedSeconds(0);
-      setCost(0);
 
-      alert("✅ Kết thúc sạc thành công!\n\n💰 Vui lòng thu tiền mặt từ khách.\n\n🧾 Chuyển sang trang hóa đơn...");
-      
-      // Chuyển sang trang Invoice với sessionId
-      navigate(`/staff/invoice?sessionId=${sessionId}`);
+      try {
+        // 1) Tạo/Lấy hóa đơn cho khách không có account
+        const created = await invoiceService.getInvoiceBySessionId(sessionId);
+        console.log("🧾 Guest invoice created:", created);
+
+        // 2) Chuẩn hóa dữ liệu để truyền sang trang hóa đơn thanh toán
+        const normalizedInvoice = {
+          sessionId: created?.sessionId ?? created?.SessionId ?? sessionId,
+          customer: activeSession.LicensePlate ?? undefined,
+          startTime: activeSession.date,
+          endTime: new Date().toLocaleTimeString("vi-VN"),
+          cost: Number(created?.totalAmount ?? created?.amount ?? created?.sessionPrice ?? cost ?? 0),
+          stationName: activeSession.StationName,
+          chargerName: activeSession.chargerName,
+          power: activeSession.power,
+          batteryStart: activeSession.batteryPercentage,
+          batteryEnd: 100,
+          paid: String(created?.PaidStatus || created?.status || "PENDING").toUpperCase() === "PAID",
+        } as any;
+
+        // 3) Reset local states rồi điều hướng sang trang Invoice với dữ liệu hóa đơn
+        setSessions(prev => prev.filter(s => s.SessionId !== sessionId));
+        setActiveSession(null);
+        setElapsedSeconds(0);
+        setCost(0);
+
+        alert("✅ Kết thúc sạc thành công!\n\n🧾 Tạo hóa đơn cho khách vãng lai thành công.\n\n➡️ Chuyển sang trang thanh toán...");
+
+        navigate("/staff/invoice", { state: { invoice: normalizedInvoice, raw: created } });
+      } catch (invErr: any) {
+        console.error("❌ Failed to create guest invoice:", invErr);
+
+        // Dù tạo invoice lỗi vẫn dọn UI và chuyển kèm sessionId để trang hóa đơn tự thử fetch lại
+        setSessions(prev => prev.filter(s => s.SessionId !== sessionId));
+        setActiveSession(null);
+        setElapsedSeconds(0);
+        setCost(0);
+
+        alert(`⚠️ Kết thúc sạc thành công nhưng tạo hóa đơn thất bại: ${invErr?.message || "Unknown"}\n\n➡️ Chuyển sang trang hóa đơn để thử lại.`);
+        navigate(`/staff/invoice?sessionId=${sessionId}`);
+      }
     }
   } catch (err: any) {
     console.error("❌ End charging error:", err);
