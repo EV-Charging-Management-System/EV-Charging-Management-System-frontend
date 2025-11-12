@@ -48,13 +48,13 @@ const App: React.FC = () => {
 
     return element;
   };
-
+//
   return (
     <BrowserRouter>
       <Routes>
         {/* 🔑 Login */}
         <Route path="/login" element={<Login />} />
-
+  
         {/* 🚗 EV DRIVER ROUTES */}
         <Route path="/" element={<HomePage />} />
         <Route path="/booking-online-station" element={<BookingOnlineStation />} />
