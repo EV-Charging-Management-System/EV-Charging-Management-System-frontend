@@ -7,7 +7,7 @@ import locationService from "../../services/locationService";
 import type { Station } from "../../services/locationService";
 import chargingPointService from "../../services/chargingpointService";
 import type { ChargingPoint, ChargingPort } from "../../services/chargingpointService";
-import { vehicleService } from "../../services/vehicleService";
+import { vehicleService } from "../../services/vehicleServiceStaff";
 import "../../css/LocationDetail.css";
 
 const API_BASE_URL = "http://localhost:5000/api/charging-session";
