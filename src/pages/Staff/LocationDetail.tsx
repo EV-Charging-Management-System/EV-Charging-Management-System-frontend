@@ -217,6 +217,14 @@ const LocationDetail: React.FC = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data?.message || "Server error");
 
+      // ✅ Lưu userId vào localStorage với key là sessionId để dùng khi tạo invoice
+      const sessionId = data?.data?.sessionId || data?.sessionId;
+      if (sessionId && userId) {
+        const userIdSessionKey = `session_${sessionId}_userId`;
+        localStorage.setItem(userIdSessionKey, userId);
+        console.log(`💾 Saved userId to localStorage: ${userIdSessionKey} = ${userId}`);
+      }
+
       return data;
     } finally {
       setLoadingSubmit(false);
@@ -265,7 +273,7 @@ const LocationDetail: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedCharger || !form.portId || !form.battery) {
+    if (!selectedCharger || !form.portId) {
       return alert("⚠️ Điền đủ thông tin");
     }
 
@@ -278,32 +286,32 @@ const LocationDetail: React.FC = () => {
         console.log("🚗 Creating EV-Driver session:");
         console.log("   - LicensePlate:", form.licensePlate);
         console.log("   - UserId:", form.userId);
-        console.log("   - Battery:", form.battery);
         
         // ✅ Truyền userId vào để backend tạo invoice đúng user
+        // Battery sẽ được nhập khi bắt đầu sạc
         sessionData = await createChargingSession(
           form.licensePlate,
           station!.StationId,
           selectedCharger.PointId,
           Number(form.portId),
-          Number(form.battery),
+          0, // Battery = 0, sẽ được cập nhật khi bắt đầu sạc
           form.userId // ✅ Gửi userId đã tra cứu được
         );
         
         const sessionId = sessionData?.data?.sessionId ?? sessionData?.sessionId ?? "unknown";
         const userInfo = form.userId ? `UserId: ${form.userId}` : 'Xe chưa đăng ký (Guest mode)';
-        alert(`✅ Tạo phiên sạc thành công!\n\nXe: ${form.licensePlate}\n${userInfo}\nSession ID: ${sessionId}\n\n✅ Hóa đơn sẽ được tạo với userId của chủ xe sau khi kết thúc sạc.\n✅ User sẽ thanh toán ở trang Payment của mình.`);
+        alert(`✅ Tạo phiên sạc thành công!\n\nXe: ${form.licensePlate}\n${userInfo}\nSession ID: ${sessionId}\n\n⚠️ % Pin sẽ được nhập khi bắt đầu sạc.\n✅ Hóa đơn sẽ được tạo sau khi kết thúc sạc.`);
       } else {
         console.log("👤 Creating Guest session");
         sessionData = await createChargingSessionGuest(
           station!.StationId,
           selectedCharger.PointId,
           Number(form.portId),
-          Number(form.battery)
+          0 // Battery = 0, sẽ được nhập khi bắt đầu sạc
         );
         
         const sessionId = sessionData?.data?.sessionId ?? sessionData?.sessionId ?? "unknown";
-        alert(`✅ Tạo phiên sạc thành công!\n\nKhách vãng lai (Guest)\nSession ID: ${sessionId}\n\n⚠️ Vui lòng thu tiền mặt sau khi kết thúc sạc.`);
+        alert(`✅ Tạo phiên sạc thành công!\n\nKhách vãng lai (Guest)\nSession ID: ${sessionId}\n\n⚠️ % Pin sẽ được nhập khi bắt đầu sạc.\n⚠️ Thu tiền mặt sau khi kết thúc.`);
       }
 
       setChargers(prev =>
@@ -333,10 +341,6 @@ const LocationDetail: React.FC = () => {
       kwh: String(port.PortTypeOfKwh),
       price: String(port.PortTypePrice),
     }));
-  };
-
-  const handleBatteryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm(prev => ({ ...prev, battery: e.target.value }));
   };
 
   const renderStatus = (s?: string) =>
@@ -414,16 +418,6 @@ const LocationDetail: React.FC = () => {
     {form.displayName && <p className="display-name"><b>{form.displayName}</b></p>}
   </>
 )}
-
-
-                  {/* Pin */}
-                  <label>Số pin hiện tại</label>
-                  <input
-                    type="Text"
-                    value={form.battery}
-                    onChange={handleBatteryChange}
-                    required
-                  />
 
                   {/* Chọn cổng */}
                   <label>Chọn cổng sạc</label>

@@ -10,6 +10,7 @@ import { invoiceService } from "../../services/invoiceService";
 
 interface Session {
   SessionId: number;
+  UserId?: number | null; // ✅ Thêm UserId từ backend
   LicensePlate?: string | null;
   VehicleId?: number | null;
   companyName?: string;
@@ -43,9 +44,29 @@ const ChargingProcessStaff: React.FC = () => {
   const [cost, setCost] = useState<number>(0);
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [ports, setPorts] = useState<any[]>([]);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<number | null>(null);
 
   const stationId = 1;
+
+  // ✅ Utility: Dọn dẹp userId cũ trong localStorage (sessions đã hoàn thành)
+  const cleanupOldSessionUserIds = () => {
+    try {
+      const keys = Object.keys(localStorage);
+      const sessionKeys = keys.filter(key => key.startsWith('session_') && key.endsWith('_userId'));
+      
+      // Chỉ giữ lại userId của các active sessions
+      const activeSessionIds = sessions.map(s => s.SessionId);
+      sessionKeys.forEach(key => {
+        const sessionId = parseInt(key.replace('session_', '').replace('_userId', ''));
+        if (!activeSessionIds.includes(sessionId)) {
+          localStorage.removeItem(key);
+          console.log(`🧹 Cleaned up old userId: ${key}`);
+        }
+      });
+    } catch (error) {
+      console.warn("⚠️ Error cleaning localStorage:", error);
+    }
+  };
 
   const formatDuration = (seconds: number) => {
     const h = Math.floor(seconds / 3600).toString().padStart(2, "0");
@@ -127,12 +148,13 @@ const ChargingProcessStaff: React.FC = () => {
     try {
       const sessionsRaw = await fetchAllSessions();
       console.log("📊 Total sessions fetched:", sessionsRaw.length);
+      console.log("� Total sessions fetched:", sessionsRaw.length);
       
       // Log để debug xem có guest sessions không
-      const guestSessions = sessionsRaw.filter((s: any) => !s.LicensePlate || s.LicensePlate === null);
-      const staffSessions = sessionsRaw.filter((s: any) => s.LicensePlate && s.LicensePlate !== null);
-      console.log("👥 Staff sessions (có LicensePlate):", staffSessions.length, staffSessions.map((s: any) => s.SessionId));
-      console.log("👤 Guest sessions (không LicensePlate):", guestSessions.length, guestSessions.map((s: any) => s.SessionId));
+      const guestSessions = sessionsRaw.filter((s: any) => !s.UserId || s.UserId === null);
+      const staffSessions = sessionsRaw.filter((s: any) => s.UserId && s.UserId !== null);
+      console.log("👥 Staff sessions (có UserId - có account):", staffSessions.length, staffSessions.map((s: any) => `#${s.SessionId} (UserId: ${s.UserId})`));
+      console.log("👤 Guest sessions (không có UserId):", guestSessions.length, guestSessions.map((s: any) => s.SessionId));
       console.log("📊 Total sessions:", sessionsRaw.length);
 
       const stationRes = await fetch(`${API_BASE}/api/station/getAllStations`, { headers: { Authorization: `Bearer ${token}` } });
@@ -164,8 +186,20 @@ const ChargingProcessStaff: React.FC = () => {
           status = "waiting"; // Default
         }
 
+        // ✅ Kiểm tra UserId từ backend hoặc localStorage
+        let userId = s.UserId;
+        if (!userId) {
+          const userIdSessionKey = `session_${s.SessionId}_userId`;
+          const savedUserId = localStorage.getItem(userIdSessionKey);
+          if (savedUserId) {
+            userId = parseInt(savedUserId);
+            console.log(`📦 Retrieved userId from localStorage for session #${s.SessionId}: ${userId}`);
+          }
+        }
+
         return {
           ...s,
+          UserId: userId, // ✅ Gán UserId từ backend hoặc localStorage
           chargerName: port ? `${port.PortType} - ${port.PortTypeOfKwh} kWh` : "Cổng chưa rõ",
           power: port ? `${port.PortTypeOfKwh} kW` : "0 kW",
           portPrice: price,
@@ -173,8 +207,9 @@ const ChargingProcessStaff: React.FC = () => {
           address: stationMap[s.StationId] || "Địa chỉ chưa rõ",
           date: s.CheckinTime ? new Date(s.CheckinTime).toLocaleDateString("vi-VN") : "Chưa rõ",
           time: s.CheckinTime ? new Date(s.CheckinTime).toLocaleTimeString("vi-VN", { hour:"2-digit", minute:"2-digit"}) : "--:--",
-          // Xác định userType: Nếu không có LicensePlate hoặc LicensePlate = null thì là guest
-          userType: (!s.LicensePlate || s.LicensePlate === null) ? "guest" : "staff",
+          // ✅ Xác định userType dựa vào UserId (có account) thay vì LicensePlate
+          // Nếu có UserId thì là staff (có account), không có thì là guest
+          userType: (userId && userId !== null) ? "staff" : "guest",
           batteryPercentage: s.BatteryPercentage,
         };
       });
@@ -184,7 +219,7 @@ const ChargingProcessStaff: React.FC = () => {
         const rawSession = sessionsRaw.find((raw: any) => raw.SessionId === s.SessionId);
         const hasCheckoutTime = rawSession?.CheckoutTime;
         
-        console.log(`Session #${s.SessionId}: LicensePlate=${s.LicensePlate}, userType=${s.userType}, CheckoutTime=${hasCheckoutTime}, Status=${s.ChargingStatus}`);
+        console.log(`Session #${s.SessionId}: UserId=${rawSession?.UserId}, LicensePlate=${s.LicensePlate}, userType=${s.userType}, CheckoutTime=${hasCheckoutTime}, Status=${s.ChargingStatus}`);
         
         // Chỉ hiển thị sessions chưa có CheckoutTime (chưa end)
         return !hasCheckoutTime;
@@ -192,6 +227,9 @@ const ChargingProcessStaff: React.FC = () => {
       console.log("✅ Active sessions (CheckoutTime = NULL):", activeSessions.length);
       console.log("📋 Active session IDs:", activeSessions.map(s => `#${s.SessionId} (${s.userType})`));
       setSessions(activeSessions);
+      
+      // ✅ Dọn dẹp userId cũ trong localStorage sau khi fetch sessions
+      setTimeout(() => cleanupOldSessionUserIds(), 1000);
     } catch (err: any) {
       console.error("❌ Fetch sessions error:", err);
       alert(`⚠️ Lỗi tải session: ${err.message}`);
@@ -291,12 +329,62 @@ const endCharging = async () => {
 
     if (!res.ok) throw new Error(data.message || "Lỗi kết thúc phiên sạc");
 
-    setSessions(prev => prev.filter(s => s.SessionId !== activeSession.SessionId));
-    setActiveSession(null);
-    setElapsedSeconds(0);
-    setCost(0);
+    // ✅ Kiểm tra userId từ localStorage hoặc từ activeSession
+    const userIdSessionKey = `session_${activeSession.SessionId}_userId`;
+    const savedUserId = localStorage.getItem(userIdSessionKey);
+    const userId = activeSession.UserId || (savedUserId ? parseInt(savedUserId) : null);
 
-    alert("✅ Kết thúc sạc thành công!");
+    console.log(`🔍 Checking invoice creation:`);
+    console.log(`   - SessionId: ${activeSession.SessionId}`);
+    console.log(`   - UserId from session: ${activeSession.UserId}`);
+    console.log(`   - UserId from localStorage: ${savedUserId}`);
+    console.log(`   - Final userId: ${userId}`);
+    console.log(`   - userType: ${activeSession.userType}`);
+    
+    // ✅ Nếu có userId (từ session hoặc localStorage), tạo invoice
+    if (userId) {
+      try {
+        console.log(`🧾 Creating invoice for staff session: ${activeSession.SessionId} with userId: ${userId}`);
+        await invoiceService.createInvoiceForStaff(activeSession.SessionId, userId);
+        console.log("✅ Invoice created successfully");
+        
+        // ✅ CHỈ XÓA userId khỏi localStorage SAU KHI TẠO INVOICE THÀNH CÔNG
+        if (savedUserId) {
+          localStorage.removeItem(userIdSessionKey);
+          console.log(`🗑️ Removed userId from localStorage: ${userIdSessionKey}`);
+        }
+
+        setSessions(prev => prev.filter(s => s.SessionId !== activeSession.SessionId));
+        setActiveSession(null);
+        setElapsedSeconds(0);
+        setCost(0);
+
+        alert("✅ Kết thúc sạc thành công!\n\nHóa đơn đã được tạo cho user.\nUser sẽ thanh toán trên app.");
+      } catch (invoiceError: any) {
+        console.error("❌ Failed to create invoice:", invoiceError);
+        // ⚠️ KHÔNG XÓA localStorage nếu tạo invoice thất bại
+        alert(`⚠️ Cảnh báo: Kết thúc sạc thành công nhưng không tạo được hóa đơn: ${invoiceError.message}\n\nUserId đã được lưu để thử lại sau.`);
+        
+        setSessions(prev => prev.filter(s => s.SessionId !== activeSession.SessionId));
+        setActiveSession(null);
+        setElapsedSeconds(0);
+        setCost(0);
+      }
+    } else {
+      // ⚡ GUEST SESSION: Thu tiền mặt và chuyển sang trang Invoice
+      console.log("💰 Guest session - Redirecting to Invoice page");
+
+      setSessions(prev => prev.filter(s => s.SessionId !== activeSession.SessionId));
+      const sessionId = activeSession.SessionId;
+      setActiveSession(null);
+      setElapsedSeconds(0);
+      setCost(0);
+
+      alert("✅ Kết thúc sạc thành công!\n\n💰 Vui lòng thu tiền mặt từ khách.\n\n🧾 Chuyển sang trang hóa đơn...");
+      
+      // Chuyển sang trang Invoice với sessionId
+      navigate(`/staff/invoice?sessionId=${sessionId}`);
+    }
   } catch (err: any) {
     console.error("❌ End charging error:", err);
     alert(`⚠️ Lỗi kết thúc sạc: ${err.message}`);
@@ -335,7 +423,9 @@ const endCharging = async () => {
                   <h3>Xe & Trạm</h3>
                   <p><FaMapMarkerAlt /> {activeSession.StationName}</p>
                   <p><FaBolt /> {activeSession.chargerName} ({activeSession.power})</p>
-                  <p>{activeSession.userType === "guest" ? `Pin: ${activeSession.batteryPercentage}` : `Biển số: ${activeSession.LicensePlate}`}</p>
+                  <p>{activeSession.userType === "guest" ? `Pin: ${activeSession.batteryPercentage}%` : `Biển số: ${activeSession.LicensePlate}`}</p>
+                  {activeSession.UserId && <p>UserId: {activeSession.UserId}</p>}
+                  <p>Loại: {activeSession.userType === "guest" ? "Khách vãng lai" : "Có tài khoản"}</p>
                   <p>Giá: {activeSession.portPrice?.toLocaleString()} ₫/kWh</p>
                 </div>
                 <div className="info-box">
@@ -358,7 +448,9 @@ const endCharging = async () => {
                     <h3>{s.StationName}</h3>
                     <p><FaMapMarkerAlt /> {s.address}</p>
                     <p><FaBolt /> {s.chargerName} ({s.power})</p>
-                    <p>{s.userType === "guest" ? `Pin: ${s.batteryPercentage}` : `Biển số: ${s.LicensePlate}`}</p>
+                    <p>{s.userType === "guest" ? `Pin: ${s.batteryPercentage}%` : `Biển số: ${s.LicensePlate}`}</p>
+                    {s.UserId && <p>UserId: {s.UserId}</p>}
+                    <p>Loại: {s.userType === "guest" ? "Khách vãng lai" : "Có tài khoản"}</p>
                     <p>Giá: {s.portPrice?.toLocaleString()} ₫/kWh</p>
                   </div>
                   <div>

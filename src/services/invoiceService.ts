@@ -16,7 +16,7 @@ export const invoiceService = {
         headers: { 
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}` 
-        },
+        },  
       });
 
       console.log(`📊 Invoice API response status: ${res.status}`);
@@ -114,6 +114,38 @@ export const invoiceService = {
       return data.data || data;
     } catch (error) {
       console.error("❌ Error creating invoice:", error);
+      throw error;
+    }
+  },
+
+  // Tạo invoice cho staff khi kết thúc sạc (luồng có account)
+  async createInvoiceForStaff(sessionId: number, userId: number) {
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) throw new Error("Not authenticated");
+
+      console.log(`🧾 Creating invoice for staff - sessionId: ${sessionId}, userId: ${userId}`);
+
+      const res = await fetch(`${API_BASE}/api/charging-session/${sessionId}/invoice-staff`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          userId: userId,
+        }),
+      });
+
+      const data = await res.json();
+      console.log(`📊 Invoice-staff API response:`, data);
+
+      if (!res.ok) throw new Error(data.message || "Failed to create invoice for staff");
+
+      console.log("✅ Invoice created successfully for staff:", data);
+      return data.data || data;
+    } catch (error: any) {
+      console.error("❌ Error creating invoice for staff:", error);
       throw error;
     }
   },
