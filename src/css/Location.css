@@ -20,21 +20,11 @@ body {
   position: relative;
 }
 
-/* ================= HOVER AREA FOR SIDEBAR ================= */
-.location-sidebar-hover {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 60px;
-  height: 100%;
-  z-index: 100;
-}
-
-/* ================= SIDEBAR ================= */
+/* ================= SIDEBAR - CỐ ĐỊNH ================= */
 .location-sidebar {
   position: fixed;
   top: 0;
-  left: -250px;
+  left: 0;
   width: 250px;
   height: 100%;
   background: linear-gradient(180deg, #111827, #0b0f14);
@@ -43,12 +33,7 @@ body {
   display: flex;
   flex-direction: column;
   box-shadow: 4px 0 15px rgba(0,0,0,0.4);
-  transition: left 0.3s ease;
   z-index: 101;
-}
-
-.location-sidebar-hover:hover .location-sidebar {
-  left: 0;
 }
 
 .location-logo {
@@ -56,22 +41,10 @@ body {
   font-weight: bold;
   color: #3df26f;
   margin-bottom: 32px;
-  opacity: 0;
-  transition: opacity 0.3s ease 0.3s;
-}
-
-.location-sidebar-hover:hover .location-logo {
-  opacity: 1;
 }
 
 .location-menu ul {
   list-style: none;
-  opacity: 0;
-  transition: opacity 0.3s ease 0.3s;
-}
-
-.location-sidebar-hover:hover .location-menu ul {
-  opacity: 1;
 }
 
 .location-menu li {
@@ -105,11 +78,6 @@ body {
   color: white;
   font-weight: 500;
   transition: 0.3s;
-  opacity: 0;
-}
-
-.location-sidebar-hover:hover .logout-btn {
-  opacity: 1;
 }
 
 .logout-btn:hover {
@@ -122,20 +90,15 @@ body {
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding-left: 0;
-  transition: margin-left 0.3s ease;
+  margin-left: 250px; /* Cố định margin bằng chiều rộng sidebar */
   min-height: 100vh;
-}
-
-.location-sidebar-hover:hover ~ .location-main-wrapper {
-  margin-left: 250px;
 }
 
 /* ================= HEADER ================= */
 .location-header {
   position: fixed;
   top: 0;
-  left: 0;
+  left: 250px; /* Cố định bên phải sidebar */
   right: 0;
   height: 64px;
   display: flex;
@@ -145,11 +108,6 @@ body {
   border-bottom: 1px solid #1f2937;
   z-index: 50;
   box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-  transition: left 0.3s ease;
-}
-
-.location-sidebar-hover:hover ~ .location-main-wrapper .location-header {
-  left: 250px;
 }
 
 .location-header h1 {
@@ -172,11 +130,6 @@ body {
   display: flex;
   flex-direction: column;
   padding-top: 64px;
-  transition: margin-left 0.3s ease;
-}
-
-.location-sidebar-hover:hover ~ .location-main-wrapper .location-main {
-  margin-left: 0;
 }
 
 /* ================= BODY MAP ================= */
@@ -264,11 +217,6 @@ body {
   flex-shrink: 0;
   width: 100%;
   margin-top: auto;
-  transition: margin-left 0.3s ease;
-}
-
-.location-sidebar-hover:hover ~ .location-main-wrapper .footer {
-  margin-left: 0;
 }
 
 .map-container {

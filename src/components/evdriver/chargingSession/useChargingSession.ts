@@ -160,7 +160,7 @@ export const useChargingSession = (bookingId?: number, bookingData?: any) => {
         
         try {
           const penaltyRes = await chargingSessionService.applyPenalty(state.sessionId, calculatedPenaltyFee)
-          console.log('✅ Penalty applied:', penaltyRes)
+          console.log('✅ Penalty applied:', penaltyRes)  
         } catch (penaltyError: any) {
           console.error('❌ Penalty API error:', penaltyError)
           alert('⚠️ Không thể áp dụng phí phạt. Vui lòng liên hệ hỗ trợ!')

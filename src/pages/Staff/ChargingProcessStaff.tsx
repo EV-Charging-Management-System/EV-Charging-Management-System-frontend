@@ -1,198 +1,424 @@
-import React, { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import ProfileStaff from '../../components/ProfileStaff'
-import '../../css/ChargingProcessStaff.css'
-import StaffSidebar from '../../pages/layouts/staffSidebar'
+﻿import React, { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import ProfileStaff from "../../components/ProfileStaff";
+import StaffSidebar from "../../pages/layouts/staffSidebar";
+import "../../css/ChargingProcessStaff.css";
+import { FaMapMarkerAlt, FaBolt, FaCalendarAlt, FaClock, FaHashtag, FaSyncAlt } from "react-icons/fa";
+import { invoiceService } from "../../services/invoiceService";
 
 interface Session {
-  id: number
-  stationName: string
-  chargerName: string
-  power: string
-  customer: string
-  phone: string
-  carBrand: string
-  status: 'pending' | 'charging' | 'completed'
+  SessionId: number;
+  UserId?: number | null;
+  LicensePlate?: string | null;
+  VehicleId?: number | null;
+  companyName?: string;
+  Battery?: number;
+  PortId?: number;
+  PointId?: number;
+  StationId?: number;
+  PortType?: string;
+  ChargingStatus?: string;
+  StationName?: string;
+  chargerName?: string;
+  power?: string;
+  Status?: "waiting" | "charging" | "done";
+  address?: string;
+  date?: string;
+  time?: string;
+  portPrice?: number;
+  userType?: "guest" | "staff";
+  inputBattery?: number;
+  batteryPercentage?: number;
 }
 
+const API_BASE = "http://localhost:5000";
+
 const ChargingProcessStaff: React.FC = () => {
-  const { id } = useParams()
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [activeSession, setActiveSession] = useState<Session | null>(null);
+  const [battery, setBattery] = useState<number>(0);
+  const [elapsedSeconds, setElapsedSeconds] = useState<number>(0);
+  const [cost, setCost] = useState<number>(0);
+  const [startTime, setStartTime] = useState<Date | null>(null);
+  const [ports, setPorts] = useState<any[]>([]);
+  const intervalRef = useRef<number | null>(null);
 
-  const [session, setSession] = useState<Session | null>(null)
-  const [battery, setBattery] = useState<number>(Math.floor(Math.random() * 40) + 20)
-  const [status, setStatus] = useState<'waiting' | 'charging' | 'done'>('waiting')
-  const [time, setTime] = useState<number>(0)
-  const [cost, setCost] = useState<number>(0)
-  const [startTime, setStartTime] = useState<Date | null>(null)
-  const [endTime, setEndTime] = useState<Date | null>(null)
+  const stationId = 1;
 
-  // Lấy session từ localStorage
-  useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem('offlineSessions') || '[]')
-    const found = stored.find((s: Session) => s.id === Number(id))
-    setSession(found || null)
-  }, [id])
-
-  // Simulate charging
-  useEffect(() => {
-    let interval: number
-    if (status === 'charging' && battery < 100) {
-      interval = window.setInterval(() => {
-        setBattery((prev) => (prev < 100 ? prev + 1 : prev))
-        setTime((t) => t + 1)
-        setCost((c) => c + 5000)
-      }, 1000)
+  const cleanupOldSessionUserIds = () => {
+    try {
+      const keys = Object.keys(localStorage);
+      const sessionKeys = keys.filter(key => key.startsWith('session_') && key.endsWith('_userId'));
+      const activeSessionIds = sessions.map(s => s.SessionId);
+      sessionKeys.forEach(key => {
+        const sessionId = parseInt(key.replace('session_', '').replace('_userId', ''));
+        if (!activeSessionIds.includes(sessionId)) {
+          localStorage.removeItem(key);
+          console.log(`🧹 Cleaned up old userId: ${key}`);
+        }
+      });
+    } catch (error) {
+      console.warn("⚠️ Error cleaning localStorage:", error);
     }
-    return () => clearInterval(interval)
-  }, [status, battery])
+  };
 
-  const handleStart = () => {
-    setStatus('charging')
-    setStartTime(new Date())
-  }
+  const formatDuration = (seconds: number) => {
+    const h = Math.floor(seconds / 3600).toString().padStart(2, "0");
+    const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, "0");
+    const s = (seconds % 60).toString().padStart(2, "0");
+    return `${h}:${m}:${s}`;
+  };
 
-  const handleStop = () => {
-    setStatus('done')
-    const now = new Date()
-    setEndTime(now)
+  const fetchPorts = async (pointId: number) => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) { navigate("/login"); return; }
+    try {
+      const res = await fetch(`${API_BASE}/api/station/getPort?pointId=${pointId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.message);
+      setPorts(json.data || []);
+    } catch (err: any) { console.error(err.message); }
+  };
 
-    // update localStorage
-    const stored = JSON.parse(localStorage.getItem('offlineSessions') || '[]')
-    const updated = stored.map((s: Session) => (s.id === Number(id) ? { ...s, status: 'completed' } : s))
-    localStorage.setItem('offlineSessions', JSON.stringify(updated))
-  }
+  const fetchAllSessions = async (): Promise<any[]> => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) { navigate("/login"); return []; }
+    
+    try {
+      const staffRes = await fetch(`${API_BASE}/api/staff/station/sessions`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const staffJson = await staffRes.json();
+      const staffSessions = staffJson.data || [];
 
-  const handlePayment = () => {
-    // Lưu dữ liệu session vừa thanh toán để Invoice đọc
-    const invoiceData = {
-      sessionId: session?.id,
-      customer: session?.customer,
-      phone: session?.phone,
-      carBrand: session?.carBrand,
-      startTime,
-      endTime,
-      cost,
-      stationName: session?.stationName,
-      chargerName: session?.chargerName,
-      power: session?.power
+      let guestSessions = [];
+      try {
+        const guestRes = await fetch(`${API_BASE}/api/charging-session/guest/station/${stationId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (guestRes.ok) {
+          const guestJson = await guestRes.json();
+          guestSessions = guestJson.data || guestJson || [];
+        }
+      } catch (err) {
+        console.warn("⚠️ Guest API not available");
+      }
+
+      const allSessions = [...staffSessions, ...guestSessions];
+      return allSessions;
+    } catch (err) { 
+      console.error("❌ Fetch sessions error:", err);
+      return []; 
     }
-    localStorage.setItem('currentInvoice', JSON.stringify(invoiceData))
+  };
 
-    // Chuyển sang trang Invoice
-    navigate(`/staff/invoice/`)
-  }
+  const fetchSessions = async () => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) { navigate("/login"); return; }
 
-  const statusText = status === 'waiting' ? 'Đang chờ sạc' : status === 'charging' ? 'Đang sạc' : 'Đã sạc xong'
+    try {
+      const sessionsRaw = await fetchAllSessions();
 
-  const formatDateTime = (date: Date | null) =>
-    date
-      ? `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1)
-          .toString()
-          .padStart(2, '0')}/${date.getFullYear()} ${date.getHours().toString().padStart(2, '0')}:${date
-          .getMinutes()
-          .toString()
-          .padStart(2, '0')}`
-      : '--/--/---- --:--'
+      const stationRes = await fetch(`${API_BASE}/api/station/getAllStations`, { headers: { Authorization: `Bearer ${token}` } });
+      const stationJson = await stationRes.json();
+      const stationMap = Object.fromEntries(
+        (stationJson.data || []).map((st: any) => [st.StationId, st.Address || "Địa chỉ chưa rõ"])
+      );
+
+      const uniquePoints = Array.from(new Set(sessionsRaw.map((s: any) => s.PointId)));
+      const portsPromises = uniquePoints.map(async pid => {
+        const r = await fetch(`${API_BASE}/api/station/getPort?pointId=${pid}`, { headers: { Authorization: `Bearer ${token}` } });
+        const j = await r.json();
+        return j.data || [];
+      });
+      const allPorts = (await Promise.all(portsPromises)).flat();
+      setPorts(allPorts);
+
+      const sessionsProcessed: Session[] = sessionsRaw.map((s: any) => {
+        const port = allPorts.find((p) => p.PortId === s.PortId);
+        const price = port?.PortTypePrice ? Number(port.PortTypePrice) : 0;
+
+        let status: "waiting" | "charging" | "done";
+        if (s.ChargingStatus === "ONGOING") {
+          status = "waiting";
+        } else if (s.ChargingStatus === "COMPLETED") {
+          status = "done";
+        } else {
+          status = "waiting";
+        }
+
+        let userId = s.UserId;
+        if (!userId) {
+          const userIdSessionKey = `session_${s.SessionId}_userId`;
+          const savedUserId = localStorage.getItem(userIdSessionKey);
+          if (savedUserId) {
+            userId = parseInt(savedUserId);
+          }
+        }
+
+        return {
+          ...s,
+          UserId: userId,
+          chargerName: port ? `${port.PortType} - ${port.PortTypeOfKwh} kWh` : "Cổng chưa rõ",
+          power: port ? `${port.PortTypeOfKwh} kW` : "0 kW",
+          portPrice: price,
+          Status: status,
+          address: stationMap[s.StationId] || "Địa chỉ chưa rõ",
+          date: s.CheckinTime ? new Date(s.CheckinTime).toLocaleDateString("vi-VN") : "Chưa rõ",
+          time: s.CheckinTime ? new Date(s.CheckinTime).toLocaleTimeString("vi-VN", { hour:"2-digit", minute:"2-digit"}) : "--:--",
+          userType: (userId && userId !== null) ? "staff" : "guest",
+          batteryPercentage: s.BatteryPercentage,
+        };
+      });
+
+      const activeSessions = sessionsProcessed.filter(s => {
+        const rawSession = sessionsRaw.find((raw: any) => raw.SessionId === s.SessionId);
+        const hasCheckoutTime = rawSession?.CheckoutTime;
+        return !hasCheckoutTime;
+      });
+      setSessions(activeSessions);
+      
+      setTimeout(() => cleanupOldSessionUserIds(), 1000);
+    } catch (err: any) {
+      console.error("❌ Fetch sessions error:", err);
+      alert(`⚠️ Lỗi tải session: ${err.message}`);
+    }
+  };
+
+  const startCharging = async (session: Session) => {
+    const randomBattery = session.userType === "guest"
+      ? session.inputBattery ?? Math.floor(Math.random() * (90 - 30 + 1)) + 30
+      : Math.floor(Math.random() * (90 - 30 + 1)) + 30;
+
+    setActiveSession({ ...session, Status: "charging" });
+    setBattery(randomBattery);
+    setElapsedSeconds(0);
+    setStartTime(new Date());
+    setCost(0);
+
+    const pricePerKwh = Number(session.portPrice) || 0;
+    const power = Number(session.power?.replace(" kW", "")) || 0;
+
+    const timeMultiplier = 60;
+    const chargeRate = (power / 100) / 3600 * 100;
+    const costPerSecond = (power * pricePerKwh) / 3600;
+
+    intervalRef.current = setInterval(() => {
+      setElapsedSeconds(prev => prev + timeMultiplier);
+      setBattery(prev => Math.min(prev + chargeRate * timeMultiplier, 100));
+      setCost(prev => prev + costPerSecond * timeMultiplier);
+    }, 1000);
+
+    alert(`✅ Bắt đầu sạc, pin hiện tại ${randomBattery}%`);
+
+    const token = localStorage.getItem("accessToken");
+    if (!token) { navigate("/login"); return; }
+
+    try {
+      const bodyreq = {
+        id: session.SessionId,
+        batteryPercentage: randomBattery,
+      };
+
+      const res = await fetch(`${API_BASE}/api/charging-session/setBatteryPercentage`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(bodyreq),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || "Lỗi cập nhật battery");
+      }
+
+      await fetchSessions();
+    } catch (err: any) {
+      console.error("❌ Update battery error:", err);
+      alert(`⚠️ Lỗi cập nhật pin: ${err.message}`);
+    }
+  };
+
+  const endCharging = async () => {
+    if (!activeSession) {
+      console.warn("⚠️ Không có activeSession");
+      return;
+    }
+
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
+    const token = localStorage.getItem("accessToken");
+    if (!token) { navigate("/login"); return; }
+
+    try {
+      const url = activeSession.userType === "guest"
+        ? `${API_BASE}/api/charging-session/guest/${activeSession.SessionId}/end`
+        : `${API_BASE}/api/charging-session/staff/${activeSession.SessionId}/end`;
+
+      const res = await fetch(url, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Lỗi kết thúc phiên sạc");
+
+      const userIdSessionKey = `session_${activeSession.SessionId}_userId`;
+      const savedUserId = localStorage.getItem(userIdSessionKey);
+      const userId = activeSession.UserId || (savedUserId ? parseInt(savedUserId) : null);
+
+      if (userId) {
+        try {
+          await invoiceService.createInvoiceForStaff(activeSession.SessionId, userId);
+          if (savedUserId) {
+            localStorage.removeItem(userIdSessionKey);
+          }
+
+          setSessions(prev => prev.filter(s => s.SessionId !== activeSession.SessionId));
+          setActiveSession(null);
+          setElapsedSeconds(0);
+          setCost(0);
+
+          alert("✅ Kết thúc sạc thành công!\n\nHóa đơn đã được tạo cho user.");
+        } catch (invoiceError: any) {
+          console.error("❌ Failed to create invoice:", invoiceError);
+          alert(`⚠️ Cảnh báo: Kết thúc sạc thành công nhưng không tạo được hóa đơn`);
+          
+          setSessions(prev => prev.filter(s => s.SessionId !== activeSession.SessionId));
+          setActiveSession(null);
+          setElapsedSeconds(0);
+          setCost(0);
+        }
+      } else {
+        const sessionId = activeSession.SessionId;
+        try {
+          const created = await invoiceService.getInvoiceBySessionId(sessionId);
+
+          const normalizedInvoice = {
+            sessionId: created?.sessionId ?? created?.SessionId ?? sessionId,
+            customer: activeSession.LicensePlate ?? undefined,
+            startTime: activeSession.date,
+            endTime: new Date().toLocaleTimeString("vi-VN"),
+            cost: Number(created?.totalAmount ?? created?.amount ?? created?.sessionPrice ?? cost ?? 0),
+            stationName: activeSession.StationName,
+            chargerName: activeSession.chargerName,
+            power: activeSession.power,
+            batteryStart: activeSession.batteryPercentage,
+            batteryEnd: 100,
+            paid: String(created?.PaidStatus || created?.status || "PENDING").toUpperCase() === "PAID",
+          } as any;
+
+          setSessions(prev => prev.filter(s => s.SessionId !== sessionId));
+          setActiveSession(null);
+          setElapsedSeconds(0);
+          setCost(0);
+
+          alert("✅ Kết thúc sạc thành công!\n\n🧾 Tạo hóa đơn cho khách vãng lai thành công.");
+          navigate("/staff/invoice", { state: { invoice: normalizedInvoice, raw: created } });
+        } catch (invErr: any) {
+          console.error("❌ Failed to create guest invoice:", invErr);
+
+          setSessions(prev => prev.filter(s => s.SessionId !== sessionId));
+          setActiveSession(null);
+          setElapsedSeconds(0);
+          setCost(0);
+
+          alert(`⚠️ Kết thúc sạc thành công nhưng tạo hóa đơn thất bại`);
+          navigate(`/staff/invoice?sessionId=${sessionId}`);
+        }
+      }
+    } catch (err: any) {
+      console.error("❌ End charging error:", err);
+      alert(`⚠️ Lỗi kết thúc sạc: ${err.message}`);
+    }
+  };
+
+  useEffect(() => {
+    const loadData = async () => { await fetchPorts(1); await fetchSessions(); };
+    loadData();
+    return () => { if(intervalRef.current) clearInterval(intervalRef.current); };
+  }, []);
 
   return (
-    <div className='charging-wrapper'>
+    <div className="charging-wrapper">
       <StaffSidebar />
-
-      {/* ===== MAIN CONTENT ===== */}
-      <div className='charging-main-wrapper fade-in'>
-        <header className='charging-header'>
-          <h1>Optimising your journey, Powering your life</h1>
-          <div className='charging-header-actions'>
-            <ProfileStaff />
-          </div>
+      <div className="charging-main-wrapper fade-in">
+        <header className="charging-header">
+          <h1>Optimising your journey, Powering your life ⚡</h1>
+          <ProfileStaff />
         </header>
 
-        <main className='charging-body'>
-          <h2 className='charging-title'>Phiên Sạc</h2>
-          <p className='charging-subtitle'>{session?.stationName || 'Trạm sạc'}</p>
-          <div className={`status-pill ${status}`}>{statusText}</div>
+        <main className="charging-body">
+          <h2 className="charging-title">
+            {activeSession ? "Phiên Sạc Đang Diễn Ra" : "Lịch Sạc Sắp Tới"}
+            {!activeSession && (<button onClick={fetchSessions} title="Làm mới danh sách"><FaSyncAlt /></button>)}
+          </h2>
 
-          <div className='charging-card'>
-            <div className='charge-progress'>
-              <div className='progress-bar'>
-                <div className='progress-fill' style={{ width: `${battery}%` }} />
+          {activeSession ? (
+            <div className="charging-session-container">
+              <div className="charge-progress">
+                <div className="progress-bar"><div className="progress-fill" style={{ width: `${battery}%` }}></div></div>
+                <span className="battery-level">{battery.toFixed(0)}%</span>
               </div>
-              <span className='battery-level'>{battery}%</span>
-              <div className='charging-buttons'>
-                {status === 'waiting' && (
-                  <button className='start-btn' onClick={handleStart}>
-                    ⚡ Bắt đầu sạc
-                  </button>
-                )}
-                {status === 'charging' && (
-                  <button className='stop-btn' onClick={handleStop}>
-                    ⏹️ Kết thúc phiên sạc
-                  </button>
-                )}
-                {status === 'done' && <span className='finished-text'>✅ Đã sạc xong</span>}
+              <div className="session-info">
+                <div className="info-box">
+                  <h3>Xe & Trạm</h3>
+                  <p><FaMapMarkerAlt /> {activeSession.StationName}</p>
+                  <p><FaBolt /> {activeSession.chargerName} ({activeSession.power})</p>
+                  <p>{activeSession.userType === "guest" ? `Pin: ${activeSession.batteryPercentage}%` : `Biển số: ${activeSession.LicensePlate}`}</p>
+                  {activeSession.UserId && <p>UserId: {activeSession.UserId}</p>}
+                  <p>Loại: {activeSession.userType === "guest" ? "Khách vãng lai" : "Có tài khoản"}</p>
+                  <p>Giá: {activeSession.portPrice?.toLocaleString()} ₫/kWh</p>
+                </div>
+                <div className="info-box">
+                  <h3>Thời gian & Chi phí</h3>
+                  <p><FaClock /> {formatDuration(elapsedSeconds)}</p>
+                  <p>Chi phí: {cost.toFixed(0)} ₫</p>
+                  <p>Bắt đầu: {startTime?.toLocaleTimeString("vi-VN")}</p>
+                </div>
               </div>
-            </div>
-
-            <div className='session-info'>
-              <div className='info-box'>
-                <h3>Thông tin trạm sạc</h3>
-                <p>
-                  Cổng: <strong>{session?.chargerName}</strong>
-                </p>
-                <p>
-                  Công suất: <strong>{session?.power}</strong>
-                </p>
-              </div>
-
-              <div className='info-box'>
-                <h3>Thời gian & Chi phí</h3>
-                <p>
-                  Thời gian: <strong>{time} phút</strong>
-                </p>
-                <p>
-                  Chi phí: <strong>{cost.toLocaleString()}đ</strong>
-                </p>
-                <p>
-                  Bắt đầu: <strong>{formatDateTime(startTime)}</strong>
-                </p>
-                <p>
-                  Kết thúc: <strong>{formatDateTime(endTime)}</strong>
-                </p>
+              <div className="charging-buttons">
+                <button onClick={endCharging}>⏹ Dừng sạc</button>
               </div>
             </div>
-          </div>
-
-          {status === 'done' && (
-            <div className='payment-card'>
-              <h3>Thanh Toán Phiên Sạc</h3>
-              <p>
-                Khách hàng: <strong>{session?.customer}</strong>
-              </p>
-              <p>
-                Điện thoại: <strong>{session?.phone}</strong>
-              </p>
-              <p>
-                Xe: <strong>{session?.carBrand}</strong>
-              </p>
-              <p>
-                Bắt đầu: <strong>{formatDateTime(startTime)}</strong>
-              </p>
-              <p>
-                Kết thúc: <strong>{formatDateTime(endTime)}</strong>
-              </p>
-              <p>
-                Tổng chi phí: <strong>{cost.toLocaleString()}đ</strong>
-              </p>
-              <button className='start-btn' onClick={handlePayment}>
-                💳 Thanh toán ngay
-              </button>
+          ) : (
+            <div className="waiting-list">
+              {sessions.length === 0 && <p>Chưa có phiên sạc nào</p>}
+              {sessions.map(s => (
+                <div key={s.SessionId} className="waiting-card">
+                  <div>
+                    <h3>{s.StationName}</h3>
+                    <p><FaMapMarkerAlt /> {s.address}</p>
+                    <p><FaBolt /> {s.chargerName} ({s.power})</p>
+                    <p>{s.userType === "guest" ? `Pin: ${s.batteryPercentage}%` : `Biển số: ${s.LicensePlate}`}</p>
+                    {s.UserId && <p>UserId: {s.UserId}</p>}
+                    <p>Loại: {s.userType === "guest" ? "Khách vãng lai" : "Có tài khoản"}</p>
+                    <p>Giá: {s.portPrice?.toLocaleString()} ₫/kWh</p>
+                  </div>
+                  <div>
+                    <p><FaCalendarAlt /> {s.date}</p>
+                    <p><FaClock /> {s.time}</p>
+                    <p><FaHashtag /> #{s.SessionId}</p>
+                  </div>
+                  <div className="form-buttons">
+                    <button className="start-btn" onClick={() => startCharging(s)}>Bắt đầu sạc</button>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </main>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ChargingProcessStaff
+export default ChargingProcessStaff;
