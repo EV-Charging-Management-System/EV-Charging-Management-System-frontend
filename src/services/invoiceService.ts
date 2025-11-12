@@ -3,7 +3,7 @@ import apiClient from "../utils/api";
 const API_BASE = "http://localhost:5000";
 
 export const invoiceService = {
-  // ✅ Lấy invoice theo sessionId - API POST (không phải GET!)
+
   async getInvoiceBySessionId(sessionId: number) {
     try {
       const token = localStorage.getItem("accessToken");
@@ -12,7 +12,7 @@ export const invoiceService = {
       console.log(`🔍 Fetching invoice from: ${API_BASE}/api/charging-session/${sessionId}/invoice`);
 
       const res = await fetch(`${API_BASE}/api/charging-session/${sessionId}/invoice`, {
-        method: "POST", // ✅ SỬA: POST thay vì GET
+        method: "POST",
         headers: { 
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}` 
@@ -22,7 +22,6 @@ export const invoiceService = {
       console.log(`📊 Invoice API response status: ${res.status}`);
       console.log(`📋 Invoice API response headers:`, res.headers.get('content-type'));
 
-      // ⚠️ Kiểm tra xem response có phải JSON không
       const contentType = res.headers.get('content-type');
       if (!contentType || !contentType.includes('application/json')) {
         const textResponse = await res.text();
