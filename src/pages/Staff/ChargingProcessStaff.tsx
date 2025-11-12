@@ -237,14 +237,12 @@ const ChargingProcessStaff: React.FC = () => {
   };
 
   // --------------------- START CHARGING ---------------------
-  const startCharging = async (session: Session) => {
-  const randomBattery = session.userType === "guest"
-    ? session.inputBattery ?? Math.floor(Math.random() * (90 - 30 + 1)) + 30
-    : Math.floor(Math.random() * (90 - 30 + 1)) + 30;
+ const startCharging = async (session: Session) => {
+  // ✅ Dùng đúng battery ban đầu nếu có
+  const initialBattery = session.batteryPercentage ?? session.inputBattery ?? session.Battery ?? 50;
 
-  // Cập nhật state trước khi gọi interval
   setActiveSession({ ...session, Status: "charging" });
-  setBattery(randomBattery);
+  setBattery(initialBattery);
   setElapsedSeconds(0);
   setStartTime(new Date());
   setCost(0);
@@ -253,26 +251,24 @@ const ChargingProcessStaff: React.FC = () => {
   const power = Number(session.power?.replace(" kW", "")) || 0;
 
   const timeMultiplier = 60; // 1 giây = 1 phút mô phỏng
-  const chargeRate = (power / 100) / 3600 * 100; // % pin mỗi giây thật
-  const costPerSecond = (power * pricePerKwh) / 3600; // tiền mỗi giây thật
+  const chargeRate = (power / 100) / 3600 * 100;
+  const costPerSecond = (power * pricePerKwh) / 3600;
 
-  // Đảm bảo interval luôn lấy giá trị state mới nhất
   intervalRef.current = setInterval(() => {
     setElapsedSeconds(prev => prev + timeMultiplier);
     setBattery(prev => Math.min(prev + chargeRate * timeMultiplier, 100));
     setCost(prev => prev + costPerSecond * timeMultiplier);
   }, 1000);
 
-  alert(`✅ Bắt đầu sạc, pin hiện tại ${randomBattery}%`);
+  alert(`✅ Bắt đầu sạc, pin hiện tại ${initialBattery}%`);
 
-  // Cập nhật batteryPercentage lên server
   const token = localStorage.getItem("accessToken");
   if (!token) { navigate("/login"); return; }
 
   try {
     const bodyreq = {
       id: session.SessionId,
-      batteryPercentage: randomBattery,
+      batteryPercentage: initialBattery,
     };
 
     const res = await fetch(`${API_BASE}/api/charging-session/setBatteryPercentage`, {
@@ -296,7 +292,8 @@ const ChargingProcessStaff: React.FC = () => {
   }
 };
 
-// --------------------- END CHARGING ---------------------
+
+// --------------------- END CHARGING --------------------
 const endCharging = async () => {
   if (!activeSession) {
     console.warn("⚠️ Không có activeSession, không thể kết thúc sạc");
@@ -323,32 +320,30 @@ const endCharging = async () => {
       headers: { Authorization: `Bearer ${token}` },
     });
     
-
     const data = await res.json();
     console.log("📥 End session response:", data);
 
     if (!res.ok) throw new Error(data.message || "Lỗi kết thúc phiên sạc");
 
-    // ✅ Kiểm tra userId từ localStorage hoặc từ activeSession
+    // ✅ Kiểm tra userId (có account hay khách vãng lai)
     const userIdSessionKey = `session_${activeSession.SessionId}_userId`;
     const savedUserId = localStorage.getItem(userIdSessionKey);
     const userId = activeSession.UserId || (savedUserId ? parseInt(savedUserId) : null);
 
-    console.log(`🔍 Checking invoice creation:`);
-    console.log(`   - SessionId: ${activeSession.SessionId}`);
-    console.log(`   - UserId from session: ${activeSession.UserId}`);
-    console.log(`   - UserId from localStorage: ${savedUserId}`);
-    console.log(`   - Final userId: ${userId}`);
-    console.log(`   - userType: ${activeSession.userType}`);
-    
-    // ✅ Nếu có userId (từ session hoặc localStorage), tạo invoice
+    console.log(`🔍 Checking invoice creation:
+    - SessionId: ${activeSession.SessionId}
+    - UserId from session: ${activeSession.UserId}
+    - UserId from localStorage: ${savedUserId}
+    - Final userId: ${userId}
+    - userType: ${activeSession.userType}`);
+
+    // ✅ Nếu có userId (xe có tài khoản)
     if (userId) {
       try {
         console.log(`🧾 Creating invoice for staff session: ${activeSession.SessionId} with userId: ${userId}`);
         await invoiceService.createInvoiceForStaff(activeSession.SessionId, userId);
         console.log("✅ Invoice created successfully");
-        
-        // ✅ CHỈ XÓA userId khỏi localStorage SAU KHI TẠO INVOICE THÀNH CÔNG
+
         if (savedUserId) {
           localStorage.removeItem(userIdSessionKey);
           console.log(`🗑️ Removed userId from localStorage: ${userIdSessionKey}`);
@@ -362,34 +357,34 @@ const endCharging = async () => {
         alert("✅ Kết thúc sạc thành công!\n\nHóa đơn đã được tạo cho user.\nUser sẽ thanh toán trên app.");
       } catch (invoiceError: any) {
         console.error("❌ Failed to create invoice:", invoiceError);
-        // ⚠️ KHÔNG XÓA localStorage nếu tạo invoice thất bại
-        alert(`⚠️ Cảnh báo: Kết thúc sạc thành công nhưng không tạo được hóa đơn: ${invoiceError.message}\n\nUserId đã được lưu để thử lại sau.`);
-        
+        alert(`⚠️ Cảnh báo: Kết thúc sạc thành công nhưng không tạo được hóa đơn: ${invoiceError.message}`);
+      }
+    } 
+    // ⚡ KHÁCH VÃNG LAI (Guest)
+    else {
+      try {
+        console.log("💰 Guest session detected — creating CASH invoice...");
+        await invoiceService.payCash(activeSession.SessionId);
+        console.log("✅ Guest CASH invoice created successfully!");
+
         setSessions(prev => prev.filter(s => s.SessionId !== activeSession.SessionId));
         setActiveSession(null);
         setElapsedSeconds(0);
         setCost(0);
+
+        alert("✅ Kết thúc sạc và tạo hóa đơn tiền mặt thành công!\n🧾 Chuyển sang trang hóa đơn...");
+        navigate(`/staff/invoice?sessionId=${activeSession.SessionId}`);
+      } catch (guestErr: any) {
+        console.error("❌ Guest invoice creation failed:", guestErr);
+        alert(`⚠️ Kết thúc sạc thành công nhưng không tạo được hóa đơn khách: ${guestErr.message}`);
       }
-    } else {
-      // ⚡ GUEST SESSION: Thu tiền mặt và chuyển sang trang Invoice
-      console.log("💰 Guest session - Redirecting to Invoice page");
-
-      setSessions(prev => prev.filter(s => s.SessionId !== activeSession.SessionId));
-      const sessionId = activeSession.SessionId;
-      setActiveSession(null);
-      setElapsedSeconds(0);
-      setCost(0);
-
-      alert("✅ Kết thúc sạc thành công!\n\n💰 Vui lòng thu tiền mặt từ khách.\n\n🧾 Chuyển sang trang hóa đơn...");
-      
-      // Chuyển sang trang Invoice với sessionId
-      navigate(`/staff/invoice?sessionId=${sessionId}`);
     }
   } catch (err: any) {
     console.error("❌ End charging error:", err);
     alert(`⚠️ Lỗi kết thúc sạc: ${err.message}`);
   }
 };
+
 
   useEffect(() => {
     const loadData = async () => { await fetchPorts(1); await fetchSessions(); };
