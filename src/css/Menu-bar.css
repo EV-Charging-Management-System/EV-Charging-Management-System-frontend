@@ -31,3 +31,14 @@
   padding-bottom: 4px;
   font-weight: 600;
 }
+.menu-active {
+  color: #00ffa3;
+  font-weight: 600;
+  border-bottom: 2px solid #00ffa3;
+  text-shadow: 0 0 10px rgba(0, 255, 163, 0.8);
+}
+.menu-list li:hover {
+  color: #00ffa3;
+  text-shadow: 0 0 6px rgba(0, 255, 163, 0.6);
+  cursor: pointer;
+}

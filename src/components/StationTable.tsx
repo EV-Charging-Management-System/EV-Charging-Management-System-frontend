@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "../css/AdminDashboard.css";
 import { toast } from "react-toastify";
 import { adminService } from "../services/adminService";
+import { Eye } from "lucide-react";
 
 interface Station {
   StationId: number;
@@ -11,7 +12,21 @@ interface Station {
   ChargingPointTotal: number;
 }
 
-const StationTable: React.FC = () => {
+interface StationTableProps {
+  stations?: Station[];
+  onAdd?: () => void;
+  onEdit?: (station: Station) => void;
+  onDelete?: (id: number) => void;
+  onViewPoints?: (stationId: number) => void;
+}
+
+const StationTable: React.FC<StationTableProps> = ({
+  stations: propStations,
+  onAdd,
+  onEdit,
+  onDelete,
+  onViewPoints,
+}) => {
   const [stations, setStations] = useState<Station[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -24,6 +39,11 @@ const StationTable: React.FC = () => {
 
   // Lấy danh sách trạm từ backend
   useEffect(() => {
+    if (propStations) {
+      setStations(propStations);
+      return;
+    }
+
     let mounted = true;
     const load = async () => {
       setLoading(true);
@@ -53,7 +73,7 @@ const StationTable: React.FC = () => {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [propStations]);
 
   // 🆕 Mở modal thêm trạm
   const openModal = () => setShowModal(true);
@@ -166,18 +186,37 @@ const StationTable: React.FC = () => {
                 </td>
                 <td>{s.ChargingPointTotal}</td>
                 <td>
-                  {s.StationStatus !== "INACTIVE" && (
-                    <button
-                      className={
-                        s.StationStatus === "MAINTENANCE"
-                          ? "btn-approve"
-                          : "btn-reject"
-                      }
-                      onClick={() => toggleStatus(s.StationId)}
-                    >
-                      {s.StationStatus === "MAINTENANCE" ? "Kích hoạt lại" : "Bảo trì"}
-                    </button>
-                  )}
+                  <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                    {onViewPoints && (
+                      <button
+                        className="btn-approve"
+                        onClick={() => onViewPoints(s.StationId)}
+                        style={{ display: "flex", alignItems: "center", gap: "4px" }}
+                      >
+                        <Eye size={16} /> Points
+                      </button>
+                    )}
+                    {onDelete && (
+                      <button
+                        className="btn-reject"
+                        onClick={() => onDelete(s.StationId)}
+                      >
+                        Xóa
+                      </button>
+                    )}
+                    {s.StationStatus !== "INACTIVE" && (
+                      <button
+                        className={
+                          s.StationStatus === "MAINTENANCE"
+                            ? "btn-approve"
+                            : "btn-reject"
+                        }
+                        onClick={() => toggleStatus(s.StationId)}
+                      >
+                        {s.StationStatus === "MAINTENANCE" ? "Kích hoạt lại" : "Bảo trì"}
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))

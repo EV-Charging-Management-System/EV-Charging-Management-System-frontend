@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "../css/AdminDashboard.css";
 
 interface User {
@@ -11,9 +13,9 @@ interface User {
 
 interface Props {
   users: User[];
-  onAdd: (user: Partial<User>) => void;
-  onEdit: (user: User) => void;
-  onDelete: (id: number) => void;
+  onAdd: (user: Partial<User>) => Promise<any>;
+  onEdit: (user: User) => Promise<any>;
+  onDelete: (id: number) => Promise<any>;
 }
 
 const UserTable: React.FC<Props> = ({ users, onAdd, onEdit, onDelete }) => {
@@ -28,11 +30,13 @@ const UserTable: React.FC<Props> = ({ users, onAdd, onEdit, onDelete }) => {
     CompanyId: 1,
   });
 
+  // 🔹 Khi nhấn Sửa
   const handleEditClick = (user: User) => {
     setSelectedUser(user);
     setShowEditModal(true);
   };
 
+  // 🔹 Đóng tất cả modal
   const handleClose = () => {
     setShowEditModal(false);
     setShowAddModal(false);
@@ -40,20 +44,44 @@ const UserTable: React.FC<Props> = ({ users, onAdd, onEdit, onDelete }) => {
     setSelectedUser(null);
   };
 
-  const handleSave = () => {
-    if (selectedUser) {
-      onEdit(selectedUser);
+  // ✅ Cập nhật người dùng (để AdminDashboard xử lý toast)
+  const handleSave = async () => {
+    if (!selectedUser) return;
+    try {
+      await onEdit(selectedUser);
+    } catch (err) {
+      console.error("❌ Lỗi FE khi cập nhật:", err);
+    } finally {
       handleClose();
     }
   };
 
-  const handleAdd = () => {
-    if (newUser.UserName && newUser.Mail) {
-      onAdd(newUser);
+  // ✅ Thêm người dùng (vẫn cảnh báo thiếu input ở đây)
+  const handleAdd = async () => {
+    if (!newUser.UserName || !newUser.Mail) {
+      toast.warn("⚠️ Vui lòng nhập đầy đủ thông tin!");
+      return;
+    }
+
+    try {
+      await onAdd(newUser);
       setNewUser({ UserName: "", Mail: "", RoleName: "STAFF", CompanyId: 1 });
+    } catch (err) {
+      console.error("❌ Lỗi FE khi thêm:", err);
+    } finally {
       handleClose();
-    } else {
-      alert("Vui lòng nhập đầy đủ thông tin!");
+    }
+  };
+
+  // ✅ Xóa người dùng
+  const handleConfirmDelete = async () => {
+    if (!selectedUser) return;
+    try {
+      await onDelete(selectedUser.UserId);
+    } catch (err) {
+      console.error("❌ Lỗi FE khi xóa:", err);
+    } finally {
+      handleClose();
     }
   };
 
@@ -234,13 +262,7 @@ const UserTable: React.FC<Props> = ({ users, onAdd, onEdit, onDelete }) => {
             </p>
 
             <div className="modal-buttons">
-              <button
-                className="btn-delete"
-                onClick={() => {
-                  onDelete(selectedUser.UserId);
-                  handleClose();
-                }}
-              >
+              <button className="btn-delete" onClick={handleConfirmDelete}>
                 Xóa
               </button>
               <button className="btn-cancel" onClick={handleClose}>

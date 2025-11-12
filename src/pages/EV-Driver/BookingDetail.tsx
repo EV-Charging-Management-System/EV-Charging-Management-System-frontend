@@ -1,254 +1,146 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import '../../css/BookingDetail.css'
-import { FaBolt, FaCheckCircle } from 'react-icons/fa'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import Header from '../../pages/layouts/header'
 import Footer from '../../pages/layouts/footer'
 import MenuBar from '../../pages/layouts/menu-bar'
-import mapImage from "../../assets/mapdetailbook.jpg";
-import QRImage from "../../assets/QR1.png";
+import bookingService from '../../services/bookingService'
+import {
+  MapSection,
+  BookingForm,
+  PointGrid,
+  useBookingForm,
+  usePoints,
+  usePorts,
+  useVehicles
+} from '../../components/evdriver/bookingDetail'
+
 const BookingDetail: React.FC = () => {
-  const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
   const stationId = Number(id)
 
-  // Danh sách trạm
-  const stationList = [
-    { id: 1, name: 'Trạm Sạc Trung Tâm Quận 1' },
-    { id: 2, name: 'Trạm Sạc Phú Mỹ Hưng' },
-    { id: 3, name: 'Trạm Sạc Thủ Đức' }
-  ]
+  const [selectedPointId, setSelectedPointId] = useState<number | null>(null)
+  const [selectedPortId, setSelectedPortId] = useState<number | null>(null)
+  const [payLoading, setPayLoading] = useState(false)
 
-  // Danh sách cổng sạc
-  const stations = [
-    { id: 1, port: 'Cổng M', power: '80 kW', status: 'available' },
-    { id: 2, port: 'Cổng N', power: '110 kW', status: 'booked' },
-    { id: 3, port: 'Cổng D', power: '150 kW', status: 'available' },
-    { id: 4, port: 'Cổng M', power: '80 kW', status: 'maintenance' },
-    { id: 5, port: 'Cổng N', power: '110 kW', status: 'available' },
-    { id: 6, port: 'Cổng D', power: '150 kW', status: 'booked' }
-  ]
+  // ===== CUSTOM HOOKS =====
+  const { formData, setFormData } = useBookingForm()
+  const { points } = usePoints(stationId)
+  const { ports } = usePorts(selectedPointId)
+  const { vehicles, loading: vehiclesLoading } = useVehicles(formData.userId)
 
-  const [selectedStation, setSelectedStation] = useState<number | null>(null)
-  const [showQR, setShowQR] = useState(false)
-  const [paymentDone, setPaymentDone] = useState(false)
-  const [bookingCode, setBookingCode] = useState<string>('')
+  // ✅ Tự động chọn port đầu tiên available khi load ports
+  useEffect(() => {
+    if (ports.length > 0) {
+      const firstAvailable = ports.find((p: any) => (p.PortStatus || '').toUpperCase() === 'AVAILABLE')
+      if (firstAvailable) setSelectedPortId(firstAvailable.PortId)
+    }
+  }, [ports])
 
-  const [formData, setFormData] = useState({
-    name: 'Jos Nguyễn',
-    userId: 'SE182928',
-    phone: '02840375032',
-    email: 'phucsms@gmail.com',
-    carBrand: '',
-    date: '',
-    time: ''
-  })
-
-  const currentStation = stationList.find((s) => s.id === stationId)?.name || 'Không xác định'
-
-  const today = new Date()
-  const minDate = today.toISOString().split('T')[0]
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
-  }
-
-  // Xử lý đặt lịch
-  const handleSubmit = (e: React.FormEvent) => {
+  // ✅ Gửi booking → mở VNPay
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!selectedStation) return alert('Vui lòng chọn một cổng sạc!')
-    if (!formData.date) return alert('Vui lòng chọn ngày đến sạc!')
-    setShowQR(true)
+    if (!selectedPointId || !selectedPortId) {
+      alert('⚠️ Vui lòng chọn cổng sạc!')
+      return
+    }
+    if (!formData.userId) {
+      alert('⚠️ Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại!')
+      return
+    }
+    if (!formData.vehicleId) {
+      alert('⚠️ Vui lòng chọn xe của bạn!')
+      return
+    }
+
+    // 👉 Mở tab mới ngay khi user click
+    const vnpayTab = window.open('', '_blank')
+
+    try {
+      setPayLoading(true)
+
+      // Gọi API VNPay tạo URL thanh toán
+      const vnpayPayload = {
+        userId: Number(formData.userId),
+        amount: 30000
+      }
+
+      console.log('[BookingDetail] Payload gửi VNPay:', vnpayPayload)
+      const res = await bookingService.createVnpay(vnpayPayload)
+      console.log('[BookingDetail] VNPay response:', res)
+
+      const paymentUrl = res?.data?.url || res?.url
+      const txnRef = res?.data?.txnRef || res?.txnRef // ✅ Lấy txnRef từ response
+
+      if (!paymentUrl) {
+        alert('Không nhận được URL thanh toán từ hệ thống!')
+        vnpayTab?.close()
+        return
+      }
+
+      if (!txnRef) {
+        console.warn('⚠️ Không có txnRef từ VNPay response')
+      }
+
+      // 💾 Chuẩn bị bookingPayload với txnRef
+      const todayStr = new Date().toISOString().split('T')[0]
+      const startTime = formData.time ? new Date(`${todayStr}T${formData.time}`).toISOString() : new Date().toISOString()
+
+      const bookingData = {
+        stationId,
+        pointId: selectedPointId,
+        portId: selectedPortId,
+        vehicleId: Number(formData.vehicleId),
+        startTime,
+        depositAmount: 30000,
+        userId: Number(formData.userId),
+        carBrand: formData.carBrand,
+        qr: txnRef // ✅ Thêm txnRef vào payload
+      }
+
+      // 💾 Lưu localStorage để tạo booking sau khi thanh toán thành công
+      localStorage.setItem('bookingPayload', JSON.stringify(bookingData))
+      localStorage.setItem('paymentType', 'booking') // ✅ Thêm type để phân biệt
+      console.log('[BookingDetail] bookingPayload saved with txnRef:', bookingData)
+
+      // Mở VNPay
+      vnpayTab!.location.href = paymentUrl
+    } catch (error: any) {
+      console.error('❌ Lỗi khi tạo thanh toán:', error)
+      alert(error?.message || 'Không thể tạo thanh toán!')
+      vnpayTab?.close()
+    } finally {
+      setPayLoading(false)
+    }
   }
 
-  // Quay lại form đặt lịch
-  const handleBackToForm = () => {
-    setShowQR(false)
-    setPaymentDone(false)
-  }
-
-  // Khi ấn "Đã Thanh Toán"
-  const handlePaymentSuccess = () => {
-    // Random mã đặt chỗ
-    const code = Math.random().toString(36).substring(2, 8).toUpperCase()
-    setBookingCode(code)
-    setPaymentDone(true)
-  }
 
   return (
     <div className='booking-container'>
       <Header />
       <MenuBar />
-      {/* ===== BODY ===== */}
+
       <main className='booking-detail-body'>
         <div className='detail-layout'>
-          {/* ==== BẢN ĐỒ ==== */}
-          <div className='map-detail'>
-            <img src={mapImage} alt="map" className="map-image" />
-          </div>
+          {/* ==== MAP SECTION ==== */}
+          <MapSection />
 
-          {/* ==== FORM / QR / THÔNG BÁO ==== */}
-          <div className='form-section'>
-            {!selectedStation ? (
-              <div className='empty-form'>
-                <FaBolt className='empty-icon' />
-                <p>Chọn một cổng sạc để bắt đầu đặt lịch</p>
-              </div>
-            ) : paymentDone ? (
-              // ✅ GIAO DIỆN SAU THANH TOÁN THÀNH CÔNG
-              <div className='payment-success'>
-                <FaCheckCircle className='success-icon' />
-                <h2>Đặt Lịch Thành Công!</h2>
-                <p>Mã sạc của bạn</p>
-                <div className='booking-code'>{bookingCode}</div>
-
-                <div className='success-info'>
-                  <p>
-                    <strong>Trạm:</strong> {currentStation}
-                  </p>
-                  <p>
-                    <strong>Cổng:</strong> {stations[selectedStation - 1]?.port} –{' '}
-                    {stations[selectedStation - 1]?.power}
-                  </p>
-                  <p>
-                    <strong>Thời gian:</strong> {formData.date ? `${formData.date} ${formData.time}` : 'Không xác định'}
-                  </p>
-                  <div className='success-message'>
-                    Vui lòng đến đúng giờ và sử dụng mã sạc để bắt đầu.
-                    <br />
-                    Mã sạc đã được gửi qua email.
-                  </div>
-                </div>
-
-                <div className='form-buttons'>
-                  <button className='cancel-btn' onClick={handleBackToForm}>
-                    Quay Lại
-                  </button>
-                  <button className='submit-btn' onClick={() => navigate('/booking-online-station')}>
-                    Xem Lịch Đặt
-                  </button>
-                </div>
-              </div>
-            ) : showQR ? (
-              // ✅ GIAO DIỆN QR
-              <div className='qr-section'>
-                <h2>Thanh Toán Giữ Chỗ</h2>
-                <p>Vui lòng quét mã QR để thanh toán phí giữ chỗ 80.000đ</p>
-
-                <div className='qr-box'>
-                  <img src={QRImage} alt="QR Thanh Toán" className="qr-image" />
-                </div>
-
-                <div className='qr-info'>
-                  <p>
-                    <strong>Phí giữ chỗ:</strong> 80.000đ
-                  </p>
-                  <p>
-                    <strong>Ngân hàng:</strong> Vietcombank
-                  </p>
-                  <p>
-                    <strong>STK:</strong> 11243782
-                  </p>
-                  <p>
-                    <strong>Nội dung:</strong> Booking {formData.name}
-                  </p>
-                </div>
-
-                <div className='form-buttons'>
-                  <button className='cancel-btn' onClick={handleBackToForm}>
-                    Quay Lại
-                  </button>
-                  <button className='submit-btn' onClick={handlePaymentSuccess}>
-                    Đã Thanh Toán
-                  </button>
-                </div>
-              </div>
-            ) : (
-              // ✅ FORM ĐẶT LỊCH
-              <form className='booking-form' onSubmit={handleSubmit}>
-                <h2>Đặt Lịch Sạc</h2>
-                <p className='station-info'>
-                  {currentStation} – {stations[selectedStation - 1]?.port || 'Cổng không xác định'}
-                </p>
-
-                <label>Họ và tên</label>
-                <input type='text' name='name' value={formData.name} onChange={handleChange} required />
-
-                <label>ID</label>
-                <input type='text' name='userId' value={formData.userId} onChange={handleChange} required />
-
-                <label>Số điện thoại</label>
-                <input type='text' name='phone' value={formData.phone} onChange={handleChange} required />
-
-                <label>Email</label>
-                <input type='email' name='email' value={formData.email} onChange={handleChange} required />
-
-                <label>Hãng xe</label>
-                <select name='carBrand' value={formData.carBrand} onChange={handleChange} required>
-                  <option value=''>Chọn hãng xe</option>
-                  <option>VinFast</option>
-                  <option>Hyundai</option>
-                  <option>Tesla</option>
-                </select>
-
-                <div className='form-inline'>
-                  <div>
-                    <label>Cổng sạc</label>
-                    <input type='text' value={stations[selectedStation - 1]?.port || ''} readOnly />
-                  </div>
-                  <div>
-                    <label>Công suất</label>
-                    <input type='text' value={stations[selectedStation - 1]?.power || ''} readOnly />
-                  </div>
-                </div>
-
-                <label>Ngày đến sạc</label>
-                <input type='date' name='date' min={minDate} value={formData.date} onChange={handleChange} required />
-
-                <label>Giờ đến sạc</label>
-                <input type='time' name='time' value={formData.time} onChange={handleChange} required />
-
-                <div className='form-buttons'>
-                  <button type='button' className='cancel-btn' onClick={() => setSelectedStation(null)}>
-                    Hủy
-                  </button>
-                  <button type='submit' className='submit-btn'>
-                    Tiếp Tục
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
+          {/* ==== BOOKING FORM ==== */}
+          <BookingForm
+            formData={formData}
+            ports={ports}
+            vehicles={vehicles}
+            selectedPortId={selectedPortId}
+            payLoading={payLoading}
+            vehiclesLoading={vehiclesLoading}
+            onFormDataChange={(data) => setFormData({ ...formData, ...data })}
+            onPortChange={setSelectedPortId}
+            onSubmit={handleSubmit}
+          />
         </div>
 
         {/* ==== DANH SÁCH CỔNG SẠC ==== */}
-        <section className='station-grid'>
-          <h3>Chọn Cổng Sạc</h3>
-          <p>Chọn ô còn trống (màu trắng) để đặt lịch</p>
-
-          <div className='grid-container'>
-            {stations.map((s) => (
-              <div
-                key={s.id}
-                className={`station-box ${s.status} ${selectedStation === s.id ? 'active' : ''}`}
-                onClick={() => (s.status === 'available' ? setSelectedStation(s.id) : null)}
-              >
-                <h4>#{s.id}</h4>
-                <span className='port'>{s.port}</span>
-                <p>{s.power}</p>
-                <p className='status-text'>
-                  {s.status === 'available' ? 'Còn trống' : s.status === 'booked' ? 'Đã đặt' : 'Bảo trì'}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          <div className='legend'>
-            <span className='legend-item available'>Còn trống</span>
-            <span className='legend-item booked'>Đã đặt</span>
-            <span className='legend-item maintenance'>Bảo trì</span>
-          </div>
-        </section>
+        <PointGrid points={points} selectedPointId={selectedPointId} onSelectPoint={setSelectedPointId} />
       </main>
 
       <Footer />
