@@ -252,6 +252,38 @@ const Invoice: React.FC = () => {
                     <p><strong>📅 Ngày tạo HĐ:</strong> {new Date(invoice.createdAt).toLocaleString("vi-VN")}</p>
                   )}
                   
+                  <hr style={{ margin: "16px 0", border: "none", borderTop: "1px dashed rgba(124, 255, 178, 0.3)" }} />
+                  
+                  {/* Chi phí sạc */}
+                  {invoice.sessionPrice !== undefined && (
+                    <p style={{ fontSize: "1.1em" }}>
+                      <strong>💰 Chi phí sạc:</strong> 
+                      <span style={{ color: "#7cffb2", fontWeight: "bold", marginLeft: "8px" }}>
+                        {invoice.sessionPrice.toLocaleString()} ₫
+                      </span>
+                    </p>
+                  )}
+                  
+                  {invoice.penaltyFee !== undefined && invoice.penaltyFee > 0 && (
+                    <p style={{ fontSize: "1.1em" }}>
+                      <strong>⚠️ Phí phạt:</strong> 
+                      <span style={{ color: "#ff9800", fontWeight: "bold", marginLeft: "8px" }}>
+                        {invoice.penaltyFee.toLocaleString()} ₫
+                      </span>
+                    </p>
+                  )}
+                  
+                  {(invoice.totalAmount !== undefined || invoice.cost !== undefined) && (
+                    <p style={{ fontSize: "1.3em", marginTop: "12px", paddingTop: "12px", borderTop: "1px solid rgba(124, 255, 178, 0.5)" }}>
+                      <strong>💵 TỔNG CỘNG:</strong> 
+                      <span style={{ color: "#3df26f", fontWeight: "bold", fontSize: "1.2em", marginLeft: "8px" }}>
+                        {(invoice.totalAmount ?? invoice.cost ?? 0).toLocaleString()} ₫
+                      </span>
+                    </p>
+                  )}
+                  
+                  <hr style={{ margin: "16px 0", border: "none", borderTop: "1px dashed rgba(124, 255, 178, 0.3)" }} />
+                  
                   {invoice.PaidStatus && (
                     <p><strong>📊 Trạng thái:</strong> 
                       <span style={{ 
