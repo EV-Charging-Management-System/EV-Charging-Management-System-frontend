@@ -19,102 +19,14 @@ body {
   width: 100%;
   position: relative;
 }
-
-/* ================= HOVER AREA FOR SIDEBAR ================= */
-.location-sidebar-hover {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 60px;
-  height: 100%;
-  z-index: 100;
-}
-
-/* ================= SIDEBAR ================= */
-.location-sidebar {
-  position: fixed;
-  top: 0;
-  left: -250px;
-  width: 250px;
-  height: 100%;
-  background: linear-gradient(180deg, #111827, #0b0f14);
-  border-right: 1px solid #1f2937;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 4px 0 15px rgba(0,0,0,0.4);
-  transition: left 0.3s ease;
-  z-index: 101;
-}
-
-.location-sidebar-hover:hover .location-sidebar {
-  left: 0;
-}
-
+  
 .location-logo {
   font-size: 22px;
   font-weight: bold;
   color: #3df26f;
   margin-bottom: 32px;
-  opacity: 0;
-  transition: opacity 0.3s ease 0.3s;
 }
 
-.location-sidebar-hover:hover .location-logo {
-  opacity: 1;
-}
-
-.location-menu ul {
-  list-style: none;
-  opacity: 0;
-  transition: opacity 0.3s ease 0.3s;
-}
-
-.location-sidebar-hover:hover .location-menu ul {
-  opacity: 1;
-}
-
-.location-menu li {
-  padding: 12px 16px;
-  border-radius: 8px;
-  margin-bottom: 10px;
-  cursor: pointer;
-  transition: 0.3s ease;
-  color: #d1d5db;
-  font-size: 15px;
-}
-
-.location-menu li:hover {
-  background: rgba(61,242,111,0.15);
-  color: #3df26f;
-}
-
-.location-menu .active {
-  background: #3df26f;
-  color: #0f172a;
-  font-weight: 600;
-}
-
-.logout-btn {
-  margin-top: auto;
-  background: #ff4747;
-  border: none;
-  padding: 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  color: white;
-  font-weight: 500;
-  transition: 0.3s;
-  opacity: 0;
-}
-
-.location-sidebar-hover:hover .logout-btn {
-  opacity: 1;
-}
-
-.logout-btn:hover {
-  background-color: #e63939;
-}
 
 /* ================= MAIN + FOOTER WRAPPER ================= */
 .location-main-wrapper {
@@ -122,20 +34,16 @@ body {
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding-left: 0;
+  margin-left: 250px; /* Dịch sang phải để tránh bị sidebar che */
   transition: margin-left 0.3s ease;
   min-height: 100vh;
-}
-
-.location-sidebar-hover:hover ~ .location-main-wrapper {
-  margin-left: 250px;
 }
 
 /* ================= HEADER ================= */
 .location-header {
   position: fixed;
   top: 0;
-  left: 0;
+  left: 250px; /* Dịch sang phải bằng sidebar */
   right: 0;
   height: 64px;
   display: flex;
@@ -146,10 +54,6 @@ body {
   z-index: 50;
   box-shadow: 0 2px 8px rgba(0,0,0,0.25);
   transition: left 0.3s ease;
-}
-
-.location-sidebar-hover:hover ~ .location-main-wrapper .location-header {
-  left: 250px;
 }
 
 .location-header h1 {
@@ -172,11 +76,7 @@ body {
   display: flex;
   flex-direction: column;
   padding-top: 64px;
-  transition: margin-left 0.3s ease;
-}
-
-.location-sidebar-hover:hover ~ .location-main-wrapper .location-main {
-  margin-left: 0;
+  background-color: #ffffff;
 }
 
 /* ================= BODY MAP ================= */
@@ -209,12 +109,6 @@ body {
   justify-content: center;
 }
 
-.center-panel h2,
-.center-panel label {
-  color: #111827;
-  margin-bottom: 12px;
-}
-
 .location-left-panel select {
   width: 100%;
   padding: 8px;
@@ -228,9 +122,7 @@ body {
 }
 
 /* ================= INFO WINDOW ================= */
-/* Chỉ hiện khung thông tin, bỏ viền đen ngoài mặc định của InfoWindow */
 .info-window {
-  background-color: #111827 !important; /* nền tối */
   color: #ffffff;
   padding: 10px 14px;
   border-radius: 8px;
@@ -242,7 +134,7 @@ body {
   margin-top: 8px;
   padding: 6px 12px;
   background-color: #3df26f;
-  color: #0f172a;
+  
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -264,10 +156,6 @@ body {
   flex-shrink: 0;
   width: 100%;
   margin-top: auto;
-  transition: margin-left 0.3s ease;
-}
-
-.location-sidebar-hover:hover ~ .location-main-wrapper .footer {
   margin-left: 0;
 }
 

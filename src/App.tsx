@@ -1,6 +1,9 @@
 import React from "react";
+import type { ReactElement } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { authService } from "./services/authService";
+
+// Auth
 import Login from "./pages/Auth/Login";
 
 // EV Driver Pages
@@ -27,7 +30,6 @@ import HomePageStaff from "./pages/Staff/HomePageStaff";
 import ProfileStaff from "./components/ProfileStaff";
 import Location from "./pages/Staff/Location";
 import LocationDetail from "./pages/Staff/LocationDetail";
-import Sessions from "./pages/Staff/Sessions";
 import ChargingProcessStaff from "./pages/Staff/ChargingProcessStaff";
 import Invoice from "./pages/Staff/Invoice";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
@@ -37,18 +39,20 @@ const App: React.FC = () => {
     element,
     allowedRoles,
   }: {
-    element: JSX.Element;
+    element: ReactElement;
     allowedRoles: string[];
   }) => {
     const user = authService.getCurrentUser();
     if (!user) return <Navigate to="/login" replace />;
 
     const role = (user.role || user.roleName || "").toUpperCase();
+    console.log("🔍 User role:", role);
+
     if (!allowedRoles.includes(role)) return <Navigate to="/" replace />;
 
     return element;
   };
-
+//
   return (
     <BrowserRouter>
       <Routes>
@@ -56,6 +60,7 @@ const App: React.FC = () => {
         <Route path="/login" element={<Login />} />
 
         {/* 🚗 EV DRIVER ROUTES */}
+        {/* ✅ EV Driver (Public) */}
         <Route path="/" element={<HomePage />} />
         <Route path="/booking-online-station" element={<BookingOnlineStation />} />
 
@@ -82,42 +87,47 @@ const App: React.FC = () => {
         <Route path="/evdriver/vehicle" element={<Vehicle />} />
 
         {/* 🧑‍🔧 STAFF ROUTES */}
+        {/* ✅ STAFF */}
         <Route
           path="/staff"
           element={<ProtectedRoute allowedRoles={["STAFF"]} element={<HomePageStaff />} />}
         />
+
         <Route
           path="/staff/profile"
           element={<ProtectedRoute allowedRoles={["STAFF"]} element={<ProfileStaff />} />}
         />
+
         <Route
           path="/staff/location"
           element={<ProtectedRoute allowedRoles={["STAFF"]} element={<Location />} />}
         />
+
+        {/* ✅ FIX: dùng address thay vì id */}
         <Route
-          path="/staff/locationdetail/:id"
+          path="/staff/locationdetail/:address"
           element={<ProtectedRoute allowedRoles={["STAFF"]} element={<LocationDetail />} />}
         />
-        <Route
-          path="/staff/sessions/*"
-          element={<ProtectedRoute allowedRoles={["STAFF"]} element={<Sessions />} />}
-        />
+        
         <Route
           path="/staff/charging-process-staff/:id"
           element={<ProtectedRoute allowedRoles={["STAFF"]} element={<ChargingProcessStaff />} />}
         />
+
         <Route
           path="/staff/invoice"
           element={<ProtectedRoute allowedRoles={["STAFF"]} element={<Invoice />} />}
         />
 
         {/* 🧑‍💼 ADMIN ROUTES */}
+        {/* ✅ ADMIN */}
         <Route
           path="/admin"
           element={<ProtectedRoute allowedRoles={["ADMIN"]} element={<AdminDashboard />} />}
         />
 
         {/* 🧱 Fallback */}
+        {/* 🚧 DEFAULT */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
