@@ -197,7 +197,7 @@ body.charging-body-page {
   transform: rotate(90deg);
   color: #22c55e;
 }
-
+/* ==== SUBTITLE ==== */
 .charging-subtitle {
   color: #d1d5db;
   font-size: 16px;
@@ -436,7 +436,6 @@ body.charging-body-page {
   transition: width 0.6s ease;
   box-shadow: 0 0 15px rgba(61, 242, 111, 0.6);
 }
-
 /* ==== THÔNG TIN PHIÊN ==== */
 .session-info {
   display: grid;
@@ -596,14 +595,8 @@ body.charging-body-page {
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* ==== RESPONSIVE ==== */
@@ -642,4 +635,157 @@ body.charging-body-page {
   margin-top: auto;
   flex-shrink: 0;
   z-index: 10;
+}
+
+/* =========================================================
+   ⚡ POPUP ĐẶT PHIÊN SẠC - DARK NEON THEME (STAFF STYLE)
+   ========================================================= */
+
+/* ==== BACKDROP ==== */
+.booking-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(3px);
+}
+
+/* ==== MODAL BOX ==== */
+.booking-box {
+  width: 480px;
+  background: #111827;
+  border-radius: 18px;
+  padding: 36px 40px;
+  border: 2px solid rgba(61, 242, 111, 0.6);
+  box-shadow: 0 0 35px rgba(61, 242, 111, 0.25);
+  animation: popupFadeIn 0.25s ease-out;
+  color: #e5e7eb;
+}
+
+/* ==== TITLE ==== */
+.booking-title {
+  text-align: center;
+  font-size: 26px;
+  font-weight: 700;
+  color: #3df26f;
+  text-shadow: 0 0 12px rgba(61, 242, 111, 0.8);
+  margin-bottom: 28px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ==== LABEL ==== */
+.booking-label {
+  font-weight: 600;
+  color: #cfead8;
+  margin-bottom: 6px;
+  display: block;
+  font-size: 15px;
+}
+
+/* ==== INPUT & SELECT ==== */
+.booking-select,
+.booking-input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1.8px solid rgba(61, 242, 111, 0.3);
+  background: rgba(255, 255, 255, 0.06);
+  color: #e5e7eb;
+  font-size: 15px;
+  transition: 0.25s ease;
+}
+
+.booking-select:focus,
+.booking-input:focus {
+  border-color: #3df26f;
+  box-shadow: 0 0 8px rgba(61, 242, 111, 0.5);
+  outline: none;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* ==== TRA CỨU ==== */
+.lookup-wrap {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.lookup-wrap .booking-input {
+  flex: 1 !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  pointer-events: auto !important;
+  position: relative !important;
+  z-index: 99 !important;
+}
+
+.lookup-btn {
+  padding: 12px 20px;
+  white-space: nowrap;
+  border-radius: 10px;
+  background: #3df26f;
+  border: none;
+  color: #0f172a;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.lookup-btn:hover {
+  background: #2ec85f;
+  box-shadow: 0 0 12px rgba(61, 242, 111, 0.5);
+}
+
+/* ==== BUTTON HÀNH ĐỘNG ==== */
+.action-btns {
+  margin-top: 28px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.confirm-btn,
+.cancel-btn {
+  flex: 1;
+  padding: 12px 0;
+  border-radius: 10px;
+  border: none;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.confirm-btn {
+  background: #3df26f;
+  color: #0f172a;
+}
+
+.confirm-btn:hover {
+  background: #2ec85f;
+  box-shadow: 0 0 12px rgba(61, 242, 111, 0.5);
+}
+
+.cancel-btn {
+  background: #ef4444;
+  color: white;
+}
+
+.cancel-btn:hover {
+  background: #dc2626;
+}
+
+/* ==== ANIMATION ==== */
+@keyframes popupFadeIn {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
