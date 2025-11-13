@@ -20,14 +20,13 @@ import PaymentFail from "./pages/EV-Driver/PaymentFail";
 import ChargingSchedule from "./pages/EV-Driver/ChargingSchedule";
 import ChargingSession from "./pages/EV-Driver/ChargingSession";
 import Pay from "./pages/EV-Driver/Pay";
-
+import Vehicle from "./pages/EV-Driver/Vehicle";
 
 // Staff & Admin imports
 import HomePageStaff from "./pages/Staff/HomePageStaff";
 import ProfileStaff from "./components/ProfileStaff";
 import Location from "./pages/Staff/Location";
 import LocationDetail from "./pages/Staff/LocationDetail";
-import Sessions from "./pages/Staff/Sessions";
 import ChargingProcessStaff from "./pages/Staff/ChargingProcessStaff";
 import Invoice from "./pages/Staff/Invoice";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
@@ -48,13 +47,13 @@ const App: React.FC = () => {
 
     return element;
   };
-
+//
   return (
     <BrowserRouter>
       <Routes>
         {/* 🔑 Login */}
         <Route path="/login" element={<Login />} />
-
+  
         {/* 🚗 EV DRIVER ROUTES */}
         <Route path="/" element={<HomePage />} />
         <Route path="/booking-online-station" element={<BookingOnlineStation />} />
@@ -78,17 +77,44 @@ const App: React.FC = () => {
         <Route path="/charging-session" element={<ChargingSession />} />
         <Route path="/pay" element={<Pay />} />
 
+        {/* 🚘 XE CỦA TÔI - EV DRIVER CÁ NHÂN */}
+        <Route path="/evdriver/vehicle" element={<Vehicle />} />
+
         {/* 🧑‍🔧 STAFF ROUTES */}
-        <Route path="/staff" element={<ProtectedRoute allowedRoles={["STAFF"]} element={<HomePageStaff />} />} />
-        <Route path="/staff/profile" element={<ProtectedRoute allowedRoles={["STAFF"]} element={<ProfileStaff />} />} />
-        <Route path="/staff/location" element={<ProtectedRoute allowedRoles={["STAFF"]} element={<Location />} />} />
-        <Route path="/staff/locationdetail/:id" element={<ProtectedRoute allowedRoles={["STAFF"]} element={<LocationDetail />} />} />
-        <Route path="/staff/sessions/*" element={<ProtectedRoute allowedRoles={["STAFF"]} element={<Sessions />} />} />
-        <Route path="/staff/charging-process-staff/:id" element={<ProtectedRoute allowedRoles={["STAFF"]} element={<ChargingProcessStaff />} />} />
-        <Route path="/staff/invoice" element={<ProtectedRoute allowedRoles={["STAFF"]} element={<Invoice />} />} />
+        <Route
+          path="/staff"
+          element={<ProtectedRoute allowedRoles={["STAFF"]} element={<HomePageStaff />} />}
+        />
+        <Route
+          path="/staff/profile"
+          element={<ProtectedRoute allowedRoles={["STAFF"]} element={<ProfileStaff />} />}
+        />
+        <Route
+          path="/staff/location"
+          element={<ProtectedRoute allowedRoles={["STAFF"]} element={<Location />} />}
+        />
+        <Route
+          path="/staff/locationDetail/:address"
+          element={<ProtectedRoute allowedRoles={["STAFF"]} element={<LocationDetail />} />}
+        />
+        <Route
+          path="/staff/charging-process"
+          element={<ProtectedRoute allowedRoles={["STAFF"]} element={<ChargingProcessStaff />} />}
+        />
+        <Route
+          path="/staff/charging-process-staff/:id"
+          element={<ProtectedRoute allowedRoles={["STAFF"]} element={<ChargingProcessStaff />} />}
+        />
+        <Route
+          path="/staff/invoice"
+          element={<ProtectedRoute allowedRoles={["STAFF"]} element={<Invoice />} />}
+        />
 
         {/* 🧑‍💼 ADMIN ROUTES */}
-        <Route path="/admin" element={<ProtectedRoute allowedRoles={["ADMIN"]} element={<AdminDashboard />} />} />
+        <Route
+          path="/admin"
+          element={<ProtectedRoute allowedRoles={["ADMIN"]} element={<AdminDashboard />} />}
+        />
 
         {/* 🧱 Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -11,7 +11,8 @@ import {
   PointGrid,
   useBookingForm,
   usePoints,
-  usePorts
+  usePorts,
+  useVehicles
 } from '../../components/evdriver/bookingDetail'
 
 const BookingDetail: React.FC = () => {
@@ -26,6 +27,7 @@ const BookingDetail: React.FC = () => {
   const { formData, setFormData } = useBookingForm()
   const { points } = usePoints(stationId)
   const { ports } = usePorts(selectedPointId)
+  const { vehicles, loading: vehiclesLoading } = useVehicles(formData.userId)
 
   // ✅ Tự động chọn port đầu tiên available khi load ports
   useEffect(() => {
@@ -46,30 +48,16 @@ const BookingDetail: React.FC = () => {
       alert('⚠️ Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại!')
       return
     }
+    if (!formData.vehicleId) {
+      alert('⚠️ Vui lòng chọn xe của bạn!')
+      return
+    }
 
     // 👉 Mở tab mới ngay khi user click
     const vnpayTab = window.open('', '_blank')
 
     try {
       setPayLoading(true)
-
-      const todayStr = new Date().toISOString().split('T')[0]
-      const startTime = formData.time ? new Date(`${todayStr}T${formData.time}`).toISOString() : new Date().toISOString()
-
-      const bookingData = {
-        stationId,
-        pointId: selectedPointId,
-        portId: selectedPortId,
-        vehicleId: Number(formData.vehicleId) || 1,
-        startTime,
-        depositAmount: 30000,
-        userId: Number(formData.userId),
-        carBrand: formData.carBrand
-      }
-
-      // 💾 Lưu localStorage để tạo booking sau khi thanh toán thành công
-      localStorage.setItem('bookingPayload', JSON.stringify(bookingData))
-      console.log('[BookingDetail] bookingPayload saved:', bookingData)
 
       // Gọi API VNPay tạo URL thanh toán
       const vnpayPayload = {
@@ -82,12 +70,41 @@ const BookingDetail: React.FC = () => {
       console.log('[BookingDetail] VNPay response:', res)
 
       const paymentUrl = res?.data?.url || res?.url
-      if (paymentUrl) {
-        vnpayTab!.location.href = paymentUrl
-      } else {
+      const txnRef = res?.data?.txnRef || res?.txnRef // ✅ Lấy txnRef từ response
+
+      if (!paymentUrl) {
         alert('Không nhận được URL thanh toán từ hệ thống!')
         vnpayTab?.close()
+        return
       }
+
+      if (!txnRef) {
+        console.warn('⚠️ Không có txnRef từ VNPay response')
+      }
+
+      // 💾 Chuẩn bị bookingPayload với txnRef
+      const todayStr = new Date().toISOString().split('T')[0]
+      const startTime = formData.time ? new Date(`${todayStr}T${formData.time}`).toISOString() : new Date().toISOString()
+
+      const bookingData = {
+        stationId,
+        pointId: selectedPointId,
+        portId: selectedPortId,
+        vehicleId: Number(formData.vehicleId),
+        startTime,
+        depositAmount: 30000,
+        userId: Number(formData.userId),
+        carBrand: formData.carBrand,
+        qr: txnRef // ✅ Thêm txnRef vào payload
+      }
+
+      // 💾 Lưu localStorage để tạo booking sau khi thanh toán thành công
+      localStorage.setItem('bookingPayload', JSON.stringify(bookingData))
+      localStorage.setItem('paymentType', 'booking') // ✅ Thêm type để phân biệt
+      console.log('[BookingDetail] bookingPayload saved with txnRef:', bookingData)
+
+      // Mở VNPay
+      vnpayTab!.location.href = paymentUrl
     } catch (error: any) {
       console.error('❌ Lỗi khi tạo thanh toán:', error)
       alert(error?.message || 'Không thể tạo thanh toán!')
@@ -112,8 +129,10 @@ const BookingDetail: React.FC = () => {
           <BookingForm
             formData={formData}
             ports={ports}
+            vehicles={vehicles}
             selectedPortId={selectedPortId}
             payLoading={payLoading}
+            vehiclesLoading={vehiclesLoading}
             onFormDataChange={(data) => setFormData({ ...formData, ...data })}
             onPortChange={setSelectedPortId}
             onSubmit={handleSubmit}

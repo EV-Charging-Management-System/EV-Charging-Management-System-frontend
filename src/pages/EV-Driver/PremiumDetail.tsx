@@ -153,6 +153,8 @@ const PremiumDetail: React.FC = () => {
         };
         const res = await premiumService.createSubscription(payload);
         if (res?.vnpUrl) {
+          // ✅ Lưu payment type để phân biệt khi redirect về
+          localStorage.setItem("paymentType", "premium");
           window.location.href = res.vnpUrl.replace(/&amp;/g, "&");
         } else {
           setError(res?.message || "Không nhận được đường dẫn thanh toán.");
@@ -179,6 +181,9 @@ const PremiumDetail: React.FC = () => {
   // 🏢 Gửi form đăng ký doanh nghiệp
   const handleSubmitBusiness = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
+    
     try {
       const payload = {
         userId: user?.UserId || user?.userId,
@@ -188,7 +193,11 @@ const PremiumDetail: React.FC = () => {
         phone: company.phone,
       };
 
+      console.log("📤 Sending business request:", payload);
+
       const res = await businessService.createCompany(payload);
+      console.log("✅ Business response:", res);
+
       if (res?.companyId) {
         alert("🎯 Gửi yêu cầu nâng cấp doanh nghiệp thành công! Vui lòng chờ admin duyệt.");
         setShowForm(false);
@@ -196,9 +205,11 @@ const PremiumDetail: React.FC = () => {
       } else {
         setError(res?.message || "Không thể gửi yêu cầu nâng cấp.");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("❌ Lỗi khi gửi yêu cầu doanh nghiệp:", err);
-      setError("Có lỗi xảy ra, vui lòng thử lại sau.");
+      setError(err?.message || "Có lỗi xảy ra, vui lòng thử lại sau.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -281,9 +292,12 @@ const PremiumDetail: React.FC = () => {
 
       {/* 🏢 Modal form doanh nghiệp */}
       {showForm && (
-        <div className="modal-overlay">
+        <div className="modal-overlay" onClick={(e) => {
+          if (e.target === e.currentTarget) setShowForm(false);
+        }}>
           <div className="modal-content">
             <h2>🏢 Đăng Ký Tài Khoản Doanh Nghiệp</h2>
+            {error && <p className="error-text">{error}</p>}
             <form onSubmit={handleSubmitBusiness}>
               <label>Tên công ty</label>
               <input
@@ -318,10 +332,10 @@ const PremiumDetail: React.FC = () => {
               />
 
               <div className="form-buttons">
-                <button type="submit" className="confirm-btn">
-                  Gửi Yêu Cầu
+                <button type="submit" className="confirm-btn" disabled={loading}>
+                  {loading ? "Đang gửi..." : "Gửi Yêu Cầu"}
                 </button>
-                <button className="back-btn-bottom" onClick={() => navigate("/premium")}>
+                <button type="button" className="back-btn-bottom" onClick={() => setShowForm(false)}>
                   ← hủy
                 </button>
               </div>

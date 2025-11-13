@@ -16,6 +16,16 @@ export interface Port {
   PortStatus: string
 }
 
+export interface Vehicle {
+  VehicleId: number
+  UserId: number
+  CompanyId: number
+  VehicleName: string
+  VehicleType: string
+  LicensePlate: string
+  Battery: number
+}
+
 export interface BookingFormData {
   name: string
   userId: string

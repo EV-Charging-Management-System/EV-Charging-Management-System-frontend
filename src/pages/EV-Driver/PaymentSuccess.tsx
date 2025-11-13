@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { Row, Col, Button } from "react-bootstrap";
 import Header from "../../pages/layouts/header";
 import Footer from "../../pages/layouts/footer";
 import MenuBar from "../../pages/layouts/menu-bar";
@@ -8,6 +9,8 @@ import bookingService from "../../services/bookingService";
 import paymentService from "../../services/paymentService";
 import "../../css/Payment.css";
 
+type PaymentType = "booking" | "invoice" | "premium" | null;
+
 const PaymentSuccess: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -15,17 +18,24 @@ const PaymentSuccess: React.FC = () => {
 
   const [membership, setMembership] = useState<any>(null);
   const [txnRef, setTxnRef] = useState<string | null>(null);
-  const [paymentType, setPaymentType] = useState<"booking" | "invoice" | "premium" | null>(null);
+  const [paymentType, setPaymentType] = useState<PaymentType>(null);
 
-  // 🧾 Lấy thông tin từ URL VNPay trả về
+  // Parse URL params
   const params = new URLSearchParams(location.search);
   const vnp_TxnRef = params.get("vnp_TxnRef");
   const vnp_Amount = params.get("vnp_Amount");
-  const code = params.get("code");
-  const txnRefParam = params.get("txnRef");
-  const amount = vnp_Amount ? Number(vnp_Amount) / 100 : null;
+  const amount = vnp_Amount ? Number(vnp_Amount)  : null;
 
-  // ✅ Gọi API kiểm tra gói Premium hiện tại
+  // ===== Helper Functions =====
+  const cleanupLocalStorage = (...keys: string[]) => {
+    keys.forEach((key) => localStorage.removeItem(key));
+  };
+
+  const redirectWithDelay = (path: string, delay: number = 3000) => {
+    setTimeout(() => navigate(path), delay);
+  };
+
+  // ===== Fetch Premium Membership    =====
   useEffect(() => {
     const fetchMembership = async () => {
       try {
@@ -34,109 +44,162 @@ const PaymentSuccess: React.FC = () => {
 
         if (res?.success && res.data) {
           const m = res.data;
-          // ✅ Map lại key để đảm bảo hiển thị đúng
           setMembership({
             id: m.SubscriptionId || m.PackageId || m.id,
             startDate: m.StartDate || m.start_date || m.startDate,
             endDate: m.ExpireDate || m.EndDate || m.end_date || m.endDate,
             status: m.Status || m.status || "ACTIVE",
           });
-        } else {
-          console.warn("⚠️ Không có dữ liệu membership từ API!");
         }
       } catch (error) {
-        console.error("❌ Lỗi khi lấy thông tin Premium:", error);
+        console.error("❌ [PaymentSuccess] Error fetching membership:", error);
       }
     };
     fetchMembership();
   }, []);
 
-  // ✅ Xử lý sau khi thanh toán thành công
+  // ===== Handle Invoice Payment =====
+  const handleInvoicePayment = async (invoiceId: string) => {
+    setPaymentType("invoice");
+    console.log("� [PaymentSuccess] Processing invoice payment:", invoiceId);
+
+    try {
+      const result = await paymentService.payInvoice(parseInt(invoiceId));
+
+      if (result?.success) {
+        console.log("✅ [PaymentSuccess] Invoice paid successfully!");
+      }
+    } catch (error: any) {
+      console.warn("⚠️ [PaymentSuccess] Invoice payment error (may already be paid):", error);
+    } finally {
+      cleanupLocalStorage("payingInvoiceId", "paymentType");
+      redirectWithDelay("/payment");
+    }
+  };
+
+  // ===== Handle Booking Creation =====
+  const handleBookingCreation = async (bookingPayload: string) => {
+    setPaymentType("booking");
+    console.log("� [PaymentSuccess] Processing booking payment");
+
+    try {
+      const payload = JSON.parse(bookingPayload);
+      const res = await bookingService.createBooking(payload);
+
+      if (res?.success) {
+        console.log("🎉 [PaymentSuccess] Booking created successfully!");
+        cleanupLocalStorage("bookingPayload", "paymentType");
+      } else {
+        throw new Error("Booking creation failed");
+      }
+    } catch (error) {
+      console.error("❌ [PaymentSuccess] Booking error:", error);
+      alert("Không thể tạo booking. Vui lòng thử lại sau!");
+      navigate("/payment-fail");
+    }
+  };
+
+  // ===== Handle Premium Activation =====
+  const handlePremiumActivation = async () => {
+    setPaymentType("premium");
+    console.log("💎 [PaymentSuccess] Processing premium payment");
+
+    try {
+      const membershipRes = await premiumService.getCurrentSubscription();
+
+      if (membershipRes?.success && membershipRes.data) {
+        console.log("✅ [PaymentSuccess] Premium activated successfully!");
+        const m = membershipRes.data;
+        setMembership({
+          id: m.SubscriptionId || m.PackageId || m.id,
+          startDate: m.StartDate || m.start_date || m.startDate,
+          endDate: m.ExpireDate || m.EndDate || m.end_date || m.endDate,
+          status: m.Status || m.status || "ACTIVE",
+        });
+      }
+    } catch (error) {
+      console.error("❌ [PaymentSuccess] Premium activation error:", error);
+    } finally {
+      cleanupLocalStorage("paymentType");
+    }
+  };
+
+  // ===== Main Payment Handler =====
   useEffect(() => {
-    const handleAfterPayment = async () => {
+    const handlePaymentCallback = async () => {
       const codeParam = params.get("code");
       const txnRefValue = params.get("txnRef");
+      const urlPaymentType = params.get("type");
+
       setTxnRef(txnRefValue);
 
-      console.log("🔁 [PaymentSuccess] VNPay callback:", codeParam, txnRefValue);
+      console.log("🔁 [PaymentSuccess] VNPay callback:", {
+        code: codeParam,
+        txnRef: txnRefValue,
+        urlType: urlPaymentType,
+      });
 
-      // 🧩 Ngăn việc chạy effect nhiều lần
+      // Prevent duplicate execution
       if (hasRun.current) {
-        console.log("⚠️ Payment đã được xử lý, bỏ qua lần gọi lại.");
+        console.log("⚠️ [PaymentSuccess] Already processed, skipping...");
         return;
       }
       hasRun.current = true;
 
-      // Kiểm tra thanh toán có thành công không
+      // Check payment status
       if (codeParam !== "00") {
-        console.warn("⚠️ Thanh toán thất bại hoặc bị hủy.");
+        console.warn("⚠️ [PaymentSuccess] Payment failed or cancelled");
         navigate("/payment-fail");
         return;
       }
 
-      // 🔍 Xác định loại thanh toán: Booking hay Invoice
-      const savedBookingPayload = localStorage.getItem("bookingPayload");
-      const savedInvoiceId = localStorage.getItem("payingInvoiceId");
+      // Determine payment type
+      const savedPaymentType = localStorage.getItem("paymentType");
+      const paymentTypeToUse = savedPaymentType || urlPaymentType;
 
-      if (savedInvoiceId) {
-        // ✅ XỬ LÝ THANH TOÁN INVOICE
-        setPaymentType("invoice");
-        console.log("📄 [PaymentSuccess] Processing invoice payment:", savedInvoiceId);
+      console.log("� [PaymentSuccess] Payment type:", paymentTypeToUse);
 
-        try {
-          const invoiceId = parseInt(savedInvoiceId);
-          const result = await paymentService.payInvoice(invoiceId);
-
-          if (result?.success) {
-            console.log("✅ [PaymentSuccess] Invoice paid successfully!");
-            localStorage.removeItem("payingInvoiceId");
-            
-            // Tự động chuyển về trang payment sau 3 giây
-            setTimeout(() => {
-              navigate("/payment");
-            }, 3000);
-          } else {
-            throw new Error(result?.message || "Thanh toán thất bại");
-          }
-        } catch (error) {
-          console.error("❌ [PaymentSuccess] Lỗi khi thanh toán invoice:", error);
-          alert("Thanh toán thành công nhưng không thể cập nhật hóa đơn. Vui lòng liên hệ hỗ trợ!");
-          navigate("/payment-fail");
-        }
-      } else if (savedBookingPayload) {
-        // ✅ XỬ LÝ TẠO BOOKING
-        setPaymentType("booking");
-        console.log("📦 [PaymentSuccess] Processing booking payment");
-
-        const payload = JSON.parse(savedBookingPayload);
-        console.log("📦 [PaymentSuccess] Payload booking:", payload);
-
-        try {
-          const res = await bookingService.createBooking(payload);
-          console.log("✅ [PaymentSuccess] API booking response:", res);
-
-          if (res?.success) {
-            localStorage.removeItem("bookingPayload");
-            console.log("🎉 Booking created successfully!");
-          } else {
-            alert("⚠️ Thanh toán thành công nhưng tạo booking thất bại!");
+      // Route to appropriate handler
+      switch (paymentTypeToUse) {
+        case "invoice": {
+          const savedInvoiceId = localStorage.getItem("payingInvoiceId");
+          if (!savedInvoiceId) {
+            alert("Lỗi: Không tìm thấy thông tin hóa đơn");
             navigate("/payment-fail");
+            return;
           }
-        } catch (error) {
-          console.error("❌ [PaymentSuccess] Lỗi khi gọi createBooking:", error);
-          alert("Không thể tạo booking. Vui lòng thử lại sau!");
-          navigate("/payment-fail");
+          await handleInvoicePayment(savedInvoiceId);
+          break;
         }
-      } else {
-        // ✅ THANH TOÁN PREMIUM
-        setPaymentType("premium");
-        console.log("💎 [PaymentSuccess] Premium payment detected");
+
+        case "booking": {
+          const savedBookingPayload = localStorage.getItem("bookingPayload");
+          if (!savedBookingPayload) {
+            alert("Lỗi: Không tìm thấy thông tin đặt lịch");
+            navigate("/payment-fail");
+            return;
+          }
+          await handleBookingCreation(savedBookingPayload);
+          break;
+        }
+
+        case "premium": {
+          await handlePremiumActivation();
+          break;
+        }
+
+        default: {
+          console.warn("⚠️ [PaymentSuccess] Unknown payment type, treating as premium");
+          await handlePremiumActivation();
+          break;
+        }
       }
     };
 
-    handleAfterPayment();
+    handlePaymentCallback();
   }, [navigate, params]);
 
+  // ===== Render =====
   return (
     <div className="page-container">
       <Header />
@@ -145,7 +208,7 @@ const PaymentSuccess: React.FC = () => {
       <main className="page-body text-center fade-in">
         <h1 className="page-title success-title">✅ Thanh Toán Thành Công!</h1>
 
-        {/* 🔹 Thông báo theo loại thanh toán */}
+        {/* Payment Type Messages */}
         {paymentType === "invoice" && (
           <div className="success-message">
             <p>🎉 Hóa đơn của bạn đã được thanh toán thành công!</p>
@@ -165,7 +228,7 @@ const PaymentSuccess: React.FC = () => {
           </div>
         )}
 
-        {/* 🔹 Thông tin giao dịch */}
+        {/* Transaction Info */}
         {(txnRef || vnp_TxnRef) && (
           <div className="txn-box mt-4 p-3 border rounded text-center">
             <p>
@@ -173,17 +236,13 @@ const PaymentSuccess: React.FC = () => {
             </p>
             {amount && (
               <p>
-                <b>Số tiền:</b>{" "}
-                {amount.toLocaleString("vi-VN", {
-                  style: "currency",
-                  currency: "VND",
-                })}
+                <b>Số tiền:</b> {amount.toLocaleString()}  VND
               </p>
             )}
           </div>
         )}
 
-        {/* 🔹 Thông tin hội viên (chỉ hiện với Premium) */}
+        {/* Premium Membership Info */}
         {paymentType === "premium" && membership && (
           <div className="membership-box">
             <h3>🎫 Thông tin hội viên của bạn</h3>
@@ -202,27 +261,50 @@ const PaymentSuccess: React.FC = () => {
           </div>
         )}
 
-        {/* 🔹 Nút hành động */}
-        <div className="action-group">
-          {paymentType === "invoice" && (
-            <button className="confirm-btn" onClick={() => navigate("/payment")}>
-              Quay về trang hóa đơn
-            </button>
-          )}
-          {paymentType === "booking" && (
-            <button className="confirm-btn" onClick={() => navigate("/charging-schedule")}>
-              Xem lịch đặt
-            </button>
-          )}
-          {paymentType === "premium" && (
-            <button className="confirm-btn" onClick={() => navigate("/premium")}>
-              Xem gói Premium
-            </button>
-          )}
-          <button className="back-btn" onClick={() => navigate("/customer/dashboard")}>
-            Về trang chủ
-          </button>
-        </div>
+        {/* Action Buttons */}
+        <Row className="justify-content-center mt-4">
+          <Col xs="auto">
+            <div className="d-flex flex-wrap justify-content-center gap-2">
+              {paymentType === "invoice" && (
+                <Button
+                  variant="success"
+                  onClick={() => navigate("/payment")}
+                  className="fw-bold"
+                >
+                  🧾 Quay về trang hóa đơn
+                </Button>
+              )}
+
+              {paymentType === "booking" && (
+                <Button
+                  variant="primary"
+                  onClick={() => navigate("/charging-schedule")}
+                  className="fw-bold"
+                >
+                  📅 Xem lịch đặt
+                </Button>
+              )}
+
+              {paymentType === "premium" && (
+                <Button
+                  variant="warning"
+                  onClick={() => navigate("/premium")}
+                  className="fw-bold text-dark"
+                >
+                  💎 Xem gói Premium
+                </Button>
+              )}
+
+              <Button
+                variant="outline-secondary"
+                onClick={() => navigate("/customer/dashboard")}
+                className="fw-bold"
+              >
+                🏠 Về trang chủ
+              </Button>
+            </div>
+          </Col>
+        </Row>
       </main>
 
       <Footer />

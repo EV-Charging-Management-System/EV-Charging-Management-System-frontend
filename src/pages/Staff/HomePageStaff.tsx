@@ -47,7 +47,7 @@ const HomePageStaff: React.FC = () => {
                 This system is built to support EV charging station management. Staff can monitor stations, track
                 transactions, check charging sessions and verify user activities.
               </p>
-              <button className='start-charge-btn' onClick={() => navigate('/staff/sessions')}>
+              <button className='start-charge-btn' onClick={() => navigate('/staff/location')}>
                 Bắt đầu sạc
               </button>
             </div>
