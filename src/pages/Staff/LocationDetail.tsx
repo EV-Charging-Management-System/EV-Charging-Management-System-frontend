@@ -154,7 +154,7 @@ const LocationDetail: React.FC = () => {
       if (v.companyName) display = `Công ty: ${v.companyName} - UserId: ${v.userId}`;
       if (v.userName) display = `Khách hàng: ${v.userName} - UserId: ${v.userId}`;
 
-      if (v.battery) display += ` - Pin: ${v.battery}%`;
+      if (v.battery) display += ` - Pin: ${v.battery}`;
 
       setForm(prev => ({
         ...prev,
