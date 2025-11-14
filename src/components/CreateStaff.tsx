@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { adminService } from "../services/adminService";
 import { toast } from "react-toastify";
 import { UserPlus } from "lucide-react";
 import "../css/AdminDashboard.css";
+import type { StationAddress } from "utils/types";
 
 interface CreateStaffProps {
   onCreated?: () => void; // callback sau khi tạo thành công
@@ -12,17 +13,33 @@ const CreateStaff: React.FC<CreateStaffProps> = ({ onCreated }) => {
   const [userName, setUserName] = useState("");
   const [mail, setMail] = useState("");
   const [password, setPassword] = useState("");
+  const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(false);
+  const [stations, setStations] = useState<StationAddress[]>([]);
 
+  const getAddress = async () => {
+    try {
+      const res = await adminService.getAllStations();
+      setStations(res);
+      return res;
+    }
+    catch (error) {
+      console.error("⚠️ Lỗi lấy danh sách trạm:", error);
+      return [];
+    }
+  };
+  useEffect(() => {
+    getAddress();
+  }, []);
   const handleCreate = async () => {
-    if (!userName || !mail || !password) {
+    if (!userName || !mail || !password || !address ) {
       toast.warn("⚠️ Vui lòng nhập đầy đủ thông tin!");
       return;
     }
 
     setLoading(true);
     try {
-      const res = await adminService.createStaff(mail, password, userName); // ✅ đúng thứ tự: email, password, fullname
+      const res = await adminService.createStaff(mail, password, userName, address); // ✅ đúng thứ tự: email, password, fullname, address
 
       if (res.success) {
         toast.success("✅ Tạo tài khoản staff thành công!");
@@ -56,6 +73,20 @@ const CreateStaff: React.FC<CreateStaffProps> = ({ onCreated }) => {
             value={userName}
             onChange={(e) => setUserName(e.target.value)}
           />
+        </div>
+        <div className="form-group">
+          <label>Station Address</label>
+          <select
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+          >
+            <option value="">-- Chọn địa chỉ trạm --</option>
+            {stations.map((s) => (
+              <option key={s.stationId} value={s.Address}>
+                {s.Address}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="form-group">
