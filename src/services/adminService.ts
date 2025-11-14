@@ -288,7 +288,9 @@ async getRevenueReport() {
 // ✏️ Cập nhật user
 async updateUser(userId: number, userData: any) {
   try {
-    const res = await apiClient.put(`/admin/users/${userId}`, userData);
+    const payload = { userId, ...userData }; // BE cần id trong body
+    const res = await apiClient.put(`/admin/update-user`, payload);
+
     return {
       success: res.data?.success ?? res.status === 200,
       message: res.data?.message || "Cập nhật người dùng thành công!",
@@ -302,7 +304,8 @@ async updateUser(userId: number, userData: any) {
 // 🗑️ Xóa user
 async deleteUser(userId: number) {
   try {
-    const res = await apiClient.delete(`/admin/users/${userId}`);
+    const res = await apiClient.delete(`/admin/delete-users/${userId}`);
+
     return {
       success: res.data?.success ?? res.status === 200,
       message: res.data?.message || "Xóa người dùng thành công!",
@@ -311,6 +314,7 @@ async deleteUser(userId: number) {
     console.error("❌ Lỗi xóa user:", error);
     return { success: false, message: "Lỗi khi xóa người dùng!" };
   }
-},
+}
+
 
 };
