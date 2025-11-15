@@ -3,6 +3,7 @@ import Notification from "../../components/Notification";
 import ProfileUser from "../../components/ProfileUser";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../../services/authService";
+import { registerSchema } from "../../utils/validationSchemas";
 import React, { useState } from "react";
 import {
   Container,
@@ -28,25 +29,37 @@ const Header: React.FC = () => {
     ConfirmPassword: "",
     FullName: "",
   });
+  const [registerErrors, setRegisterErrors] = useState<any>({});
   const [registerLoading, setRegisterLoading] = useState(false);
 
   const openRegister = () => setShowRegister(true);
-  const closeRegister = () => setShowRegister(false);
+  const closeRegister = () => {
+    setShowRegister(false);
+    setRegisterErrors({});
+  };
 
   const handleRegisterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setRegisterForm((prev) => ({ ...prev, [name]: value }));
+    // Clear error for this field when user starts typing
+    if (registerErrors[name]) {
+      setRegisterErrors((prev: any) => ({ ...prev, [name]: "" }));
+    }
   };
 
   const submitRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (registerForm.PasswordHash !== registerForm.ConfirmPassword) {
-      alert("❌ Mật khẩu và Xác nhận mật khẩu không khớp!");
-      return;
-    }
+    setRegisterErrors({});
 
-    if (registerForm.PasswordHash.length < 6) {
-      alert("⚠️ Mật khẩu phải có ít nhất 6 ký tự");
+    // Validate using Yup schema
+    try {
+      await registerSchema.validate(registerForm, { abortEarly: false });
+    } catch (err: any) {
+      const validationErrors: any = {};
+      err.inner.forEach((error: any) => {
+        validationErrors[error.path] = error.message;
+      });
+      setRegisterErrors(validationErrors);
       return;
     }
 
@@ -161,8 +174,10 @@ const Header: React.FC = () => {
                 value={registerForm.Email}
                 onChange={handleRegisterChange}
                 placeholder="Nhập địa chỉ email"
-                required
               />
+              {registerErrors.Email && (
+                <div className="text-danger small mt-1">{registerErrors.Email}</div>
+              )}
             </Form.Group>
 
             <Form.Group className="mb-3">
@@ -173,8 +188,10 @@ const Header: React.FC = () => {
                 value={registerForm.FullName}
                 onChange={handleRegisterChange}
                 placeholder="Nhập họ và tên"
-                required
               />
+              {registerErrors.FullName && (
+                <div className="text-danger small mt-1">{registerErrors.FullName}</div>
+              )}
             </Form.Group>
 
             <Row>
@@ -187,8 +204,10 @@ const Header: React.FC = () => {
                     value={registerForm.PasswordHash}
                     onChange={handleRegisterChange}
                     placeholder="Tạo mật khẩu"
-                    required
                   />
+                  {registerErrors.PasswordHash && (
+                    <div className="text-danger small mt-1">{registerErrors.PasswordHash}</div>
+                  )}
                 </Form.Group>
               </Col>
 
@@ -201,8 +220,10 @@ const Header: React.FC = () => {
                     value={registerForm.ConfirmPassword}
                     onChange={handleRegisterChange}
                     placeholder="Nhập lại mật khẩu"
-                    required
                   />
+                  {registerErrors.ConfirmPassword && (
+                    <div className="text-danger small mt-1">{registerErrors.ConfirmPassword}</div>
+                  )}
                 </Form.Group>
               </Col>
             </Row>
