@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { vehicleService } from "../../services/vehicleService";
+import { vehicleSchema } from "../../utils/validationSchemas";
 import { toast } from "react-toastify";
 import Header from "../layouts/header";
 import MenuBar from "../layouts/menu-bar";
 import Footer from "../layouts/footer";
+import "../../css/Vehicle.css";
 
 const Vehicle: React.FC = () => {
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [vehicleName, setVehicleName] = useState("");
-  const [vehicleType, setVehicleType] = useState(""); // ✅ đổi sang text input
+  const [vehicleType, setVehicleType] = useState("");
   const [licensePlate, setLicensePlate] = useState("");
   const [battery, setBattery] = useState<number | "">("");
+  const [errors, setErrors] = useState<any>({});
 
   // 🔹 Lấy danh sách xe
   const fetchVehicles = async () => {
@@ -30,17 +33,26 @@ const Vehicle: React.FC = () => {
   // 🔹 Thêm xe mới
   const handleAddVehicle = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!vehicleName || !vehicleType || !licensePlate) {
-      toast.warn("⚠️ Vui lòng nhập đầy đủ thông tin!");
-      return;
-    }
+    setErrors({});
 
     const payload = {
       vehicleName,
       vehicleType,
-      licensePlate,
+      licensePlate: licensePlate.toUpperCase(),
       battery: battery === "" ? null : Number(battery),
     };
+
+    // Validate using Yup schema
+    try {
+      await vehicleSchema.validate(payload, { abortEarly: false });
+    } catch (err: any) {
+      const validationErrors: any = {};
+      err.inner.forEach((error: any) => {
+        validationErrors[error.path] = error.message;
+      });
+      setErrors(validationErrors);
+      return;
+    }
 
     console.log("[Vehicle] Payload gửi:", payload);
 
@@ -53,7 +65,8 @@ const Vehicle: React.FC = () => {
       setVehicleType("");
       setLicensePlate("");
       setBattery("");
-      await fetchVehicles(); // ✅ gọi lại danh sách
+      setErrors({});
+      await fetchVehicles();
     } else {
       toast.error(res.message || "Không thể đăng ký xe!");
     }
@@ -69,36 +82,67 @@ const Vehicle: React.FC = () => {
 
         {/* Form thêm xe */}
         <form className="add-vehicle-form" onSubmit={handleAddVehicle}>
-          <input
-            type="text"
-            placeholder="Tên xe (VD: VinFast VF5)"
-            value={vehicleName}
-            onChange={(e) => setVehicleName(e.target.value)}
-          />
+          <div className="form-row">
+            <div>
+              <input
+                type="text"
+                name="vehicleName"
+                placeholder="Tên xe (VD: VinFast VF5)"
+                className="form-input"
+                value={vehicleName}
+                onChange={(e) => setVehicleName(e.target.value)}
+              />
+              {errors.vehicleName && (
+                <div className="error-text">{errors.vehicleName}</div>
+              )}
+            </div>
 
-          {/* ✅ Bỏ dropdown, đổi sang input text */}
-          <input
-            type="text"
-            placeholder="Loại xe (VD: Ô tô, Xe máy, Xe tải)"
-            value={vehicleType}
-            onChange={(e) => setVehicleType(e.target.value)}
-          />
+            <div>
+              <input
+                type="text"
+                name="vehicleType"
+                placeholder="Loại xe (VD: Ô tô, Xe máy, Xe tải)"
+                className="form-input"
+                value={vehicleType}
+                onChange={(e) => setVehicleType(e.target.value)}
+              />
+              {errors.vehicleType && (
+                <div className="error-text">{errors.vehicleType}</div>
+              )}
+            </div>
 
-          <input
-            type="text"
-            placeholder="Biển số xe (VD: 51H-123.45)"
-            value={licensePlate}
-            onChange={(e) => setLicensePlate(e.target.value.toUpperCase())} // ✅ auto uppercase
-          />
+            <div>
+              <input
+                type="text"
+                name="licensePlate"
+                placeholder="Biển số xe (VD: 51H-123.45)"
+                className="form-input"
+                value={licensePlate}
+                onChange={(e) => setLicensePlate(e.target.value.toUpperCase())}
+              />
+              {errors.licensePlate && (
+                <div className="error-text">{errors.licensePlate}</div>
+              )}
+            </div>
 
-          <input
-            type="number"
-            placeholder="Dung lượng pin (kWh)"
-            value={battery}
-            onChange={(e) =>
-              setBattery(e.target.value ? parseFloat(e.target.value) : "")
-            }
-          />
+            <div>
+              <input
+                type="number"
+                name="battery"
+                placeholder="Dung lượng pin (kWh)"
+                className="form-input"
+                min="0"
+                step="0.1"
+                value={battery}
+                onChange={(e) =>
+                  setBattery(e.target.value ? parseFloat(e.target.value) : "")
+                }
+              />
+              {errors.battery && (
+                <div className="error-text">{errors.battery}</div>
+              )}
+            </div>
+          </div>
 
           <button type="submit" className="btn-premium">
             ➕ Đăng ký xe

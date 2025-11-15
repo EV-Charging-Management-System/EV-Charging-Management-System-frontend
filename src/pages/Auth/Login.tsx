@@ -1,18 +1,32 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { authService } from "../../services/authService";
+import { loginSchema } from "../../utils/validationSchemas";
 import "../../css/Login.css";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setErrors({});
+    
+    // Validate using Yup schema
+    try {
+      await loginSchema.validate({ email, password }, { abortEarly: false });
+    } catch (err: any) {
+      const validationErrors: any = {};
+      err.inner.forEach((error: any) => {
+        validationErrors[error.path] = error.message;
+      });
+      setErrors(validationErrors);
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -28,11 +42,11 @@ const Login: React.FC = () => {
         else if (role === "BUSINESS") navigate("/business");
         else navigate("/");
       } else {
-        setError(res.message || "Đăng nhập thất bại!");
+        setErrors({ email: res.message || "Đăng nhập thất bại!" });
       }
     } catch (err: any) {
       console.error("❌ Login error:", err);
-      setError(err.message || "Không thể đăng nhập!");
+      setErrors({ email: err.message || "Không thể đăng nhập!" });
     } finally {
       setLoading(false);
     }
@@ -51,8 +65,8 @@ const Login: React.FC = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Nhập email"
-              required
             />
+            {errors.email && <p className="error-text">{errors.email}</p>}
           </div>
 
           <div className="form-group">
@@ -62,11 +76,9 @@ const Login: React.FC = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Nhập mật khẩu"
-              required
             />
+            {errors.password && <p className="error-text">{errors.password}</p>}
           </div>
-
-          {error && <p className="error-text">{error}</p>}
 
           <button type="submit" disabled={loading}>
             {loading ? "Đang đăng nhập..." : "Đăng nhập"}
