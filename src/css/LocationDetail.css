@@ -91,6 +91,67 @@
   margin-bottom: 30px;
 }
 
+/* ===== STATION INFO CARD ===== */
+.station-info-card {
+  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%) !important;
+  border: 2px solid rgba(59, 130, 246, 0.5) !important;
+  border-radius: 16px !important;
+  max-width: 800px;
+  margin: 0 auto 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+.station-info-card .card-body {
+  padding: 24px !important;
+}
+
+.station-info-card .card-body h2 {
+  color: #ffffff !important;
+  font-size: 26px !important;
+  font-weight: 700 !important;
+  margin-bottom: 16px !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+.station-info-card .card-body p {
+  color: #e0e7ff !important;
+  font-size: 16px !important;
+  margin-bottom: 10px !important;
+  font-weight: 500 !important;
+}
+
+.station-info-card .card-body p b {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+.detail-body .card {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  border: 2px solid rgba(61, 242, 111, 0.3);
+  border-radius: 16px;
+  max-width: 800px;
+  margin: 0 auto 30px;
+}
+
+.detail-body .card-body h2 {
+  color: #3df26f;
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  text-shadow: 0 0 10px rgba(61, 242, 111, 0.5);
+}
+
+.detail-body .card-body p {
+  color: #e2e8f0;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.detail-body .card-body p b {
+  color: #3df26f;
+  font-weight: 600;
+}
+
 /* ===== LƯỚI CÁC TRẠM ===== */
 .charger-grid {
   display: grid;
@@ -467,7 +528,7 @@
 .staff-form-group label {
   display: block;
   margin-bottom: 10px;
-  color: #1f2937;
+  color: #111827;
   font-weight: 700;
   font-size: 16px;
 }
@@ -482,8 +543,8 @@
   font-size: 16px;
   transition: all 0.3s ease;
   background: #ffffff;
-  color: #111827;
-  font-weight: 500;
+  color: #1f2937;
+  font-weight: 600;
 }
 
 .staff-form-input:focus,
@@ -494,17 +555,18 @@
 }
 
 .staff-form-input::placeholder {
-  color: #9ca3af;
-  font-weight: 400;
+  color: #6b7280;
+  font-weight: 500;
 }
 
 /* ===== LARGE INPUT (Biển số xe) ===== */
 .staff-large-input {
   font-size: 18px;
-  font-weight: 600;
-   letter-spacing: 1px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
   padding: 18px;
+  color: #111827 !important;
 }
 /* ===== INPUT WITH BUTTON ===== */
 .staff-input-with-button {
@@ -587,6 +649,22 @@
 }
 
 /* ===== PORT DETAILS ===== */
+.bg-light {
+  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%) !important;
+  border: 2px solid rgba(59, 130, 246, 0.5) !important;
+}
+
+.bg-light span {
+  color: #e0e7ff !important;
+  font-weight: 600 !important;
+}
+
+.bg-light strong {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  font-size: 17px !important;
+}
+
 .staff-port-details {
   background: #f0fdf4;
   border: 2px solid #22c55e;
@@ -609,14 +687,14 @@
 }
 
 .staff-detail-row span {
-  color: #15803d;
-  font-weight: 600;
+  color: #166534;
+  font-weight: 700;
 }
 
 .staff-detail-row strong {
-  color: #16a34a;
+  color: #15803d;
   font-weight: 800;
-  font-size: 17px;
+  font-size: 18px;
 }
 
 /* ===== FORM ACTIONS ===== */
