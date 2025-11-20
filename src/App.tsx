@@ -29,7 +29,7 @@ import Location from "./pages/Staff/Location";
 import LocationDetail from "./pages/Staff/LocationDetail";
 import ChargingProcessStaff from "./pages/Staff/ChargingProcessStaff";
 import Invoice from "./pages/Staff/Invoice";
-import AdminDashboard from "./pages/Admin/AdminDashboard";
+import AdminDashboard from "/src/components/Admin/AdminDashboard";
 
 const App: React.FC = () => {
   const ProtectedRoute = ({
