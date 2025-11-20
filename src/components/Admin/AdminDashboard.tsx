@@ -121,13 +121,60 @@ const AdminDashboard: React.FC = () => {
         {activeTab === "dashboard" && <DashboardOverview stats={stats} />}
 
         {activeTab === "users" && (
-          <UsersSection
-            users={users}
-            onAdd={() => { }}
-            onEdit={() => { }}
-            onDelete={() => { }}
-          />
-        )}
+  <UsersSection
+    users={users}
+
+    // ➕ Thêm tài khoản
+    onAdd={async (newUser) => {
+      try {
+        const res = await adminService.createStaff(
+          newUser.Mail,
+          "123456",              // password default (tuỳ bạn config)
+          newUser.UserName,
+          "No address"
+        );
+        if (res.success) toast.success(res.message);
+        else toast.error(res.message);
+
+        await loadUsers();
+      } catch (err) {
+        toast.error("Lỗi khi thêm tài khoản!");
+      }
+    }}
+
+    // ✏️ Sửa thông tin tài khoản
+    onEdit={async (updatedUser) => {
+      try {
+        const res = await adminService.updateUser(
+          updatedUser.UserId,
+          updatedUser
+        );
+
+        if (res.success) toast.success(res.message);
+        else toast.error(res.message);
+
+        await loadUsers();
+      } catch (err) {
+        toast.error("Lỗi khi cập nhật tài khoản!");
+      }
+    }}
+
+    // 🗑️ Xoá tài khoản
+    onDelete={async (userId) => {
+      try {
+        const res = await adminService.deleteUser(userId);
+
+        if (res.success) toast.success(res.message);
+        else toast.error(res.message);
+
+        await loadUsers();
+      } catch (err) {
+        toast.error("Lỗi khi xóa tài khoản!");
+      }
+    }}
+  />
+        ) }
+
 
         {activeTab === "staff" && (
           <StaffSection

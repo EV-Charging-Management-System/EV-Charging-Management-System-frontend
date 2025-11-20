@@ -6,7 +6,6 @@ import Login from "./pages/Auth/Login";
 // EV Driver Pages
 import HomePage from "./pages/EV-Driver/HomePage";
 import BookingOnlineStation from "./pages/EV-Driver/BookingOnlineStation";
-import Premium from "./pages/EV-Driver/Premium";
 import PremiumDetail from "./pages/EV-Driver/PremiumDetail";
 import ViTraSau from "./pages/EV-Driver/ViTraSau";
 import Blog from "./pages/EV-Driver/Blog";
@@ -29,7 +28,9 @@ import Location from "./pages/Staff/Location";
 import LocationDetail from "./pages/Staff/LocationDetail";
 import ChargingProcessStaff from "./pages/Staff/ChargingProcessStaff";
 import Invoice from "./pages/Staff/Invoice";
-import AdminDashboard from "/src/components/Admin/AdminDashboard";
+import AdminDashboard from "./components/admin/AdminDashboard";
+import Premium from "./components/evdriver/Premium/Premium";
+
 
 const App: React.FC = () => {
   const ProtectedRoute = ({

@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
-import "../../css/Premium.css";
-import { apiClient } from "../../utils/api";
+import "../../../css/Premium.css";
+import { apiClient } from "../../../utils/api";
 
-import Header from "../../pages/layouts/header";
-import Footer from "../../pages/layouts/footer";
-import MenuBar from "../../pages/layouts/menu-bar";
+import Header from "../../../pages/layouts/header";
+import Footer from "../../../pages/layouts/footer";
+import MenuBar from "../../../pages/layouts/menu-bar";
 
-import PremiumList from "../../components/Premium/PremiumList";
+import PremiumList from "./PremiumList";
+
 
 const Premium: React.FC = () => {
   const [packages, setPackages] = useState([]);

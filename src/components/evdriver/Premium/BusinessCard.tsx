@@ -1,5 +1,6 @@
 import React from "react";
-import "../../css/Premium.css";
+import "../../../css/Premium.css";
+
 import { useNavigate } from "react-router-dom";
 
 interface BusinessCardProps {

@@ -285,19 +285,14 @@ export const adminService = {
     }
   },
 
-  // 🗑️ Xóa User
   async deleteUser(userId: number) {
-    try {
-      const res = await apiClient.delete(`/admin/delete-users/${userId}`);
-      return {
-        success: res.data?.success ?? res.status === 200,
-        message: res.data?.message || "Xóa người dùng thành công!",
-      };
-    } catch (error) {
-      console.error("❌ Lỗi xóa user:", error);
-      return { success: false, message: "Lỗi khi xóa user!" };
-    }
-  },
+  const res = await apiClient.delete(`/admin/delete-users/${userId}`);
+  return {
+    success: res.data?.success ?? res.status === 200,
+    message: res.data?.message || "Xóa người dùng thành công!"
+  };
+}
+  ,
 
  // 🎁 --- DISCOUNT CONFIG ---
 
