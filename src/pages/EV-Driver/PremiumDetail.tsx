@@ -10,10 +10,21 @@ const PremiumDetail: React.FC = () => {
 
   return (
     <div className="detail-container">
-      <div className="detail-card fade-in">
-        {type === "plan-premium" && <PremiumPremium />}
-        {type === "plan-business" && <PremiumBusiness />}
-      </div>
+
+      {/* --- PAGE PREMIUM --- */}
+      {type === "plan-premium" && (
+        <div className="detail-card fade-in">
+          <PremiumPremium />
+        </div>
+      )}
+
+      {/* --- PAGE BUSINESS --- */}
+      {type === "plan-business" && (
+        <div className="business-card fade-in">
+          <PremiumBusiness />
+        </div>
+      )}
+
     </div>
   );
 };
