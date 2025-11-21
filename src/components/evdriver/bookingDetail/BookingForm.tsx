@@ -102,7 +102,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
               marginBottom: '8px'
             }}
           >
-            Giá đặt cọc
+            Giá đặt cọc cho 2h sạc
           </label>
           <div
             style={{
@@ -111,7 +111,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
               color: '#e4e6ecff'
             }}
           >
-            30,000 ₫
+            30,000 ₫ 
           </div>
         </div>
 
