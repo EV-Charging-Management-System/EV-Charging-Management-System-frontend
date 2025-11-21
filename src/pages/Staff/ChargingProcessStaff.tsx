@@ -30,25 +30,25 @@ const ChargingProcessStaff: React.FC = () => {
           subtitle="Powering your life ⚡" 
         />
 
-        <main className="charging-body">
+        <main className="charging-body" style={{ background: 'linear-gradient(135deg, #02402cff 0%, #11071cff 100%)' }}>
           {activeSession ? (
-            <>
-              <h2 className="charging-title">Phiên Sạc Đang Diễn Ra</h2>
-              <ActiveSession
-                session={activeSession}
-                battery={battery}
-                elapsedSeconds={elapsedSeconds}
-                cost={cost}
-                startTime={startTime}
-                onEndCharging={endCharging}
-              />
-            </>
+        <>
+          <h2 className="charging-title">Phiên Sạc Đang Diễn Ra</h2>
+          <ActiveSession
+            session={activeSession}
+            battery={battery}
+            elapsedSeconds={elapsedSeconds}
+            cost={cost}
+            startTime={startTime}
+            onEndCharging={endCharging}
+          />
+        </>
           ) : (
-            <WaitingList
-              sessions={sessions}
-              onStartCharging={startCharging}
-              onRefresh={fetchSessions}
-            />
+        <WaitingList
+          sessions={sessions}
+          onStartCharging={startCharging}
+          onRefresh={fetchSessions}
+        />
           )}
         </main>
       </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Button } from 'react-bootstrap';
+import { Card, Button, Row, Col } from 'react-bootstrap';
 import { FaMapMarkerAlt, FaBolt, FaCalendarAlt, FaClock, FaHashtag } from 'react-icons/fa';
 import type { Session } from './types';
 
@@ -12,35 +12,39 @@ const SessionCard: React.FC<SessionCardProps> = ({ session, onStartCharging }) =
   return (
     <Card className="waiting-card mb-3 shadow-sm">
       <Card.Body>
-        <div className="d-flex justify-content-between align-items-start">
-          <div>
-            <h3>{session.StationName}</h3>
-            <p><FaMapMarkerAlt /> {session.address}</p>
-            <p><FaBolt /> {session.chargerName} ({session.power})</p>
-            <p>
+        <Row className="align-items-center">
+          <Col md={3}>
+            <h5>{session.StationName}</h5>
+            <p className="mb-1"><FaMapMarkerAlt /> {session.address}</p>
+          </Col>
+          <Col md={3}>
+            <p className="mb-1"><FaBolt /> {session.chargerName} ({session.power})</p>
+            <p className="mb-1">
               {session.userType === "guest" 
                 ? `Pin: ${session.batteryPercentage}%` 
                 : `Biển số: ${session.LicensePlate}`}
             </p>
-            {session.UserId && <p>UserId: {session.UserId}</p>}
-            <p>Loại: {session.userType === "guest" ? "Khách vãng lai" : "Có tài khoản"}</p>
-            <p>Giá: {session.portPrice?.toLocaleString()} ₫/kWh</p>
-          </div>
-          <div>
-            <p><FaCalendarAlt /> {session.date}</p>
-            <p><FaClock /> {session.time}</p>
-            <p><FaHashtag /> #{session.SessionId}</p>
-          </div>
-        </div>
-        <div className="form-buttons mt-3">
-          <Button 
-            variant="success" 
-            className="start-btn" 
-            onClick={() => onStartCharging(session)}
-          >
-            Bắt đầu sạc
-          </Button>
-        </div>
+          </Col>
+          <Col md={2}>
+            {session.UserId && <p className="mb-1">UserId: {session.UserId}</p>}
+            <p className="mb-1">Loại: {session.userType === "guest" ? "Khách" : "Tài khoản"}</p>
+            <p className="mb-1">Giá: {session.portPrice?.toLocaleString()} ₫/kWh</p>
+          </Col>
+          <Col md={2}>
+            <p className="mb-1"><FaCalendarAlt /> {session.date}</p>
+            <p className="mb-1"><FaClock /> {session.time}</p>
+            <p className="mb-1"><FaHashtag /> #{session.SessionId}</p>
+          </Col>
+          <Col md={2} className="text-end d-flex align-items-start justify-content-end">
+            <Button 
+              variant="success" 
+              className="start-btn" 
+              onClick={() => onStartCharging(session)}
+            >
+              Bắt đầu sạc
+            </Button>
+          </Col>
+        </Row>
       </Card.Body>
     </Card>
   );
