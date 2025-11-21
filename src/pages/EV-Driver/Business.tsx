@@ -6,6 +6,7 @@ import Footer from "../layouts/footer";
 import MenuBar from "../layouts/menu-bar";
 import { authService } from "../../services/authService";
 import { businessService } from "../../services/businessService";
+import BusinessInvoices from "../../components/BusinessInvoices"; 
 import VehicleManager from "../../components/VehicleManager";
 import SessionHistory from "../../components/SessionHistory";
 import BusinessOverview from "../../components/BusinessOverview";
@@ -123,136 +124,89 @@ const Business: React.FC = () => {
 
   if (loading) return <div className="loading-text">Đang tải...</div>;
 
-  // ✅ Nếu là user doanh nghiệp
-  if ((user?.RoleName || user?.role) === "BUSINESS") {
-    return (
-      <div className="page-container">
-        <Header />
-        <MenuBar />
-
-        <main className="page-body fade-in">
-          <div className="business-dashboard">
-            <h1 className="page-title">👔 Trang Doanh Nghiệp</h1>
-            <p className="page-description">
-              Xin chào, <b>{user?.FullName || user?.UserName}</b>! Quản lý doanh
-              nghiệp của bạn tại đây.
-            </p>
-
-            {/* === TAB MENU === */}
-            <div className="business-tabs">
-              <button
-                className={`tab-btn ${
-                  activeTab === "vehicles" ? "active" : ""
-                }`}
-                onClick={() => setActiveTab("vehicles")}
-              >
-                🚗 Quản lý xe
-              </button>
-              <button
-                className={`tab-btn ${
-                  activeTab === "sessions" ? "active" : ""
-                }`}
-                onClick={() => setActiveTab("sessions")}
-              >
-                ⚡ Lịch sử sạc
-              </button>
-              <button
-                className={`tab-btn ${
-                  activeTab === "overview" ? "active" : ""
-                }`}
-                onClick={() => setActiveTab("overview")}
-              >
-                💰 thống kê
-              </button>
-            </div>
-
-            {/* === TAB CONTENT === */}
-            <div className="tab-content">
-              {activeTab === "vehicles" && (
-                <VehicleManager
-                  companyId={company?.companyId || user?.CompanyId}
-                />
-              )}
-
-              {activeTab === "sessions" && (
-                <div className="business-section">
-
-                  <SessionHistory
-                    companyId={company?.companyId || user?.CompanyId}
-                  />
-                </div>
-              )}
-
-              {activeTab === "overview" && (
-                <div className="business-section">
-                  <BusinessOverview
-                    companyId={company?.companyId || user?.CompanyId}
-                  />
-               
-                  {lookupResult && (
-                    <div className="lookup-result">
-                      <p>
-                        <strong>Công ty:</strong>{" "}
-                        {lookupResult.CompanyName || "Chưa có"}
-                      </p>
-                      <p>
-                        <strong>Địa chỉ:</strong>{" "}
-                        {lookupResult.Address || "N/A"}
-                      </p>
-                      <p>
-                        <strong>Email:</strong>{" "}
-                        {lookupResult.CompanyMail || "N/A"}
-                      </p>
-                      <p>
-                        <strong>Điện thoại:</strong>{" "}
-                        {lookupResult.Phone || "N/A"}
-                      </p>
-                      <p>
-                        <strong>Xe:</strong> {lookupResult.VehicleName} (
-                        {lookupResult.LicensePlate})
-                      </p>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        </main>
-
-        <Footer />
-      </div>
-    );
-  }
-
-  // 🚀 Nếu user chưa nâng cấp
+ // ✅ Nếu là user doanh nghiệp
+if ((user?.RoleName || user?.role) === "BUSINESS") {
   return (
     <div className="page-container">
       <Header />
       <MenuBar />
 
       <main className="page-body fade-in">
-        <div className="business-card text-center">
-          <h1 className="page-title">Hợp Tác Kinh Doanh</h1>
+        <div className="business-dashboard">
+          <h1 className="page-title">👔 Trang Doanh Nghiệp</h1>
           <p className="page-description">
-            Mở rộng hệ thống trạm sạc của bạn cùng chúng tôi – giải pháp năng
-            lượng xanh cho tương lai.
+            Xin chào, <b>{user?.FullName || user?.UserName}</b>! Quản lý doanh nghiệp của bạn tại đây.
           </p>
 
-          <div className="business-content">
-            <h3>🎯 Trở thành đối tác doanh nghiệp EV</h3>
-            <p>
-              Với tài khoản doanh nghiệp, bạn có thể quản lý nhiều trạm sạc,
-              phương tiện và nhân viên, nhận báo cáo doanh thu định kỳ cùng
-              nhiều đặc quyền khác.
-            </p>
-
-            <button className="btn-premium" onClick={handleUpgrade}>
-              Gửi Yêu Cầu Nâng Cấp
+          {/* === TAB MENU === */}
+          <div className="business-tabs">
+            <button
+              className={`tab-btn ${activeTab === "vehicles" ? "active" : ""}`}
+              onClick={() => setActiveTab("vehicles")}
+            >
+              🚗 Quản lý xe
             </button>
 
-            <button className="btn-back" onClick={() => navigate("/premium")}>
-              ← Quay lại
+            <button
+              className={`tab-btn ${activeTab === "sessions" ? "active" : ""}`}
+              onClick={() => setActiveTab("sessions")}
+            >
+              ⚡ Lịch sử sạc
             </button>
+
+            <button
+              className={`tab-btn ${activeTab === "overview" ? "active" : ""}`}
+              onClick={() => setActiveTab("overview")}
+            >
+              💰 Thống kê
+            </button>
+
+            <button
+              className={`tab-btn ${activeTab === "invoices" ? "active" : ""}`}
+              onClick={() => setActiveTab("invoices")}
+            >
+              🧾 Hóa đơn
+            </button>
+          </div>
+
+          {/* === TAB CONTENT === */}
+          <div className="tab-content">
+
+            {activeTab === "vehicles" && (
+              <VehicleManager companyId={company?.companyId || user?.CompanyId} />
+            )}
+
+            {activeTab === "sessions" && (
+              <div className="business-section">
+                <SessionHistory companyId={company?.companyId || user?.CompanyId} />
+              </div>
+            )}
+
+            {activeTab === "overview" && (
+              <div className="business-section">
+                <BusinessOverview companyId={company?.companyId || user?.CompanyId} />
+              </div>
+            )}
+
+           {activeTab === "invoices" && (
+  <BusinessInvoices companyId={company?.companyId || user?.CompanyId} />
+)}
+
+
+            {activeTab === "lookup" && (
+              <div className="business-section">
+                {lookupResult && (
+                  <div className="lookup-result">
+                    <p><strong>Công ty:</strong> {lookupResult.CompanyName || "Chưa có"}</p>
+                    <p><strong>Địa chỉ:</strong> {lookupResult.Address || "N/A"}</p>
+                    <p><strong>Email:</strong> {lookupResult.CompanyMail || "N/A"}</p>
+                    <p><strong>Điện thoại:</strong> {lookupResult.Phone || "N/A"}</p>
+                    <p><strong>Xe:</strong> {lookupResult.VehicleName} ({lookupResult.LicensePlate})</p>
+                  </div>
+                )}
+              </div>
+            )}
+
           </div>
         </div>
       </main>
@@ -260,6 +214,41 @@ const Business: React.FC = () => {
       <Footer />
     </div>
   );
+}
+
+// 🚀 Nếu user chưa nâng cấp
+return (
+  <div className="page-container">
+    <Header />
+    <MenuBar />
+
+    <main className="page-body fade-in">
+      <div className="business-card text-center">
+        <h1 className="page-title">Hợp Tác Kinh Doanh</h1>
+        <p className="page-description">
+          Mở rộng hệ thống trạm sạc của bạn cùng chúng tôi – giải pháp năng lượng xanh cho tương lai.
+        </p>
+
+        <div className="business-content">
+          <h3>🎯 Trở thành đối tác doanh nghiệp EV</h3>
+          <p>
+            Bạn có thể quản lý trạm sạc, phương tiện, nhân viên, nhận báo cáo doanh thu định kỳ.
+          </p>
+
+          <button className="btn-premium" onClick={handleUpgrade}>
+            Gửi Yêu Cầu Nâng Cấp
+          </button>
+
+          <button className="btn-back" onClick={() => navigate("/premium")}>
+            ← Quay lại
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <Footer />
+  </div>
+);
 };
 
 export default Business;

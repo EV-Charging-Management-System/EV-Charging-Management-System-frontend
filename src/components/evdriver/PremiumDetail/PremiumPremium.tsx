@@ -28,7 +28,7 @@ const PremiumPremium = () => {
   // ===== QUY ĐỊNH NỘI DUNG CHI TIẾT THEO GÓI =====
  // ===== QUY ĐỊNH NỘI DUNG CHI TIẾT THEO GÓI =====
 const packageInfo: any = {
-  4: {
+  2: {
     title: "Premium 1 tháng",
     price: "299,000 VND",
     benefits: [
@@ -38,7 +38,7 @@ const packageInfo: any = {
       "🎟️ Voucher 10.000đ",
     ],
   },
-  5: {
+  3: {
     title: "Premium 3 tháng",
     price: "749,000 VND",
     benefits: [
@@ -49,7 +49,7 @@ const packageInfo: any = {
       "🎟️ Voucher 20.000đ",
     ],
   },
-  6: {
+  4: {
     title: "Premium 6 tháng",
     price: "1,399,000 VND",
     benefits: [
@@ -59,7 +59,7 @@ const packageInfo: any = {
       "🚘 Hỗ trợ ưu tiên 24/7",
     ],
   },
-  7: {
+  5: {
     title: "Premium 12 tháng",
     price: "2,599,000 VND",
     benefits: [
