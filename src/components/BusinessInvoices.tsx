@@ -14,10 +14,10 @@ const BusinessInvoices = ({ companyId }) => {
   };
 
   // =========================
-  // 🔥 Thanh toán 1 hóa đơn doanh nghiệp (ĐÃ FIX)
+  // 🔥 Thanh toán 1 hóa đơn
   // =========================
   const handlePaySingle = async (invoiceId) => {
-    // ⭐ LƯU KIỂU THANH TOÁN ĐỂ PaymentSuccess biết
+    // 🔥 Lưu lại loại thanh toán
     localStorage.setItem("paymentType", "business-invoice");
     localStorage.setItem("payingInvoiceId", invoiceId);
 
@@ -25,8 +25,6 @@ const BusinessInvoices = ({ companyId }) => {
 
     try {
       const res = await businessService.paySingleInvoice(invoiceId);
-
-      // BE trả về: { success, data: { url, txnRef } }
       const url = res?.data?.url;
 
       if (!url) {
@@ -66,17 +64,17 @@ const BusinessInvoices = ({ companyId }) => {
             <tr key={inv.invoiceId}>
               <td>{inv.invoiceId}</td>
 
-              {/* BE chỉ trả userId */}
-              <td>User #{inv.userId}</td>
+              {/* 🟢 HIỂN THỊ TÊN USER */}
+              <td>{inv.userName ? inv.userName : `User #${inv.userId}`}</td>
 
-              {/* BE không trả vehicle info */}
-              <td>—</td>
-              <td>—</td>
+              {/* 🟢 HIỂN THỊ TÊN XE */}
+              <td>{inv.vehicleName || "—"}</td>
 
-              {/* Số tiền */}
+              {/* 🟢 HIỂN THỊ BIỂN SỐ */}
+              <td>{inv.licensePlate || "—"}</td>
+
               <td>{Number(inv.totalAmount || 0).toLocaleString()} đ</td>
 
-              {/* Paid Status */}
               <td
                 style={{
                   color: inv.paidStatus === "Paid" ? "#00ff99" : "#ff4444",
@@ -86,7 +84,6 @@ const BusinessInvoices = ({ companyId }) => {
                 {inv.paidStatus}
               </td>
 
-              {/* Ngày tạo */}
               <td>
                 {inv.createdAt
                   ? new Date(inv.createdAt).toLocaleString()
