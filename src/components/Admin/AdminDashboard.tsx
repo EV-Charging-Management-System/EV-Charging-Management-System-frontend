@@ -195,6 +195,9 @@ const AdminDashboard: React.FC = () => {
         {activeTab === "stations" && (
           <StationSection
             stations={stations}
+            onCreate={async () => {
+              await loadStations();
+            }}
             onDelete={async (id: number) => {
               try {
                 const res = await adminService.deleteStation(id);
