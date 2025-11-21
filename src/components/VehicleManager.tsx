@@ -6,16 +6,14 @@ const VehicleManager: React.FC = () => {
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [licensePlate, setLicensePlate] = useState("");
   const [brand, setBrand] = useState("");
-  const [model, setModel] = useState(""); // Tên xe cụ thể (VD: VF8, Vios,...)
+  const [model, setModel] = useState("");
 
-  // 🔹 Lấy danh sách xe
+  // 🔹 Load danh sách xe
   const fetchVehicles = async () => {
     try {
       const res = await businessService.getVehicles();
-      console.log("[VehicleManager] Danh sách xe:", res);
       setVehicles(res?.data || []);
     } catch (err) {
-      console.error("❌ Lỗi khi tải danh sách xe:", err);
       toast.error("Không thể tải danh sách xe!");
     }
   };
@@ -24,9 +22,10 @@ const VehicleManager: React.FC = () => {
     fetchVehicles();
   }, []);
 
-  // 🔹 Thêm xe mới
+  // 🔹 Thêm xe
   const handleAddVehicle = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!licensePlate.trim() || !brand.trim() || !model.trim()) {
       toast.warn("⚠️ Vui lòng nhập đầy đủ thông tin xe!");
       return;
@@ -34,12 +33,11 @@ const VehicleManager: React.FC = () => {
 
     try {
       const payload = {
-        vehicleName: `${brand} ${model}`, // Ghép "hãng + tên xe"
+        vehicleName: `${brand} ${model}`,
         vehicleType: "Car",
         licensePlate: licensePlate.trim(),
       };
 
-      console.log("[VehicleManager] Payload gửi lên:", payload);
       const res = await businessService.addVehicle(payload);
 
       if (res?.message?.toLowerCase()?.includes("success")) {
@@ -52,8 +50,7 @@ const VehicleManager: React.FC = () => {
         toast.error(res?.message || "Không thể thêm xe!");
       }
     } catch (err) {
-      console.error("❌ Lỗi thêm xe:", err);
-      toast.error("Đã xảy ra lỗi khi thêm xe!");
+      toast.error("Lỗi khi thêm xe!");
     }
   };
 
@@ -69,9 +66,8 @@ const VehicleManager: React.FC = () => {
       } else {
         toast.error(res?.message || "Không thể xoá xe.");
       }
-    } catch (err) {
-      console.error("❌ Lỗi khi xoá xe:", err);
-      toast.error("Không thể xoá xe!");
+    } catch {
+      toast.error("Lỗi xoá xe!");
     }
   };
 
@@ -79,36 +75,45 @@ const VehicleManager: React.FC = () => {
     <div className="vehicle-manager fade-in">
       <h2 className="section-title">🚗 Quản Lý Xe Doanh Nghiệp</h2>
 
-      {/* Form thêm xe */}
+      {/* Form thêm xe – layout 2 cột giống EVDriver */}
       <form className="add-vehicle-form" onSubmit={handleAddVehicle}>
-        <input
-          type="text"
-          placeholder="Biển số xe (VD: 51A-123.45)"
-          value={licensePlate}
-          onChange={(e) => setLicensePlate(e.target.value)}
-        />
+        <div className="vehicle-row">
+          <input
+            type="text"
+            className="vehicle-input"
+            placeholder="Biển số xe (VD: 51A-123.45)"
+            value={licensePlate}
+            onChange={(e) => setLicensePlate(e.target.value)}
+          />
 
-        {/* ✅ Đổi dropdown hãng xe thành input text */}
-        <input
-          type="text"
-          placeholder="Hãng xe (VD: VinFast, Toyota, Tesla...)"
-          value={brand}
-          onChange={(e) => setBrand(e.target.value)}
-        />
+          <input
+            type="text"
+            className="vehicle-input"
+            placeholder="Loại Xe (VD: VinFast, Toyota, Tesla)"
+            value={brand}
+            onChange={(e) => setBrand(e.target.value)}
+          />
+        </div>
 
-        <input
-          type="text"
-          placeholder="Tên xe (VD: VF8, Vios, Model 3...)"
-          value={model}
-          onChange={(e) => setModel(e.target.value)}
-        />
+        <div className="vehicle-row">
+          <input
+            type="text"
+            className="vehicle-input"
+            placeholder="Tên xe (VD: VF8, Vios, Model 3)"
+            value={model}
+            onChange={(e) => setModel(e.target.value)}
+          />
+
+          {/* Slot trống để cân 2 cột */}
+          <div style={{ flex: 1 }}></div>
+        </div>
 
         <button type="submit" className="btn-premium">
           ➕ Thêm Xe
         </button>
       </form>
 
-      {/* Danh sách xe */}
+      {/* DANH SÁCH XE */}
       {vehicles.length === 0 ? (
         <p className="empty-text">Chưa có xe nào được đăng ký.</p>
       ) : (
@@ -121,24 +126,36 @@ const VehicleManager: React.FC = () => {
               <th>Thao Tác</th>
             </tr>
           </thead>
+
           <tbody>
-            {vehicles.map((v) => (
-              <tr key={v.VehicleId || v.vehicleId}>
-                <td>{v.LicensePlate || v.licensePlate}</td>
-                <td>{v.VehicleName || v.vehicleName}</td>
-                <td>{v.VehicleType || v.vehicleType}</td>
-                <td>
-                  <button
-                    className="btn-delete"
-                    onClick={() =>
-                      handleDeleteVehicle(v.LicensePlate || v.licensePlate)
-                    }
-                  >
-                    🗑️ Xoá
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {vehicles.map((v) => {
+              const rawName = v.VehicleName || v.vehicleName || "";
+
+              // ❗ XÓA “car ” | “bike ” | “truck ”
+              const cleanName = rawName
+                .replace(/^car\s+/i, "")
+                .replace(/^bike\s+/i, "")
+                .replace(/^truck\s+/i, "");
+
+              return (
+                <tr key={v.VehicleId || v.vehicleId}>
+                  <td>{v.LicensePlate || v.licensePlate}</td>
+                  <td>{cleanName}</td>
+                  <td>{v.VehicleType || v.vehicleType}</td>
+
+                  <td>
+                    <button
+                      className="btn-delete"
+                      onClick={() =>
+                        handleDeleteVehicle(v.LicensePlate || v.licensePlate)
+                      }
+                    >
+                      🗑️ Xoá
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       )}
