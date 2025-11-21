@@ -45,33 +45,39 @@ const Business: React.FC = () => {
   }, []);
 
   // 🔹 Lấy thông tin công ty (chỉ dành cho user BUSINESS)
-  useEffect(() => {
-    const fetchCompany = async () => {
-      if (!user) return;
-      const role = user.RoleName || user.role;
-      if (role !== "BUSINESS") return;
+ useEffect(() => {
+  const fetchCompany = async () => {
+    if (!user) return;
 
-      const id = user.CompanyId || user.UserId || user.userId;
-      if (!id) {
-        console.warn("⚠️ Không có ID hợp lệ để gọi API overview!");
-        return;
-      }
+    const role = user.RoleName || user.role;
+    if (role !== "BUSINESS") return;
 
-      try {
-        const res = await businessService.getCompanyOverview(id);
-        if (res.success && res.data) {
-          setCompany(res.data);
-          console.log("🏢 Company data:", res.data);
-        } else {
-          toast.warn("Không tìm thấy thông tin công ty!");
-        }
-      } catch (err) {
-        console.error("❌ Lỗi khi tải thông tin công ty:", err);
-        toast.error("Lỗi khi tải thông tin công ty!");
+    // ✔️ CHỈ LẤY COMPANYID – KHÔNG BAO GIỜ LẤY USERID
+    const id = user.CompanyId ?? user.companyId;
+
+
+    if (!id) {
+      console.warn("⚠️ User không có companyId!");
+      return;
+    }
+
+    try {
+      const res = await businessService.getCompanyOverview(id);
+      if (res.success && res.data) {
+        setCompany(res.data);
+        console.log("🏢 Company data:", res.data);
+      } else {
+        toast.warn("Không tìm thấy thông tin công ty!");
       }
-    };
-    fetchCompany();
-  }, [user]);
+    } catch (err) {
+      console.error("❌ Lỗi khi tải thông tin công ty:", err);
+      toast.error("Lỗi khi tải thông tin công ty!");
+    }
+  };
+
+  fetchCompany();
+}, [user]);
+
 
   // 🔍 Tra cứu công ty theo biển số
   const handleLookup = async () => {
