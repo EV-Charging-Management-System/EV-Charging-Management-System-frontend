@@ -474,6 +474,21 @@
 .charger-grid .charger-card:nth-child(7) { animation-delay: 0.7s; }
 .charger-grid .charger-card:nth-child(8) { animation-delay: 0.8s; }
 
+/* ===== MODAL CENTERING ===== */
+.modal-dialog {
+  display: flex !important;
+  align-items: center !important;
+  min-height: calc(100vh - 60px) !important;
+  margin: 30px auto !important;
+}
+
+.modal-dialog-centered {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: calc(100vh - 60px) !important;
+}
+
 /* ===== POPUP FORM - SIMPLE & CLEAN ===== */
 .staff-booking-form-overlay {
   position: fixed;
