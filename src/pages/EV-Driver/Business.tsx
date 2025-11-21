@@ -53,7 +53,7 @@ const Business: React.FC = () => {
     if (role !== "BUSINESS") return;
 
     // ✔️ CHỈ LẤY COMPANYID – KHÔNG BAO GIỜ LẤY USERID
-    const id = user.CompanyId ?? user.companyId;
+   const id = user.CompanyId ?? user.companyId;
 
 
     if (!id) {
@@ -162,15 +162,7 @@ const Business: React.FC = () => {
                 }`}
                 onClick={() => setActiveTab("overview")}
               >
-                💰 Doanh thu & thống kê
-              </button>
-              <button
-                className={`tab-btn ${
-                  activeTab === "lookup" ? "active" : ""
-                }`}
-                onClick={() => setActiveTab("lookup")}
-              >
-                🔍 Tra cứu công ty
+                💰 thống kê
               </button>
             </div>
 
@@ -184,7 +176,7 @@ const Business: React.FC = () => {
 
               {activeTab === "sessions" && (
                 <div className="business-section">
-                  <h3>⚡ Lịch Sử Sạc Của Doanh Nghiệp</h3>
+
                   <SessionHistory
                     companyId={company?.companyId || user?.CompanyId}
                   />
@@ -196,26 +188,7 @@ const Business: React.FC = () => {
                   <BusinessOverview
                     companyId={company?.companyId || user?.CompanyId}
                   />
-                </div>
-              )}
-
-              {activeTab === "lookup" && (
-                <div className="business-section">
-                  <h3>🔍 Tra Cứu Công Ty Theo Biển Số Xe</h3>
-                  <div className="lookup-form">
-                    <input
-                      type="text"
-                      placeholder="Nhập biển số xe (VD: 51H-123.45)"
-                      value={licenseLookup}
-                      onChange={(e) =>
-                        setLicenseLookup(e.target.value.toUpperCase())
-                      }
-                    />
-                    <button className="btn-premium" onClick={handleLookup}>
-                      Tra Cứu
-                    </button>
-                  </div>
-
+               
                   {lookupResult && (
                     <div className="lookup-result">
                       <p>
