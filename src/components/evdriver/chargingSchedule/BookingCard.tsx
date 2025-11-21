@@ -26,7 +26,7 @@ export const BookingCard: React.FC<BookingCardProps> = ({ booking, onStartChargi
           </p>
 
           <p className='mb-1'>
-            <FaCar className='me-2' /> {booking.vehicle} – {booking.plate}
+            <FaCar className='me-2' /> {booking.vehicle}
           </p>
 
           <p className='mb-1'>
