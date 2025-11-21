@@ -8,13 +8,21 @@ interface Port {
   PortName: string;
   PortType: string;
   PortStatus: string;
+  PortTypeOfKwh?: number;
+  PortTypePrice?: number;
 }
 
 interface PortTableProps {
   ports: Port[];
   pointId: number;
   stationName?: string;
-  onAdd: (port: Partial<Port>) => Promise<void>;
+  onAdd: (port: { 
+    PortName: string; 
+    PortType: string; 
+    PortStatus: string;
+    PortTypeOfKwh: number;
+    PortTypePrice: number;
+  }) => Promise<void>;
   onEdit: (port: Port) => Promise<void>;
   onDelete: (id: number) => Promise<void>;
   onBack: () => void;
@@ -41,6 +49,8 @@ const PortTable: React.FC<PortTableProps> = ({
     portName: "",
     portType: "CCS",
     portStatus: "AVAILABLE",
+    portTypeOfKwh: 0,
+    portTypePrice: 0,
   });
 
   // 🔄 Reset form
@@ -49,6 +59,8 @@ const PortTable: React.FC<PortTableProps> = ({
       portName: "",
       portType: "CCS",
       portStatus: "AVAILABLE",
+      portTypeOfKwh: 0,
+      portTypePrice: 0,
     });
     setEditingPort(null);
   };
@@ -66,6 +78,8 @@ const PortTable: React.FC<PortTableProps> = ({
       portName: port.PortName,
       portType: port.PortType,
       portStatus: port.PortStatus,
+      portTypeOfKwh: port.PortTypeOfKwh || 0,
+      portTypePrice: port.PortTypePrice || 0,
     });
     setShowModal(true);
   };
@@ -77,6 +91,16 @@ const PortTable: React.FC<PortTableProps> = ({
       return;
     }
 
+    if (formData.portTypeOfKwh <= 0) {
+      toast.warning("⚠️ Công suất (kW) phải lớn hơn 0!");
+      return;
+    }
+
+    if (formData.portTypePrice < 0) {
+      toast.warning("⚠️ Giá tiền không được âm!");
+      return;
+    }
+
     if (editingPort) {
       // Cập nhật Port
       await onEdit({
@@ -84,14 +108,17 @@ const PortTable: React.FC<PortTableProps> = ({
         PortName: formData.portName,
         PortType: formData.portType,
         PortStatus: formData.portStatus,
+        PortTypeOfKwh: formData.portTypeOfKwh,
+        PortTypePrice: formData.portTypePrice,
       });
     } else {
-      // Thêm mới Port
+      // Thêm mới Port - không cần truyền PointId vì đã có trong context
       await onAdd({
-        PointId: pointId,
         PortName: formData.portName,
         PortType: formData.portType,
         PortStatus: formData.portStatus,
+        PortTypeOfKwh: formData.portTypeOfKwh,
+        PortTypePrice: formData.portTypePrice,
       });
     }
 
@@ -244,6 +271,34 @@ const PortTable: React.FC<PortTableProps> = ({
                   <option value="J1772">J1772</option>
                   <option value="GB/T">GB/T</option>
                 </select>
+              </div>
+
+              <div className="form-group">
+                <label>Công suất (kW) *</label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  value={formData.portTypeOfKwh}
+                  onChange={(e) =>
+                    setFormData({ ...formData, portTypeOfKwh: Number(e.target.value) })
+                  }
+                  placeholder="Ví dụ: 7, 22, 50"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Giá tiền (VNĐ) *</label>
+                <input
+                  type="number"
+                  min="0"
+                  step="1000"
+                  value={formData.portTypePrice}
+                  onChange={(e) =>
+                    setFormData({ ...formData, portTypePrice: Number(e.target.value) })
+                  }
+                  placeholder="Ví dụ: 5000, 8000"
+                />
               </div>
 
               <div className="form-group">

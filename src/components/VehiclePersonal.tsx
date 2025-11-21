@@ -34,6 +34,14 @@ const VehiclePersonal: React.FC = () => {
       return;
     }
 
+    // ⚡ Chỉ kiểm tra ô tô (CAR)
+    if (vehicleType === "Car") {
+      if (battery === "" || Number(battery) < 20) {
+        toast.error("⚠️ Dung lượng pin cho Ô TÔ phải từ 20 kWh trở lên!");
+        return;
+      }
+    }
+
     try {
       const payload = {
         vehicleName,
@@ -41,6 +49,7 @@ const VehiclePersonal: React.FC = () => {
         licensePlate,
         battery: battery === "" ? null : Number(battery),
       };
+
       const res = await vehicleService.addVehicle(payload);
 
       if (res.success) {
@@ -50,7 +59,9 @@ const VehiclePersonal: React.FC = () => {
         setLicensePlate("");
         setBattery("");
         fetchVehicles();
-      } else toast.error(res.message || "Không thể đăng ký xe!");
+      } else {
+        toast.error(res.message || "Không thể đăng ký xe!");
+      }
     } catch (err) {
       toast.error("Lỗi hệ thống!");
     }
@@ -67,24 +78,34 @@ const VehiclePersonal: React.FC = () => {
           value={vehicleName}
           onChange={(e) => setVehicleName(e.target.value)}
         />
-        <select value={vehicleType} onChange={(e) => setVehicleType(e.target.value)}>
+
+        <select
+          value={vehicleType}
+          onChange={(e) => setVehicleType(e.target.value)}
+        >
           <option value="">-- Chọn loại xe --</option>
           <option value="Car">Ô tô</option>
           <option value="Bike">Xe máy</option>
           <option value="Truck">Xe tải</option>
         </select>
+
         <input
           type="text"
           placeholder="Biển số xe (VD: 51H-123.45)"
           value={licensePlate}
           onChange={(e) => setLicensePlate(e.target.value)}
         />
+
         <input
           type="number"
           placeholder="Dung lượng pin (kWh)"
+          min={vehicleType === "Car" ? 20 : 0}
           value={battery}
-          onChange={(e) => setBattery(e.target.value ? parseFloat(e.target.value) : "")}
+          onChange={(e) =>
+            setBattery(e.target.value ? parseFloat(e.target.value) : "")
+          }
         />
+
         <button type="submit" className="btn-premium">
           ➕ Đăng ký xe
         </button>
@@ -102,15 +123,27 @@ const VehiclePersonal: React.FC = () => {
               <th>Dung Lượng Pin</th>
             </tr>
           </thead>
+
           <tbody>
-            {vehicles.map((v) => (
-              <tr key={v.VehicleId || v.vehicleId}>
-                <td>{v.VehicleName || v.vehicleName}</td>
-                <td>{v.LicensePlate || v.licensePlate}</td>
-                <td>{v.VehicleType || v.vehicleType}</td>
-                <td>{v.Battery || v.battery || "N/A"}</td>
-              </tr>
-            ))}
+            {vehicles.map((v) => {
+              const type = (v.VehicleType || v.vehicleType || "").toLowerCase();
+              const rawBattery = Number(v.Battery ?? v.battery); // ép về số
+
+              // 🚗 Nếu là ô tô → ép tối thiểu 20
+              const displayBattery =
+                type === "car"
+                  ? Math.max(20, rawBattery || 20)
+                  : rawBattery || "N/A";
+
+              return (
+                <tr key={v.VehicleId || v.vehicleId}>
+                  <td>{v.VehicleName || v.vehicleName}</td>
+                  <td>{v.LicensePlate || v.licensePlate}</td>
+                  <td>{v.VehicleType || v.vehicleType}</td>
+                  <td>{displayBattery}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       )}
