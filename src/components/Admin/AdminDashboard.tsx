@@ -1,33 +1,27 @@
 import React, { useEffect, useState } from "react";
 import "../../css/AdminDashboard.css";
-
 import { useNavigate } from "react-router-dom";
+
 import { authService } from "../../services/authService";
 import { adminService } from "../../services/adminService";
 import { ToastContainer, toast } from "react-toastify";
-// ⚡⚡⚡ THÊM IMPORT NÀY
-import DiscountSection from "./Discount/DiscountSection";
 
-import ProfileAdmin from "../../pages/Admin/ProfileAdmin";
-
-
-// Sidebar
 import AdminSidebar from "./Sidebar/AdminSidebar";
-
-// Dashboard
 import DashboardOverview from "./Dashboard/DashboardOverview";
 
-// Modules
 import UsersSection from "./Users/UsersSection";
 import StaffSection from "./Staff/StaffSection";
 import BusinessAccountTable from "../../components/BusinessAccountTable";
-import StationTable from "../../components/StationTable";
-import PointTable from "../../components/PointTable";
-import PortTable from "../../components/PortTable";
+
+import StationSection from "./Stations/StationSection";
+import PointsSection from "./Stations/PointsSection";
+import PortsSection from "./Stations/PortsSection";
+
 import BookingTable from "../../components/BookingTable";
 import PaymentTable from "../../components/PaymentTable";
 
-
+import ProfileAdmin from "../../pages/Admin/ProfileAdmin";
+import DiscountSection from "./Discount/DiscountSection";
 
 
 const AdminDashboard: React.FC = () => {
@@ -39,30 +33,27 @@ const AdminDashboard: React.FC = () => {
   const [stats, setStats] = useState<any>({});
   const [users, setUsers] = useState<any[]>([]);
   const [stations, setStations] = useState<any[]>([]);
+  const [points, setPoints] = useState<any[]>([]);
+  const [ports, setPorts] = useState<any[]>([]);
   const [bookings, setBookings] = useState<any[]>([]);
   const [revenueData, setRevenueData] = useState<any>({});
 
-  // Staff
+  const [selectedStationId, setSelectedStationId] = useState<number | null>(null);
+  const [selectedStationName, setSelectedStationName] = useState<string>("");
+
+  const [selectedPointId, setSelectedPointId] = useState<number | null>(null);
+
   const [staffList, setStaffList] = useState<any[]>([]);
   const [loadingStaff, setLoadingStaff] = useState(true);
 
-  // Points & Ports
-  const [selectedStationId, setSelectedStationId] = useState<number | null>(null);
-  const [selectedStationName, setSelectedStationName] = useState("");
-  const [selectedPointId, setSelectedPointId] = useState<number | null>(null);
 
-  const [points, setPoints] = useState<any[]>([]);
-  const [ports, setPorts] = useState<any[]>([]);
-
-  // INIT LOAD
-  useEffect(() => {
-    Promise.all([loadStats(), loadUsers(), loadStations()]);
-  }, []);
-
-  // LOADERS
+  // LOADERS ===============================
   const loadStats = async () => {
-    try { setStats(await adminService.getDashboardStats()); }
-    catch { toast.error("Không thể tải dashboard"); }
+    try {
+      setStats(await adminService.getDashboardStats());
+    } catch {
+      toast.error("Lỗi tải dashboard");
+    }
   };
 
   const loadUsers = async () => {
@@ -71,6 +62,16 @@ const AdminDashboard: React.FC = () => {
 
   const loadStations = async () => {
     setStations(await adminService.getAllStations());
+  };
+
+  const loadPoints = async (stationId: number) => {
+    const res = await adminService.getPointsByStation(stationId);
+    setPoints(res || []);
+  };
+
+  const loadPorts = async (pointId: number) => {
+    const res = await adminService.getPortsByPoint(pointId);
+    setPorts(res || []);
   };
 
   const loadStaff = async () => {
@@ -85,17 +86,28 @@ const AdminDashboard: React.FC = () => {
     setRevenueData(res?.data || res || {});
   };
 
-  // LOAD WHEN TAB CHANGE
+
+  // INIT ===============================
+  useEffect(() => {
+    Promise.all([loadStats(), loadUsers(), loadStations()]);
+  }, []);
+
   useEffect(() => {
     if (activeTab === "staff") loadStaff();
     if (activeTab === "revenue") loadRevenue();
   }, [activeTab]);
 
-  // LOGOUT
+
+  // LOGOUT ===============================
   const handleLogout = async () => {
     await authService.logout();
     navigate("/login");
   };
+
+
+  // =====================================================
+  //                   RENDER
+  // =====================================================
 
   return (
     <div className="admin-dashboard">
@@ -109,6 +121,7 @@ const AdminDashboard: React.FC = () => {
       />
 
       <main className="admin-content">
+
         <header className="admin-header">
           <div>
             <h1>📊 Bảng điều khiển quản trị viên</h1>
@@ -116,65 +129,53 @@ const AdminDashboard: React.FC = () => {
           </div>
           <ProfileAdmin />
         </header>
-        {activeTab === "discount" && <DiscountSection />}
 
+        {activeTab === "discount" && <DiscountSection />}
         {activeTab === "dashboard" && <DashboardOverview stats={stats} />}
 
         {activeTab === "users" && (
-  <UsersSection
-    users={users}
+          <UsersSection
+            users={users}
 
-    // ➕ Thêm tài khoản
-    onAdd={async (newUser) => {
-      try {
-        const res = await adminService.createStaff(
-          newUser.Mail,
-          "123456",              // password default (tuỳ bạn config)
-          newUser.UserName,
-          "No address"
-        );
-        if (res.success) toast.success(res.message);
-        else toast.error(res.message);
+            onAdd={async (newUser) => {
+              try {
+                const res = await adminService.createStaff(
+                  newUser.Mail,
+                  "123456",
+                  newUser.UserName,
+                  "No address"
+                );
 
-        await loadUsers();
-      } catch (err) {
-        toast.error("Lỗi khi thêm tài khoản!");
-      }
-    }}
+                res.success ? toast.success(res.message) : toast.error(res.message);
+                await loadUsers();
+              } catch {
+                toast.error("Lỗi khi thêm tài khoản!");
+              }
+            }}
 
-    // ✏️ Sửa thông tin tài khoản
-    onEdit={async (updatedUser) => {
-      try {
-        const res = await adminService.updateUser(
-          updatedUser.UserId,
-          updatedUser
-        );
+            onEdit={async (updatedUser) => {
+              try {
+                const res = await adminService.updateUser(updatedUser.UserId, updatedUser);
 
-        if (res.success) toast.success(res.message);
-        else toast.error(res.message);
+                res.success ? toast.success(res.message) : toast.error(res.message);
+                await loadUsers();
+              } catch {
+                toast.error("Lỗi khi cập nhật tài khoản!");
+              }
+            }}
 
-        await loadUsers();
-      } catch (err) {
-        toast.error("Lỗi khi cập nhật tài khoản!");
-      }
-    }}
+            onDelete={async (userId) => {
+              try {
+                const res = await adminService.deleteUser(userId);
 
-    // 🗑️ Xoá tài khoản
-    onDelete={async (userId) => {
-      try {
-        const res = await adminService.deleteUser(userId);
-
-        if (res.success) toast.success(res.message);
-        else toast.error(res.message);
-
-        await loadUsers();
-      } catch (err) {
-        toast.error("Lỗi khi xóa tài khoản!");
-      }
-    }}
-  />
-        ) }
-
+                res.success ? toast.success(res.message) : toast.error(res.message);
+                await loadUsers();
+              } catch {
+                toast.error("Lỗi khi xóa tài khoản!");
+              }
+            }}
+          />
+        )}
 
         {activeTab === "staff" && (
           <StaffSection
@@ -186,21 +187,79 @@ const AdminDashboard: React.FC = () => {
 
         {activeTab === "business" && <BusinessAccountTable />}
 
+
+        {/* ======================================================
+            ⭐ STATIONS → POINTS → PORTS (Flow chuẩn)
+        ======================================================= */}
+
         {activeTab === "stations" && (
-          <StationTable
+          <StationSection
             stations={stations}
-            onViewPoints={(id: number) => {
-              setSelectedStationId(id);
+            onDelete={async (id: number) => {
+              try {
+                const res = await adminService.deleteStation(id);
+                res.success ? toast.success("Xóa thành công") : toast.error(res.message);
+                loadStations();
+              } catch {
+                toast.error("Lỗi xóa trạm");
+              }
+            }}
+            onViewPoints={(stationId: number, name: string) => {
+              setSelectedStationId(stationId);
+              setSelectedStationName(name);
+              loadPoints(stationId);
               setActiveTab("points");
             }}
           />
         )}
 
         {activeTab === "points" && selectedStationId && (
-          <PointTable
+          <PointsSection
             points={points}
             stationId={selectedStationId}
             stationName={selectedStationName}
+
+            onAdd={async (numPorts: number) => {
+              try {
+                const res = await adminService.createPoint(selectedStationId, numPorts);
+                res.success ? toast.success("Tạo Point thành công") : toast.error(res.message);
+                loadPoints(selectedStationId);
+              } catch {
+                toast.error("Lỗi tạo Point");
+              }
+            }}
+
+            onEdit={async (point) => {
+              try {
+                const res = await adminService.updatePoint(
+                  point.PointId,
+                  point.NumberOfPort,
+                  point.ChargingPointStatus
+                );
+
+                res.success ? toast.success("Cập nhật thành công") : toast.error(res.message);
+                loadPoints(selectedStationId);
+              } catch {
+                toast.error("Lỗi cập nhật Point");
+              }
+            }}
+
+            onDelete={async (id) => {
+              try {
+                const res = await adminService.deletePoint(id);
+                res.success ? toast.success("Xóa thành công") : toast.error(res.message);
+                loadPoints(selectedStationId);
+              } catch {
+                toast.error("Không xóa được Point");
+              }
+            }}
+
+            onViewPorts={(pointId: number) => {
+              setSelectedPointId(pointId);
+              loadPorts(pointId);
+              setActiveTab("ports");
+            }}
+
             onBack={() => {
               setActiveTab("stations");
               setSelectedStationId(null);
@@ -209,10 +268,51 @@ const AdminDashboard: React.FC = () => {
         )}
 
         {activeTab === "ports" && selectedPointId && (
-          <PortTable
+          <PortsSection
             ports={ports}
             pointId={selectedPointId}
             stationName={selectedStationName}
+
+            onAdd={async (port) => {
+              try {
+                const res = await adminService.createPort(
+                  port.PointId!,
+                  port.PortName!,
+                  port.PortType!,
+                  port.PortStatus!
+                );
+                res.success ? toast.success("Thêm Port thành công") : toast.error(res.message);
+                loadPorts(selectedPointId);
+              } catch {
+                toast.error("Lỗi thêm Port");
+              }
+            }}
+
+            onEdit={async (port) => {
+              try {
+                const res = await adminService.updatePort(
+                  port.PortId,
+                  port.PortName,
+                  port.PortType,
+                  port.PortStatus
+                );
+                res.success ? toast.success("Cập nhật Port thành công") : toast.error(res.message);
+                loadPorts(selectedPointId);
+              } catch {
+                toast.error("Lỗi cập nhật Port");
+              }
+            }}
+
+            onDelete={async (id) => {
+              try {
+                const res = await adminService.deletePort(id);
+                res.success ? toast.success("Xóa Port thành công") : toast.error(res.message);
+                loadPorts(selectedPointId);
+              } catch {
+                toast.error("Lỗi xóa Port");
+              }
+            }}
+
             onBack={() => {
               setActiveTab("points");
               setSelectedPointId(null);
@@ -220,11 +320,15 @@ const AdminDashboard: React.FC = () => {
           />
         )}
 
+
+        {/* ====================================================== */}
+
         {activeTab === "bookings" && (
           <BookingTable bookings={bookings} />
         )}
 
         {activeTab === "payments" && <PaymentTable />}
+
       </main>
 
       <ToastContainer position="top-right" autoClose={2500} />
@@ -233,4 +337,3 @@ const AdminDashboard: React.FC = () => {
 };
 
 export default AdminDashboard;
-
