@@ -31,27 +31,23 @@ const BusinessOverview: React.FC<Props> = ({ companyId }) => {
     <div className="overview-container">
       <h3>📈 Báo Cáo Tổng Quan Doanh Nghiệp</h3>
       <div className="overview-grid">
-        <div className="overview-card">
-          <h4>Tổng phiên sạc</h4>
-          <p>{overview.totalSessions}</p>
-        </div>
-        <div className="overview-card">
-          <h4>Tổng doanh thu</h4>
-          <p>{overview.totalRevenue?.toLocaleString("vi-VN")} ₫</p>
-        </div>
-        <div className="overview-card">
-          <h4>Hoá đơn đã thanh toán</h4>
-          <p>{overview.paidInvoices}</p>
-        </div>
-        <div className="overview-card">
-          <h4>Hoá đơn chưa thanh toán</h4>
-          <p>{overview.unpaidInvoices}</p>
-        </div>
-        <div className="overview-card">
-          <h4>Gói đăng ký hoạt động</h4>
-          <p>{overview.subscriptionCount}</p>
-        </div>
-      </div>
+
+  <div className="overview-card">
+    <h3>Tổng phiên sạc</h3>
+    <p>{overview.totalSessions}</p>
+  </div>
+
+  <div className="overview-card">
+    <h3>Tổng số xe</h3>
+    <p>{overview.totalVehicles}</p>
+  </div>
+
+  <div className="overview-card">
+    <h3>Gói đăng ký hoạt động</h3>
+    <p>{overview.subscriptionCount}</p>
+  </div>
+
+</div>
 
       <h4 style={{ marginTop: "25px", color: "#00ffa3" }}>🏆 Người dùng tích cực nhất</h4>
       <table className="session-table">

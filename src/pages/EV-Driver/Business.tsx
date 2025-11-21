@@ -45,33 +45,39 @@ const Business: React.FC = () => {
   }, []);
 
   // 🔹 Lấy thông tin công ty (chỉ dành cho user BUSINESS)
-  useEffect(() => {
-    const fetchCompany = async () => {
-      if (!user) return;
-      const role = user.RoleName || user.role;
-      if (role !== "BUSINESS") return;
+ useEffect(() => {
+  const fetchCompany = async () => {
+    if (!user) return;
 
-      const id = user.CompanyId || user.UserId || user.userId;
-      if (!id) {
-        console.warn("⚠️ Không có ID hợp lệ để gọi API overview!");
-        return;
-      }
+    const role = user.RoleName || user.role;
+    if (role !== "BUSINESS") return;
 
-      try {
-        const res = await businessService.getCompanyOverview(id);
-        if (res.success && res.data) {
-          setCompany(res.data);
-          console.log("🏢 Company data:", res.data);
-        } else {
-          toast.warn("Không tìm thấy thông tin công ty!");
-        }
-      } catch (err) {
-        console.error("❌ Lỗi khi tải thông tin công ty:", err);
-        toast.error("Lỗi khi tải thông tin công ty!");
+    // ✔️ CHỈ LẤY COMPANYID – KHÔNG BAO GIỜ LẤY USERID
+   const id = user.CompanyId ?? user.companyId;
+
+
+    if (!id) {
+      console.warn("⚠️ User không có companyId!");
+      return;
+    }
+
+    try {
+      const res = await businessService.getCompanyOverview(id);
+      if (res.success && res.data) {
+        setCompany(res.data);
+        console.log("🏢 Company data:", res.data);
+      } else {
+        toast.warn("Không tìm thấy thông tin công ty!");
       }
-    };
-    fetchCompany();
-  }, [user]);
+    } catch (err) {
+      console.error("❌ Lỗi khi tải thông tin công ty:", err);
+      toast.error("Lỗi khi tải thông tin công ty!");
+    }
+  };
+
+  fetchCompany();
+}, [user]);
+
 
   // 🔍 Tra cứu công ty theo biển số
   const handleLookup = async () => {
@@ -156,15 +162,7 @@ const Business: React.FC = () => {
                 }`}
                 onClick={() => setActiveTab("overview")}
               >
-                💰 Doanh thu & thống kê
-              </button>
-              <button
-                className={`tab-btn ${
-                  activeTab === "lookup" ? "active" : ""
-                }`}
-                onClick={() => setActiveTab("lookup")}
-              >
-                🔍 Tra cứu công ty
+                💰 thống kê
               </button>
             </div>
 
@@ -178,7 +176,7 @@ const Business: React.FC = () => {
 
               {activeTab === "sessions" && (
                 <div className="business-section">
-                  <h3>⚡ Lịch Sử Sạc Của Doanh Nghiệp</h3>
+
                   <SessionHistory
                     companyId={company?.companyId || user?.CompanyId}
                   />
@@ -190,26 +188,7 @@ const Business: React.FC = () => {
                   <BusinessOverview
                     companyId={company?.companyId || user?.CompanyId}
                   />
-                </div>
-              )}
-
-              {activeTab === "lookup" && (
-                <div className="business-section">
-                  <h3>🔍 Tra Cứu Công Ty Theo Biển Số Xe</h3>
-                  <div className="lookup-form">
-                    <input
-                      type="text"
-                      placeholder="Nhập biển số xe (VD: 51H-123.45)"
-                      value={licenseLookup}
-                      onChange={(e) =>
-                        setLicenseLookup(e.target.value.toUpperCase())
-                      }
-                    />
-                    <button className="btn-premium" onClick={handleLookup}>
-                      Tra Cứu
-                    </button>
-                  </div>
-
+               
                   {lookupResult && (
                     <div className="lookup-result">
                       <p>
