@@ -45,7 +45,7 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({
       {/* Stop Button */}
       <div className="charging-buttons" style={{ margin: '24px 0' }}>
         <button className="charging-btn" onClick={onEndCharging}>
-          ⚡ Sạc
+          ⚡ Dừng sạc
         </button>
       </div>
 
