@@ -221,9 +221,17 @@ const AdminDashboard: React.FC = () => {
 
             onAdd={async (numPorts: number) => {
               try {
+                if (numPorts <= 0) {
+                  toast.warning("Số lượng port phải lớn hơn 0!");
+                  return;
+                }
                 const res = await adminService.createPoint(selectedStationId, numPorts);
-                res.success ? toast.success("Tạo Point thành công") : toast.error(res.message);
-                loadPoints(selectedStationId);
+                if (res.success) {
+                  toast.success("Tạo Point thành công");
+                  loadPoints(selectedStationId);
+                } else {
+                  toast.error(res.message);
+                }
               } catch {
                 toast.error("Lỗi tạo Point");
               }
@@ -273,41 +281,83 @@ const AdminDashboard: React.FC = () => {
             pointId={selectedPointId}
             stationName={selectedStationName}
 
-            onAdd={async (port) => {
+            onAdd={async (port: {
+              PortName: string;
+              PortType: string;
+              PortStatus: string;
+              PortTypeOfKwh: number;
+              PortTypePrice: number;
+            }) => {
               try {
+                if (!port.PortName || !port.PortType) {
+                  toast.warning("Vui lòng điền đầy đủ thông tin Port!");
+                  return;
+                }
+                if (port.PortTypeOfKwh <= 0) {
+                  toast.warning("Công suất phải lớn hơn 0!");
+                  return;
+                }
                 const res = await adminService.createPort(
-                  port.PointId!,
-                  port.PortName!,
-                  port.PortType!,
-                  port.PortStatus!
+                  selectedPointId,
+                  port.PortName,
+                  port.PortType,
+                  port.PortStatus || "AVAILABLE",
+                  port.PortTypeOfKwh,
+                  port.PortTypePrice
                 );
-                res.success ? toast.success("Thêm Port thành công") : toast.error(res.message);
-                loadPorts(selectedPointId);
+                if (res.success) {
+                  toast.success("Thêm Port thành công");
+                  loadPorts(selectedPointId);
+                } else {
+                  toast.error(res.message);
+                }
               } catch {
                 toast.error("Lỗi thêm Port");
               }
             }}
 
-            onEdit={async (port) => {
+            onEdit={async (port: {
+              PortId: number;
+              PointId: number;
+              PortName: string;
+              PortType: string;
+              PortStatus: string;
+              PortTypeOfKwh?: number;
+              PortTypePrice?: number;
+            }) => {
               try {
+                if (!port.PortName || !port.PortType) {
+                  toast.warning("Vui lòng điền đầy đủ thông tin Port!");
+                  return;
+                }
                 const res = await adminService.updatePort(
                   port.PortId,
                   port.PortName,
                   port.PortType,
-                  port.PortStatus
+                  port.PortStatus,
+                  port.PortTypeOfKwh || 0,
+                  port.PortTypePrice || 0
                 );
-                res.success ? toast.success("Cập nhật Port thành công") : toast.error(res.message);
-                loadPorts(selectedPointId);
+                if (res.success) {
+                  toast.success("Cập nhật Port thành công");
+                  loadPorts(selectedPointId);
+                } else {
+                  toast.error(res.message);
+                }
               } catch {
                 toast.error("Lỗi cập nhật Port");
               }
             }}
 
-            onDelete={async (id) => {
+            onDelete={async (id: number) => {
               try {
                 const res = await adminService.deletePort(id);
-                res.success ? toast.success("Xóa Port thành công") : toast.error(res.message);
-                loadPorts(selectedPointId);
+                if (res.success) {
+                  toast.success("Xóa Port thành công");
+                  loadPorts(selectedPointId);
+                } else {
+                  toast.error(res.message);
+                }
               } catch {
                 toast.error("Lỗi xóa Port");
               }

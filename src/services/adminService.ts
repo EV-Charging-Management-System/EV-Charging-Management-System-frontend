@@ -193,9 +193,23 @@ export const adminService = {
   },
 
   // ➕ Tạo Port
-  async createPort(pointId: number, portName: string, portType: string, portStatus: string) {
+  async createPort(
+    pointId: number, 
+    portName: string, 
+    portType: string, 
+    portStatus: string,
+    portTypeOfKwh: number,
+    portTypePrice: number
+  ) {
     try {
-      const payload = { pointId, portName, portType, portStatus };
+      const payload = { 
+        pointId, 
+        portName, 
+        portType, 
+        portStatus,
+        portTypeOfKwh,
+        portTypePrice
+      };
       const res = await apiClient.post("/admin/createPort", payload);
       return {
         success: res.data?.success ?? res.status === 201,
@@ -209,9 +223,23 @@ export const adminService = {
   },
 
   // ✏️ Cập nhật Port
-  async updatePort(portId: number, portName: string, portType: string, portStatus: string) {
+  async updatePort(
+    portId: number, 
+    portName: string, 
+    portType: string, 
+    portStatus: string,
+    portTypeOfKwh: number,
+    portTypePrice: number
+  ) {
     try {
-      const payload = { portId, portName, portType, portStatus };
+      const payload = { 
+        portId, 
+        portName, 
+        portType, 
+        portStatus,
+        portTypeOfKwh,
+        portTypePrice
+      };
       const res = await apiClient.put("/admin/updatePort", payload);
       return {
         success: res.data?.success ?? res.status === 200,

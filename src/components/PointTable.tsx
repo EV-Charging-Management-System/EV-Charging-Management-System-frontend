@@ -13,7 +13,7 @@ interface PointTableProps {
   points: Point[];
   stationId: number;
   stationName?: string;
-  onAdd: (point: Partial<Point>) => Promise<void>;
+  onAdd: (numberOfPort: number) => Promise<void>;
   onEdit: (point: Point) => Promise<void>;
   onDelete: (id: number) => Promise<void>;
   onViewPorts: (pointId: number) => void;
@@ -78,10 +78,7 @@ const PointTable: React.FC<PointTableProps> = ({
       });
     } else {
       // Thêm mới Point
-      await onAdd({
-        StationId: stationId,
-        NumberOfPort: formData.numberOfPort,
-      });
+      await onAdd(formData.numberOfPort);
     }
 
     setShowModal(false);
