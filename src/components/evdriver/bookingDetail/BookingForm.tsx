@@ -14,7 +14,7 @@ interface BookingFormProps {
 }
 
 /**
- * Component form đặt lịch sạc
+ * Charging Booking Form Component
  */
 export const BookingForm: React.FC<BookingFormProps> = ({
   formData,
@@ -30,15 +30,15 @@ export const BookingForm: React.FC<BookingFormProps> = ({
   return (
     <div className='form-section'>
       <form className='booking-form' onSubmit={onSubmit}>
-        <h2>Đặt Lịch Sạc</h2>
+        <h2>Book Charging Session</h2>
 
-        <label>Họ và tên</label>
+        <label>Full Name</label>
         <input type='text' value={formData.name} readOnly />
 
         <label>Email</label>
         <input type='email' value={formData.email} readOnly />
 
-        <label>Hãng xe</label>
+        <label>Vehicle Brand</label>
         <select
           value={formData.vehicleId}
           onChange={(e) => {
@@ -52,8 +52,13 @@ export const BookingForm: React.FC<BookingFormProps> = ({
           disabled={vehiclesLoading}
         >
           <option value=''>
-            {vehiclesLoading ? 'Đang tải...' : vehicles.length === 0 ? 'Không có xe nào' : 'Chọn hãng xe'}
+            {vehiclesLoading
+              ? 'Loading...'
+              : vehicles.length === 0
+              ? 'No vehicles available'
+              : 'Select vehicle brand'}
           </option>
+
           {vehicles.map((vehicle) => (
             <option key={vehicle.VehicleId} value={vehicle.VehicleId}>
               {vehicle.VehicleName} - {vehicle.VehicleType} ({vehicle.LicensePlate})
@@ -61,7 +66,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
           ))}
         </select>
 
-        <label>Giờ đến sạc</label>
+        <label>Charging Time</label>
         <input
           type='time'
           value={formData.time}
@@ -69,9 +74,9 @@ export const BookingForm: React.FC<BookingFormProps> = ({
           required
         />
 
-        <label>Cổng sạc</label>
+        <label>Charging Port</label>
         <select value={selectedPortId ?? ''} onChange={(e) => onPortChange(Number(e.target.value))} required>
-          <option value=''>Chọn port</option>
+          <option value=''>Select port</option>
           {ports.map((pt: Port) => {
             const id = pt.PortId ?? pt.PortId
             const type = pt.PortType ?? pt.PortType
@@ -102,7 +107,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
               marginBottom: '8px'
             }}
           >
-            Giá đặt cọc
+            Deposit Fee
           </label>
           <div
             style={{
@@ -117,7 +122,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
 
         <div className='form-buttons'>
           <button type='submit' className='submit-btn' disabled={payLoading}>
-            {payLoading ? 'Đang xử lý...' : 'Thanh toán'}
+            {payLoading ? 'Processing...' : 'Pay Now'}
           </button>
         </div>
       </form>

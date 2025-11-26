@@ -23,7 +23,7 @@ export const StationInfoWindow: React.FC<StationInfoWindowProps> = ({ station, o
           Số trống: {station.empty}/{station.total}
         </p>
         <button className='detail-btn' onClick={() => navigate(`/booking-detail/${station.id}`)}>
-          Xem Chi Tiết & Đặt Lịch
+          View & Book
         </button>
       </div>
     </InfoWindow>

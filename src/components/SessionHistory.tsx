@@ -21,7 +21,7 @@ const SessionHistory: React.FC<Props> = ({ companyId }) => {
           setSessions([]);
         }
       } catch (err) {
-        console.error("❌ Lỗi tải lịch sử sạc:", err);
+        console.error("❌ Error loading charging history:", err);
         setSessions([]);
       } finally {
         setLoading(false);
@@ -31,26 +31,26 @@ const SessionHistory: React.FC<Props> = ({ companyId }) => {
     fetchData();
   }, [companyId]);
 
-  if (loading) return <p>Đang tải dữ liệu...</p>;
+  if (loading) return <p>Loading data...</p>;
 
   if (!sessions.length)
-    return <p>⚠️ Chưa có lịch sử sạc nào cho công ty này.</p>;
+    return <p>⚠️ No charging history found for this company.</p>;
 
   return (
     <div className="session-history">
-      <h3>⚡ Lịch Sử Sạc Của Công Ty #{companyId}</h3>
+      <h3>⚡ Charging History for Company #{companyId}</h3>
 
       <table className="session-table">
         <thead>
           <tr>
-            <th>Mã phiên</th>
-            <th>Biển số</th>
-            <th>Tên xe</th>
-            <th>Bắt đầu</th>
-            <th>Kết thúc</th>
-            <th>Thời lượng (phút)</th>
-            <th>Trạng thái</th>
-            <th>Tổng tiền (VNĐ)</th>
+            <th>Session ID</th>
+            <th>License Plate</th>
+            <th>Vehicle Name</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Duration (minutes)</th>
+            <th>Status</th>
+            <th>Total Cost (VND)</th>
           </tr>
         </thead>
 

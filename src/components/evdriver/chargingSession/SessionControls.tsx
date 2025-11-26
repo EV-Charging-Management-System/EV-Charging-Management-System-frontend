@@ -15,17 +15,17 @@ export const SessionControls: React.FC<SessionControlsProps> = ({ isCharging, fi
     <div className='charging-actions'>
       {!isCharging && !finished && (
         <button className='start-btn' onClick={onStart}>
-          ⚡ Sạc
+          ⚡ Charge
         </button>
       )}
 
       {isCharging && !finished && (
         <button className='stop-btn' onClick={onStop}>
-          ⏹️ Dừng phiên sạc
+          ⏹️ Stop Charging Session
         </button>
       )}
 
-      {finished && <span className='finished-text'>✅ Đã sạc xong</span>}
+      {finished && <span className='finished-text'>✅ Charging Completed</span>}
     </div>
   )
 }

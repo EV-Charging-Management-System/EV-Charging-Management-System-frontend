@@ -17,9 +17,9 @@ export const StationList: React.FC<StationListProps> = ({ stations, activeStatio
 
   return (
     <div className='station-list-section'>
-      <h2 className='station-header'>Trạm Sạc Gần Bạn</h2>
+      <h2 className='station-header'>Nearby Charging Stations</h2>
       <button className='location-btn' onClick={() => navigate('/charging-schedule')}>
-        📍 Xem Lịch Đặt
+        📍 View Booking Schedule
       </button>
 
       <div className='station-scroll'>

@@ -26,90 +26,88 @@ const PremiumPremium = () => {
   const isCurrentPackage = membership?.PackageId === premiumId;
 
   // ===== QUY ĐỊNH NỘI DUNG CHI TIẾT THEO GÓI =====
- // ===== QUY ĐỊNH NỘI DUNG CHI TIẾT THEO GÓI =====
-const packageInfo: any = {
-  2: {
-    title: "Premium 1 tháng",
-    price: "299,000 VND",
-    benefits: [
-      "⚡ Truy cập hệ thống trạm sạc Premium",
-      "⭐ Hỗ trợ ưu tiên 24/7",
-      "🚘 Nhận thông báo sớm",
-      "🎟️ Voucher 10.000đ",
-    ],
-  },
-  3: {
-    title: "Premium 3 tháng",
-    price: "749,000 VND",
-    benefits: [
-      "⚡ Full Premium benefits",
-      "🎁 Thưởng thêm 5% ưu đãi",
-      "🔔 Nhắc nhở gia hạn sớm",
-      "🚘 Ưu tiên hỗ trợ 24/7",
-      "🎟️ Voucher 20.000đ",
-    ],
-  },
-  4: {
-    title: "Premium 6 tháng",
-    price: "1,399,000 VND",
-    benefits: [
-      "⚡ Quyền lợi đầy đủ",
-      "🎁 Tặng voucher 50.000đ",
-      "💰 Tiết kiệm hơn 10%",
-      "🚘 Hỗ trợ ưu tiên 24/7",
-    ],
-  },
-  5: {
-    title: "Premium 12 tháng",
-    price: "2,599,000 VND",
-    benefits: [
-      "⚡ Quyền lợi đầy đủ nhất",
-      "💎 Giảm thêm 10% khi gia hạn",
-      "🎉 Có quà tặng sinh nhật",
-      "🎟️ Voucher 100.000đ",
-      "🚘 Hỗ trợ 24/7",
-    ],
-  },
-};
-
+  const packageInfo: any = {
+    2: {
+      title: "Premium 1 Month",
+      price: "299,000 VND",
+      benefits: [
+        "⚡ Access to Premium charging network",
+        "⭐ 24/7 priority support",
+        "🚘 Early notifications",
+        "🎟️ Voucher 10,000đ",
+      ],
+    },
+    3: {
+      title: "Premium 3 Months",
+      price: "749,000 VND",
+      benefits: [
+        "⚡ Full Premium benefits",
+        "🎁 Extra 5% reward discount",
+        "🔔 Early renewal reminders",
+        "🚘 24/7 priority support",
+        "🎟️ Voucher 20,000đ",
+      ],
+    },
+    4: {
+      title: "Premium 6 Months",
+      price: "1,399,000 VND",
+      benefits: [
+        "⚡ Full benefits",
+        "🎁 Free 50,000đ voucher",
+        "💰 Save over 10%",
+        "🚘 Priority support 24/7",
+      ],
+    },
+    5: {
+      title: "Premium 12 Months",
+      price: "2,599,000 VND",
+      benefits: [
+        "⚡ Most complete Premium benefits",
+        "💎 Additional 10% renewal discount",
+        "🎉 Birthday gift included",
+        "🎟️ Voucher 100,000đ",
+        "🚘 24/7 support",
+      ],
+    },
+  };
 
   const pkg = packageInfo[premiumId] || null;
 
-  // ========== NẾU ĐÃ MUA GÓI HIỆN TẠI ==========
+  // ========== IF USER ALREADY OWNS THIS PACKAGE ==========
   if (hasPremium && isCurrentPackage) {
     return (
       <div className="premium-modal">
-        <h3>✅ Bạn đã mua gói này</h3>
+        <h3>✅ You already own this package</h3>
         <p>
-          Hiệu lực: {new Date(membership.StartDate).toLocaleDateString()} →{" "}
+          Valid from: {new Date(membership.StartDate).toLocaleDateString()} →{" "}
           {new Date(membership.ExpireDate).toLocaleDateString()}
         </p>
 
         <button className="back-btn-bottom" onClick={() => navigate("/premium")}>
-          ← Quay lại
+          ← Back
         </button>
       </div>
     );
   }
 
-  // =========== NẾU ĐANG DÙNG GÓI KHÁC ============
+  // =========== IF USER OWNS A DIFFERENT PACKAGE ============
   if (hasPremium && !isCurrentPackage) {
     return (
       <div className="premium-modal">
-        <h3>⚠ Bạn đang sử dụng một gói Premium khác</h3>
+        <h3>⚠ You are currently using another Premium package</h3>
         <button className="back-btn-bottom" onClick={() => navigate("/premium")}>
-          ← Quay lại
+          ← Back
         </button>
       </div>
     );
   }
 
-  // ========== NẾU CHƯA MUA PREMIUM ==========
+  // ========== IF USER HAS NOT PURCHASED PREMIUM ==========
   const handlePay = async () => {
     const payload = {
       PackageId: premiumId,
       StartDate: new Date().toISOString().split("T")[0],
-      DurationMonth: premiumId.toString(), // Giống gói
+      DurationMonth: premiumId.toString(),
     };
 
     const res = await premiumService.createSubscription(payload);
@@ -120,12 +118,12 @@ const packageInfo: any = {
 
   return (
     <div className="premium-modal">
-      <h2 className="modal-title">Bạn đã chọn: {pkg?.title}</h2>
+      <h2 className="modal-title">You selected: {pkg?.title}</h2>
 
       <div className="modal-box">
-        <p className="modal-price">💵 Giá: {pkg?.price}</p>
+        <p className="modal-price">💵 Price: {pkg?.price}</p>
 
-        <p className="modal-benefit-title">🎁 Quyền lợi gói này:</p>
+        <p className="modal-benefit-title">🎁 Package Benefits:</p>
         <ul className="modal-benefit-list">
           {pkg?.benefits?.map((b: string, i: number) => (
             <li key={i}>{b}</li>
@@ -134,11 +132,11 @@ const packageInfo: any = {
       </div>
 
       <button className="confirm-btn" onClick={handlePay}>
-        Xác nhận & Thanh toán
+        Confirm & Pay
       </button>
 
       <button className="back-btn-bottom" onClick={() => navigate("/premium")}>
-        ← Quay lại
+        ← Back
       </button>
     </div>
   );

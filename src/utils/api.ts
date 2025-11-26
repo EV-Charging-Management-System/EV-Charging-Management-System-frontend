@@ -75,7 +75,7 @@ apiClient.interceptors.response.use(
         const { accessToken } = data;
         if (!accessToken) throw new Error("Không nhận được accessToken mới");
 
-        // ✅ Lưu token mới
+        // Lưu token mới
         localStorage.setItem("accessToken", accessToken);
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
 
@@ -90,12 +90,12 @@ apiClient.interceptors.response.use(
       }
     }
 
-    // 🚫 Các lỗi khác
+    // Các lỗi khác
     return Promise.reject(error);
   }
 );
 
 /* ======================================================
-   📦 Export mặc định
+  Export mặc định
    ====================================================== */
 export default apiClient;

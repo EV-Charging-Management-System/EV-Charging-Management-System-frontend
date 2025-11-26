@@ -52,7 +52,7 @@ const AdminDashboard: React.FC = () => {
     try {
       setStats(await adminService.getDashboardStats());
     } catch {
-      toast.error("Lỗi tải dashboard");
+      toast.error("Failed to load dashboard");
     }
   };
 
@@ -124,7 +124,7 @@ const AdminDashboard: React.FC = () => {
 
         <header className="admin-header">
           <div>
-            <h1>📊 Bảng điều khiển quản trị viên</h1>
+            <h1>📊 Admin Dashboard</h1>
             <p>Optimizing your journey, powering your life</p>
           </div>
           <ProfileAdmin />
@@ -149,7 +149,7 @@ const AdminDashboard: React.FC = () => {
                 res.success ? toast.success(res.message) : toast.error(res.message);
                 await loadUsers();
               } catch {
-                toast.error("Lỗi khi thêm tài khoản!");
+                toast.error("Error adding account!");
               }
             }}
 
@@ -160,7 +160,7 @@ const AdminDashboard: React.FC = () => {
                 res.success ? toast.success(res.message) : toast.error(res.message);
                 await loadUsers();
               } catch {
-                toast.error("Lỗi khi cập nhật tài khoản!");
+                toast.error("Error updating account!");
               }
             }}
 
@@ -171,7 +171,7 @@ const AdminDashboard: React.FC = () => {
                 res.success ? toast.success(res.message) : toast.error(res.message);
                 await loadUsers();
               } catch {
-                toast.error("Lỗi khi xóa tài khoản!");
+                toast.error("Error deleting account!");
               }
             }}
           />
@@ -198,10 +198,10 @@ const AdminDashboard: React.FC = () => {
             onDelete={async (id: number) => {
               try {
                 const res = await adminService.deleteStation(id);
-                res.success ? toast.success("Xóa thành công") : toast.error(res.message);
+                res.success ? toast.success("Delete successful") : toast.error(res.message);
                 loadStations();
               } catch {
-                toast.error("Lỗi xóa trạm");
+                toast.error("Error deleting station");
               }
             }}
             onViewPoints={(stationId: number, name: string) => {
@@ -222,18 +222,18 @@ const AdminDashboard: React.FC = () => {
             onAdd={async (numPorts: number) => {
               try {
                 if (numPorts <= 0) {
-                  toast.warning("Số lượng port phải lớn hơn 0!");
+                  toast.warning("Number of ports must be greater than 0!");
                   return;
                 }
                 const res = await adminService.createPoint(selectedStationId, numPorts);
                 if (res.success) {
-                  toast.success("Tạo Point thành công");
+                  toast.success("Point created successfully");
                   loadPoints(selectedStationId);
                 } else {
                   toast.error(res.message);
                 }
               } catch {
-                toast.error("Lỗi tạo Point");
+                toast.error("Error creating Point");
               }
             }}
 
@@ -245,20 +245,20 @@ const AdminDashboard: React.FC = () => {
                   point.ChargingPointStatus
                 );
 
-                res.success ? toast.success("Cập nhật thành công") : toast.error(res.message);
+                res.success ? toast.success("Update successful") : toast.error(res.message);
                 loadPoints(selectedStationId);
               } catch {
-                toast.error("Lỗi cập nhật Point");
+                toast.error("Error updating Point");
               }
             }}
 
             onDelete={async (id) => {
               try {
                 const res = await adminService.deletePoint(id);
-                res.success ? toast.success("Xóa thành công") : toast.error(res.message);
+                res.success ? toast.success("Delete successful") : toast.error(res.message);
                 loadPoints(selectedStationId);
               } catch {
-                toast.error("Không xóa được Point");
+                toast.error("Cannot delete Point");
               }
             }}
 
@@ -290,11 +290,11 @@ const AdminDashboard: React.FC = () => {
             }) => {
               try {
                 if (!port.PortName || !port.PortType) {
-                  toast.warning("Vui lòng điền đầy đủ thông tin Port!");
+                  toast.warning("Please fill in all Port information!");
                   return;
                 }
                 if (port.PortTypeOfKwh <= 0) {
-                  toast.warning("Công suất phải lớn hơn 0!");
+                  toast.warning("Power must be greater than 0!");
                   return;
                 }
                 const res = await adminService.createPort(
@@ -306,13 +306,13 @@ const AdminDashboard: React.FC = () => {
                   port.PortTypePrice
                 );
                 if (res.success) {
-                  toast.success("Thêm Port thành công");
+                  toast.success("Port added successfully");
                   loadPorts(selectedPointId);
                 } else {
                   toast.error(res.message);
                 }
               } catch {
-                toast.error("Lỗi thêm Port");
+                toast.error("Error adding Port");
               }
             }}
 
@@ -327,7 +327,7 @@ const AdminDashboard: React.FC = () => {
             }) => {
               try {
                 if (!port.PortName || !port.PortType) {
-                  toast.warning("Vui lòng điền đầy đủ thông tin Port!");
+                  toast.warning("Please fill in all Port information!");
                   return;
                 }
                 const res = await adminService.updatePort(
@@ -339,13 +339,13 @@ const AdminDashboard: React.FC = () => {
                   port.PortTypePrice || 0
                 );
                 if (res.success) {
-                  toast.success("Cập nhật Port thành công");
+                  toast.success("Port updated successfully");
                   loadPorts(selectedPointId);
                 } else {
                   toast.error(res.message);
                 }
               } catch {
-                toast.error("Lỗi cập nhật Port");
+                toast.error("Error updating Port");
               }
             }}
 
@@ -353,13 +353,13 @@ const AdminDashboard: React.FC = () => {
               try {
                 const res = await adminService.deletePort(id);
                 if (res.success) {
-                  toast.success("Xóa Port thành công");
+                  toast.success("Port deleted successfully");
                   loadPorts(selectedPointId);
                 } else {
                   toast.error(res.message);
                 }
               } catch {
-                toast.error("Lỗi xóa Port");
+                toast.error("Error deleting Port");
               }
             }}
 

@@ -8,13 +8,13 @@ const VehicleManager: React.FC = () => {
   const [brand, setBrand] = useState("");
   const [model, setModel] = useState("");
 
-  // 🔹 Load danh sách xe
+  // 🔹 Load vehicle list
   const fetchVehicles = async () => {
     try {
       const res = await businessService.getVehicles();
       setVehicles(res?.data || []);
     } catch (err) {
-      toast.error("Không thể tải danh sách xe!");
+      toast.error("Unable to load vehicle list!");
     }
   };
 
@@ -22,12 +22,12 @@ const VehicleManager: React.FC = () => {
     fetchVehicles();
   }, []);
 
-  // 🔹 Thêm xe
+  // 🔹 Add vehicle
   const handleAddVehicle = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!licensePlate.trim() || !brand.trim() || !model.trim()) {
-      toast.warn("⚠️ Vui lòng nhập đầy đủ thông tin xe!");
+      toast.warn("⚠️ Please fill in all vehicle information!");
       return;
     }
 
@@ -41,47 +41,48 @@ const VehicleManager: React.FC = () => {
       const res = await businessService.addVehicle(payload);
 
       if (res?.message?.toLowerCase()?.includes("success")) {
-        toast.success("✅ Thêm xe thành công!");
+        toast.success("✅ Vehicle added successfully!");
         setLicensePlate("");
         setBrand("");
         setModel("");
         fetchVehicles();
       } else {
-        toast.error(res?.message || "Không thể thêm xe!");
+        toast.error(res?.message || "Unable to add vehicle!");
       }
     } catch (err) {
-      toast.error("Lỗi khi thêm xe!");
+      toast.error("Error adding vehicle!");
     }
   };
 
-  // 🔹 Xóa xe
+  // 🔹 Delete vehicle
   const handleDeleteVehicle = async (plate: string) => {
-    if (!window.confirm(`Bạn có chắc muốn xoá xe ${plate}?`)) return;
+    if (!window.confirm(`Are you sure you want to delete vehicle ${plate}?`))
+      return;
 
     try {
       const res = await businessService.deleteVehicleByPlate(plate);
       if (res?.message?.toLowerCase()?.includes("success")) {
-        toast.info(`🗑️ Xe ${plate} đã được xoá.`);
+        toast.info(`🗑️ Vehicle ${plate} has been deleted.`);
         fetchVehicles();
       } else {
-        toast.error(res?.message || "Không thể xoá xe.");
+        toast.error(res?.message || "Unable to delete vehicle.");
       }
     } catch {
-      toast.error("Lỗi xoá xe!");
+      toast.error("Error deleting vehicle!");
     }
   };
 
   return (
     <div className="vehicle-manager fade-in">
-      <h2 className="section-title">🚗 Quản Lý Xe Doanh Nghiệp</h2>
+      <h2 className="section-title">🚗 Business Vehicle Management</h2>
 
-      {/* Form thêm xe – layout 2 cột giống EVDriver */}
+      {/* Vehicle Form – 2-column layout */}
       <form className="add-vehicle-form" onSubmit={handleAddVehicle}>
         <div className="vehicle-row">
           <input
             type="text"
             className="vehicle-input"
-            placeholder="Biển số xe (VD: 51A-123.45)"
+            placeholder="License Plate (e.g., 51A-123.45)"
             value={licensePlate}
             onChange={(e) => setLicensePlate(e.target.value)}
           />
@@ -89,7 +90,7 @@ const VehicleManager: React.FC = () => {
           <input
             type="text"
             className="vehicle-input"
-            placeholder="Loại Xe (VD: VinFast, Toyota, Tesla)"
+            placeholder="Brand (e.g., VinFast, Toyota, Tesla)"
             value={brand}
             onChange={(e) => setBrand(e.target.value)}
           />
@@ -99,31 +100,31 @@ const VehicleManager: React.FC = () => {
           <input
             type="text"
             className="vehicle-input"
-            placeholder="Tên xe (VD: VF8, Vios, Model 3)"
+            placeholder="Model (e.g., VF8, Vios, Model 3)"
             value={model}
             onChange={(e) => setModel(e.target.value)}
           />
 
-          {/* Slot trống để cân 2 cột */}
+          {/* Blank slot for alignment */}
           <div style={{ flex: 1 }}></div>
         </div>
 
         <button type="submit" className="btn-premium">
-          ➕ Thêm Xe
+          ➕ Add Vehicle
         </button>
       </form>
 
-      {/* DANH SÁCH XE */}
+      {/* VEHICLE LIST */}
       {vehicles.length === 0 ? (
-        <p className="empty-text">Chưa có xe nào được đăng ký.</p>
+        <p className="empty-text">No vehicles registered yet.</p>
       ) : (
         <table className="vehicle-table">
           <thead>
             <tr>
-              <th>Biển Số</th>
-              <th>Tên Xe</th>
-              <th>Loại Xe</th>
-              <th>Thao Tác</th>
+              <th>License Plate</th>
+              <th>Vehicle Name</th>
+              <th>Type</th>
+              <th>Actions</th>
             </tr>
           </thead>
 
@@ -131,7 +132,6 @@ const VehicleManager: React.FC = () => {
             {vehicles.map((v) => {
               const rawName = v.VehicleName || v.vehicleName || "";
 
-              // ❗ XÓA “car ” | “bike ” | “truck ”
               const cleanName = rawName
                 .replace(/^car\s+/i, "")
                 .replace(/^bike\s+/i, "")
@@ -150,7 +150,7 @@ const VehicleManager: React.FC = () => {
                         handleDeleteVehicle(v.LicensePlate || v.licensePlate)
                       }
                     >
-                      🗑️ Xoá
+                      🗑️ Delete
                     </button>
                   </td>
                 </tr>

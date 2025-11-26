@@ -36,10 +36,10 @@ export const StationCard: React.FC<StationCardProps> = ({ station, isActive, onM
 
       <div className='station-footer'>
         <span className='empty-count'>
-          {station.empty}/{station.total} trống
+          {station.empty}/{station.total} Available
         </span>
         <button className='detail-btn' onClick={() => navigate(`/booking-detail/${station.id}`)}>
-          Xem Chi Tiết & Đặt Lịch
+         View & Book
         </button>
       </div>
     </div>

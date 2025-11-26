@@ -9,10 +9,10 @@ const PremiumBusiness: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [showForm, setShowForm] = useState(false);
 
-  // Điều kiện
+  // Conditions
   const isBusiness = user?.roleName?.toUpperCase() === "BUSINESS";
   const isPending = (user?.status || "").toUpperCase() === "PENDING";
-  const hasCompany = !!user?.companyId; // user.companyId != null
+  const hasCompany = !!user?.companyId;
 
   useEffect(() => {
     authService.getProfile({ noCache: true }).then((u) => setUser(u));
@@ -22,49 +22,49 @@ const PremiumBusiness: React.FC = () => {
     <>
       <div className="business-card">
         
-        {/* CASE 1: ĐÃ LÀ DOANH NGHIỆP */}
+        {/* CASE 1: Already a Business Account */}
         {isBusiness ? (
-          <h3 className="business-title">💼 Bạn đã là tài khoản doanh nghiệp</h3>
+          <h3 className="business-title">💼 You are already a Business Account</h3>
         ) :
 
-        /* CASE 2: YÊU CẦU ĐANG CHỜ ADMIN DUYỆT */
+        /* CASE 2: Request Pending Approval */
         isPending ? (
-          <h3 className="business-title">🕓 Yêu cầu đang chờ admin duyệt</h3>
+          <h3 className="business-title">🕓 Your request is pending admin approval</h3>
         ) :
 
-        /* CASE 3: ĐÃ CÓ COMPANY ID → KHÔNG CHO GỬI */
+        /* CASE 3: Company profile exists */
         hasCompany ? (
-          <h3 className="business-title">🏢 Bạn đã có hồ sơ doanh nghiệp</h3>
+          <h3 className="business-title">🏢 You already have a business profile</h3>
         ) : (
           <>
-            {/* CASE 4: CHƯA ĐĂNG KÝ → CHO GỬI */}
+            {/* CASE 4: Not Registered → Can Submit Request */}
             <i className="business-icon">🏢</i>
-            <h2 className="business-title">Đăng Ký Tài Khoản Doanh Nghiệp</h2>
+            <h2 className="business-title">Register Business Account</h2>
 
             <p className="business-desc">
-              Tài khoản doanh nghiệp cho phép bạn sử dụng toàn bộ tính năng nâng cao.
+              A Business Account allows you to access all advanced system features.
             </p>
 
             <ul className="business-intro-list">
-              <li>Quản lý trạm sạc của riêng bạn</li>
-              <li>Thêm & quản lý nhân viên</li>
-              <li>Xem báo cáo doanh thu theo thời gian thực</li>
-              <li>Ưu tiên hỗ trợ từ hệ thống</li>
+              <li>Manage your own charging stations</li>
+              <li>Add & manage staff members</li>
+              <li>View real-time revenue reports</li>
+              <li>Receive priority system support</li>
             </ul>
 
             <button className="btn-main" onClick={() => setShowForm(true)}>
-              Gửi yêu cầu nâng cấp
+              Submit Upgrade Request
             </button>
           </>
         )}
 
-        {/* NÚT QUAY LẠI */}
+        {/* BACK BUTTON */}
         <button className="btn-back" onClick={() => navigate("/premium")}>
-          ← Quay lại
+          ← Back
         </button>
       </div>
 
-      {/* MODAL  */}
+      {/* MODAL */}
       {showForm && <PremiumBusinessForm onClose={() => setShowForm(false)} />}
     </>
   );

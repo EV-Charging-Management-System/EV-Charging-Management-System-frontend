@@ -25,7 +25,7 @@ const PremiumCard: React.FC<PremiumCardProps> = ({ title, price, benefits, packa
         className="buy-btn"
         onClick={() => navigate(`/premium/plan-premium?id=${packageId}`)}
       >
-        Chọn gói
+        Select Package
       </button>
     </div>
   );

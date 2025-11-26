@@ -12,7 +12,7 @@ const Payment: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [payingInvoiceId, setPayingInvoiceId] = useState<number | null>(null);
 
-  // ✅ Lấy danh sách Invoice khi component mount
+  // ✅ Fetch invoice list on mount
   useEffect(() => {
     fetchInvoices();
   }, []);
@@ -24,45 +24,42 @@ const Payment: React.FC = () => {
       const data = await paymentService.getInvoices();
       setInvoices(data);
     } catch (err: any) {
-      console.error("[Payment] Lỗi tải invoice:", err);
-      setError(err.message || "Không thể tải danh sách hóa đơn");
+      console.error("[Payment] Error loading invoices:", err);
+      setError(err.message || "Unable to load invoices");
     } finally {
       setLoading(false);
     }
   };
 
-  // ✅ Xử lý thanh toán Invoice với VNPay
+  // ✅ VNPay invoice payment handler
   const handlePayInvoice = async (invoice: Invoice) => {
     if (!invoice || payingInvoiceId) return;
 
     setPayingInvoiceId(invoice.InvoiceId);
 
     try {
-      // Tạo URL thanh toán VNPay
       const vnpayRes = await paymentService.createVnpayInvoice({
         invoiceId: invoice.InvoiceId,
-        orderInfo: `Thanh toán hóa đơn #${invoice.InvoiceId}`,
+        orderInfo: `Payment for invoice #${invoice.InvoiceId}`,
       });
 
       if (vnpayRes?.success && vnpayRes?.data?.url) {
-        // Lưu thông tin để xử lý sau khi thanh toán thành công
         localStorage.setItem("payingInvoiceId", invoice.InvoiceId.toString());
-        localStorage.setItem("paymentType", "invoice"); // ✅ Thêm type để phân biệt
+        localStorage.setItem("paymentType", "invoice");
 
-        // Chuyển hướng đến VNPay
         console.log("🔄 Redirecting to VNPay:", vnpayRes.data.url);
         window.location.href = vnpayRes.data.url;
       } else {
-        throw new Error("Không nhận được URL thanh toán từ VNPay");
+        throw new Error("No payment URL received from VNPay");
       }
     } catch (err: any) {
-      console.error("[Payment] Lỗi thanh toán:", err);
-      alert(`❌ ${err.message || "Không thể thanh toán hóa đơn"}`);
+      console.error("[Payment] Payment error:", err);
+      alert(`❌ ${err.message || "Unable to proceed with payment"}`);
       setPayingInvoiceId(null);
     }
   };
 
-  // ✅ Format số tiền
+  // ✅ Format amount
   const formatAmount = (amount: number) => {
     return amount.toLocaleString("vi-VN", {
       style: "currency",
@@ -70,13 +67,13 @@ const Payment: React.FC = () => {
     });
   };
 
-  // ✅ Format ngày
+  // ✅ Format date
   const formatDate = (dateString: string | null) => {
     if (!dateString) return "—";
     return new Date(dateString).toLocaleDateString("vi-VN");
   };
 
-  // ✅ Icon trạng thái
+  // ✅ Status icon
   const getStatusIcon = (status: string) => {
     switch (status.toUpperCase()) {
       case "PAID":
@@ -88,15 +85,15 @@ const Payment: React.FC = () => {
     }
   };
 
-  // ✅ Badge trạng thái
+  // ✅ Status badge
   const getStatusBadge = (status: string) => {
-    const statusUpper = status.toUpperCase();
+    const upper = status.toUpperCase();
     const colors = {
       PAID: "status-paid",
       PENDING: "status-pending",
       FAILED: "status-failed",
     };
-    return colors[statusUpper as keyof typeof colors] || "status-pending";
+    return colors[upper as keyof typeof colors] || "status-pending";
   };
 
   return (
@@ -108,31 +105,31 @@ const Payment: React.FC = () => {
         <div className="invoice-header">
           <h1 className="page-title">
             <FileText size={36} style={{ marginRight: "10px", verticalAlign: "middle" }} />
-            Danh Sách Hóa Đơn
+            Invoice List
           </h1>
           <p className="page-description">
-            Quản lý và thanh toán các hóa đơn sạc xe của bạn bằng VNPay một cách dễ dàng và an toàn.
+            Easily and securely manage and pay your EV charging invoices via VNPay.
           </p>
         </div>
 
-        {/* ===== DANH SÁCH HÓA ĐƠN ===== */}
+        {/* ===== INVOICE LIST ===== */}
         {loading ? (
           <div className="loading-container">
             <Loader2 className="spinner" size={50} />
-            <p>Đang tải hóa đơn...</p>
+            <p>Loading invoices...</p>
           </div>
         ) : error ? (
           <div className="error-container">
             <XCircle size={50} color="#ff6b6b" />
             <p>{error}</p>
             <button className="retry-btn" onClick={fetchInvoices}>
-              Thử lại
+              Retry
             </button>
           </div>
         ) : invoices.length === 0 ? (
           <div className="empty-container">
             <FileText size={60} color="#00ffcc" opacity={0.3} />
-            <p>Bạn chưa có hóa đơn nào</p>
+            <p>You have no invoices yet</p>
           </div>
         ) : (
           <div className="invoice-grid">
@@ -140,9 +137,9 @@ const Payment: React.FC = () => {
               <div key={invoice.InvoiceId} className="invoice-card">
                 <div className="invoice-header-info">
                   <div>
-                    <h3 className="invoice-id">Hóa đơn #{invoice.InvoiceId}</h3>
+                    <h3 className="invoice-id">Invoice #{invoice.InvoiceId}</h3>
                     <p className="invoice-date">
-                      Ngày tạo: {formatDate(invoice.CreatedAt)}
+                      Created: {formatDate(invoice.CreatedAt)}
                     </p>
                   </div>
                   <div className={`status-badge ${getStatusBadge(invoice.PaidStatus)}`}>
@@ -153,25 +150,29 @@ const Payment: React.FC = () => {
 
                 <div className="invoice-details">
                   <div className="detail-row">
-                    <span>Mã phiên:</span>
+                    <span>Session ID:</span>
                     <strong>#{invoice.SessionId}</strong>
                   </div>
+
                   {invoice.CompanyId && (
                     <div className="detail-row">
-                      <span>Công ty:</span>
+                      <span>Company:</span>
                       <strong>#{invoice.CompanyId}</strong>
                     </div>
                   )}
+
                   <div className="detail-row">
-                    <span>Tháng/Năm:</span>
+                    <span>Month/Year:</span>
                     <strong>{invoice.MonthYear || "—"}</strong>
                   </div>
+
                   <div className="detail-row amount-row">
-                    <span>Tổng tiền:</span>
+                    <span>Total Amount:</span>
                     <strong className="amount">{formatAmount(invoice.TotalAmount)}</strong>
                   </div>
                 </div>
 
+                {/* PAYMENT BUTTON */}
                 {invoice.PaidStatus.toUpperCase() === "PENDING" && (
                   <button
                     className="pay-btn"
@@ -181,21 +182,22 @@ const Payment: React.FC = () => {
                     {payingInvoiceId === invoice.InvoiceId ? (
                       <>
                         <Loader2 className="spinner" size={18} />
-                        Đang xử lý...
+                        Processing...
                       </>
                     ) : (
                       <>
                         <CreditCard size={18} />
-                        Thanh toán ngay
+                        Pay Now
                       </>
                     )}
                   </button>
                 )}
 
+                {/* PAID BADGE */}
                 {invoice.PaidStatus.toUpperCase() === "PAID" && (
                   <div className="paid-badge">
                     <CheckCircle size={18} />
-                    Đã thanh toán
+                    Paid
                   </div>
                 )}
               </div>

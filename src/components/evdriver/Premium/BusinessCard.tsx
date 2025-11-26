@@ -12,14 +12,14 @@ const BusinessCard: React.FC<BusinessCardProps> = ({ benefits }) => {
 
   return (
     <div className="premium-plan-card">
-      <h3>Tài Khoản Doanh Nghiệp</h3>
+      <h3>Business Account</h3>
 
       <ul className="benefits">
         {benefits.map((b, i) => <li key={i}>{b}</li>)}
       </ul>
 
       <button className="buy-btn" onClick={() => navigate("/premium/plan-business")}>
-        Nâng cấp ngay
+       Upgrade Your Account
       </button>
     </div>
   );

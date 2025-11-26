@@ -25,7 +25,7 @@ export const PointCard: React.FC<PointCardProps> = ({ point, isSelected, onSelec
       style={{ cursor: isAvailable ? 'pointer' : 'not-allowed' }}
     >
       <h4>#{point.PointId}</h4>
-      <p>{isAvailable ? 'Còn trống' : 'Đã đặt / Bảo trì'}</p>
+      <p>{isAvailable ? "Available" : "Booked / Maintenance"}</p>
     </div>
   )
 }
