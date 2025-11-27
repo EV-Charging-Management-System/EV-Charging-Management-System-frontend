@@ -75,13 +75,13 @@ const Header: React.FC = () => {
 
       const res = await authService.register(payload as any);
       const success = !!res?.success;
-      alert(success ? "✅ Đăng ký thành công!" : "❌ Đăng ký thất bại!");
+      alert(success ? "✅ Registration successful!" : "❌ Registration failed!");
       if (success) {
         closeRegister();
         navigate("/login");
       }
     } catch (err: any) {
-      alert(err?.response?.data?.message || "Đăng ký thất bại!");
+      alert(err?.response?.data?.message || "Registration failed!");
     } finally {
       setRegisterLoading(false);
     }
@@ -95,7 +95,7 @@ const Header: React.FC = () => {
       localStorage.clear();
       navigate("/login");
     } catch (err) {
-      alert("Đăng xuất thất bại!");
+      alert("Logout failed!");
     }
   };
 
@@ -130,7 +130,7 @@ const Header: React.FC = () => {
                 <Notification />
                 <ProfileUser />
                 <Button variant="danger" size="sm" onClick={handleLogout}>
-                  Đăng xuất
+                  Logout
                 </Button>
               </>
             ) : (
@@ -159,7 +159,7 @@ const Header: React.FC = () => {
         backdrop="static"
       >
         <Modal.Header closeButton className="bg-dark text-light">
-          <Modal.Title>Đăng ký tài khoản</Modal.Title>
+          <Modal.Title>Register Account</Modal.Title>
         </Modal.Header>
 
         <Modal.Body className="bg-dark text-light">
@@ -173,7 +173,7 @@ const Header: React.FC = () => {
                 name="Email"
                 value={registerForm.Email}
                 onChange={handleRegisterChange}
-                placeholder="Nhập địa chỉ email"
+                placeholder="Enter email address"
               />
               {registerErrors.Email && (
                 <div className="text-danger small mt-1">{registerErrors.Email}</div>
@@ -181,13 +181,13 @@ const Header: React.FC = () => {
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label>Họ và tên</Form.Label>
+              <Form.Label>Full Name</Form.Label>
               <Form.Control
                 type="text"
                 name="FullName"
                 value={registerForm.FullName}
                 onChange={handleRegisterChange}
-                placeholder="Nhập họ và tên"
+                placeholder="Enter full name"
               />
               {registerErrors.FullName && (
                 <div className="text-danger small mt-1">{registerErrors.FullName}</div>
@@ -197,13 +197,13 @@ const Header: React.FC = () => {
             <Row>
               <Col>
                 <Form.Group className="mb-3">
-                  <Form.Label>Mật khẩu</Form.Label>
+                  <Form.Label>Password</Form.Label>
                   <Form.Control
                     type="password"
                     name="PasswordHash"
                     value={registerForm.PasswordHash}
                     onChange={handleRegisterChange}
-                    placeholder="Tạo mật khẩu"
+                    placeholder="Create password"
                   />
                   {registerErrors.PasswordHash && (
                     <div className="text-danger small mt-1">{registerErrors.PasswordHash}</div>
@@ -213,13 +213,13 @@ const Header: React.FC = () => {
 
               <Col>
                 <Form.Group className="mb-3">
-                  <Form.Label>Xác nhận</Form.Label>
+                  <Form.Label>Confirm</Form.Label>
                   <Form.Control
                     type="password"
                     name="ConfirmPassword"
                     value={registerForm.ConfirmPassword}
                     onChange={handleRegisterChange}
-                    placeholder="Nhập lại mật khẩu"
+                    placeholder="Re-enter password"
                   />
                   {registerErrors.ConfirmPassword && (
                     <div className="text-danger small mt-1">{registerErrors.ConfirmPassword}</div>
@@ -245,10 +245,10 @@ const Header: React.FC = () => {
                       size="sm"
                       className="me-2"
                     />
-                    Đang đăng ký...
+                    Registering...
                   </>
                 ) : (
-                  "Đăng ký"
+                  "Register"
                 )}
               </Button>
             </div>

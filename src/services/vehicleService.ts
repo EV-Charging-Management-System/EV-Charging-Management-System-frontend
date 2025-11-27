@@ -9,7 +9,7 @@ export const vehicleService = {
       console.error("[vehicleService] ❌ getVehicles:", err);
       return {
         success: false,
-        message: err.response?.data?.message || "Không thể tải danh sách xe.",
+        message: err.response?.data?.message || "Cannot load vehicle list.",
       };
     }
   },
@@ -27,7 +27,7 @@ export const vehicleService = {
       console.error("[vehicleService] ❌ addVehicle:", err);
       return {
         success: false,
-        message: err.response?.data?.message || "Không thể đăng ký xe.",
+        message: err.response?.data?.message || "Cannot register vehicle.",
       };
     }
   },
@@ -36,7 +36,7 @@ export const vehicleService = {
     if (!licensePlate) throw new Error("License plate is required");
 
     try {
-      // API trả về thông tin Vehicle + User + Company
+      // API returns Vehicle + User + Company information
       const res = await apiClient.get(
         `/vehicle/lookup/company-by-plate?plate=${encodeURIComponent(licensePlate)}`
       );

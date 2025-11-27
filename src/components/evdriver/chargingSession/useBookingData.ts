@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import bookingService from '../../../services/bookingService'
 
 /**
- * Custom hook để fetch booking data
+ * Custom hook to fetch booking data
  */
 export const useBookingData = (bookingId?: number) => {
   const [bookingData, setBookingData] = useState<any>(null)
@@ -12,7 +12,7 @@ export const useBookingData = (bookingId?: number) => {
   useEffect(() => {
     const loadBookingData = async () => {
       if (!bookingId) {
-        console.warn('⚠️ Không có booking ID!')
+        console.warn('⚠️ No booking ID provided!')
         return
       }
 
@@ -23,8 +23,8 @@ export const useBookingData = (bookingId?: number) => {
         console.log('📦 [useBookingData] Booking data loaded:', res)
         setBookingData(res.data || res)
       } catch (err: any) {
-        console.error('❌ Không thể tải thông tin booking:', err)
-        setError(err?.message || 'Không thể tải thông tin booking')
+        console.error('❌ Unable to load booking information:', err)
+        setError(err?.message || 'Unable to load booking information')
       } finally {
         setLoading(false)
       }

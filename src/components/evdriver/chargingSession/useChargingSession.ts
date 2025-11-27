@@ -4,7 +4,7 @@ import chargingSessionService from '../../../services/chargingSessionService'
 import type { SessionState } from './types'
 
 /**
- * Custom hook quản lý toàn bộ logic charging session
+ * Custom hook to manage all charging session logic
  */
 export const useChargingSession = (bookingId?: number, bookingData?: any) => {
   const navigate = useNavigate()
@@ -20,7 +20,7 @@ export const useChargingSession = (bookingId?: number, bookingData?: any) => {
     sessionId: null
   })
 
-  // ===== Timer cho time, battery, cost =====
+  // ===== Timer for time, battery, cost =====
   useEffect(() => {
     let interval: number | null = null
 
@@ -40,7 +40,7 @@ export const useChargingSession = (bookingId?: number, bookingData?: any) => {
     }
   }, [state.isCharging, state.finished])
 
-  // ===== Timer cho penalty khi battery >= 100% =====
+  // ===== Timer for penalty when battery >= 100% =====
   useEffect(() => {
     let penaltyInterval: number | null = null
 
@@ -50,7 +50,7 @@ export const useChargingSession = (bookingId?: number, bookingData?: any) => {
       penaltyInterval = window.setInterval(() => {
         setState((prev) => {
           const newPenalty = prev.penaltyMinutes + 1
-          console.log(`⏱️ Time Over 100%: ${newPenalty} giây (${newPenalty * 5000}đ)`)
+          console.log(`⏱️ Time Over 100%: ${newPenalty} seconds (${newPenalty * 5000}đ)`)
           return { ...prev, penaltyMinutes: newPenalty }
         })
       }, 1000)
@@ -64,7 +64,7 @@ export const useChargingSession = (bookingId?: number, bookingData?: any) => {
     }
   }, [state.isCharging, state.finished, state.battery])
 
-  // ===== Hàm tạo battery ngẫu nhiên =====
+  // ===== Function to generate random battery percentage =====
   const getRandomBatteryPercentage = (): number => {
     return Math.floor(Math.random() * 100) + 1
   }
@@ -72,17 +72,17 @@ export const useChargingSession = (bookingId?: number, bookingData?: any) => {
   // ===== Start Session =====
   const handleStart = async () => {
     if (!bookingId || !bookingData) {
-      alert('Không tìm thấy thông tin booking. Vui lòng thử lại!')
+      alert('Booking information not found. Please try again!')
       return
     }
 
     if (state.isCharging) {
-      alert('Phiên sạc đã được bắt đầu!')
+      alert('The charging session has already started!')
       return
     }
 
     if (state.sessionId) {
-      alert('Đã có phiên sạc đang hoạt động!')
+      alert('There is already an active charging session!')
       return
     }
 
@@ -143,33 +143,33 @@ export const useChargingSession = (bookingId?: number, bookingData?: any) => {
       console.log('✅ Session ended:', endRes)
 
       if (!endRes.success) {
-        alert('⚠️ Không thể kết thúc phiên sạc: ' + (endRes.message || 'Lỗi không xác định'))
+        alert('⚠️ Unable to end charging session: ' + (endRes.message || 'Unknown error'))
         return
       }
 
-      // Dừng charging
+      // Stop charging
       setState((prev) => ({
         ...prev,
         isCharging: false,
         finished: true
       }))
 
-      // Step 2: Apply penalty if exists (PHẢI gọi TRƯỚC khi tạo invoice)
+      // Step 2: Apply penalty if exists (MUST call BEFORE creating invoice)
       if (state.penaltyMinutes > 0) {
         const calculatedPenaltyFee = state.penaltyMinutes * 5000
-        console.log('ℹ️ Step 2: No penalty applied (battery not full or stopped in time)')
+        console.log('ℹ️ Step 2: Penalty applied')
         try {
           const penaltyRes = await chargingSessionService.applyPenalty(state.sessionId, calculatedPenaltyFee)
           console.log('✅ Penalty applied:', penaltyRes)  
         } catch (penaltyError: any) {
           console.error('❌ Penalty API error:', penaltyError)
-          alert('⚠️ Không thể áp dụng phí phạt. Vui lòng liên hệ hỗ trợ!')
+          alert('⚠️ Cannot apply penalty fee. Please contact support!')
         }
       } else {
         console.log('ℹ️ Step 2: No penalty applied (battery not full or session stopped in time)')
       }
 
-      // Step 3: Create invoice (Backend đã có penalty từ Step 2)
+      // Step 3: Create invoice (Backend already has penalty from Step 2)
       console.log('📄 Step 3: CREATE invoice...')
       const invoiceRes = await chargingSessionService.createInvoice(state.sessionId)
       console.log('✅ Invoice created:', invoiceRes)
@@ -185,12 +185,12 @@ export const useChargingSession = (bookingId?: number, bookingData?: any) => {
         console.log(`   - Total Amount: ${backendTotalAmount.toLocaleString()}đ`)
         
         const penaltyText = backendPenaltyFee > 0 
-          ? `\n- Phí phạt: ${backendPenaltyFee.toLocaleString()}đ` 
+          ? `\n- Penalty Fee: ${backendPenaltyFee.toLocaleString()}đ` 
           : ''
         
         alert(`✅ Charging session has ended!\n\n📄 Invoice has been created:\n- Invoice ID: #${invoiceRes.data?.invoiceId || 'N/A'}\n- Charging Cost: ${backendSessionPrice.toLocaleString()}đ${penaltyText}\n- Total Amount: ${backendTotalAmount.toLocaleString()}đ\n- Payment Method: Postpaid Wallet`)
         
-        // Cập nhật cost từ backend để hiển thị chính xác
+        // Update cost from backend for accurate display
         setState((prev) => ({
           ...prev,
           cost: backendTotalAmount
@@ -205,7 +205,7 @@ export const useChargingSession = (bookingId?: number, bookingData?: any) => {
       }, 2000)
     } catch (error: any) {
       console.error('❌ Stop session error:', error)
-      alert('❌ Lỗi: ' + (error?.message || 'Vui lòng thử lại!'))
+      alert('❌ Error: ' + (error?.message || 'Please try again!'))
     }
   }
 

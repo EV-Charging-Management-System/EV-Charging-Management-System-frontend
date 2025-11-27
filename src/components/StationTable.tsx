@@ -39,7 +39,7 @@ const StationTable: React.FC<StationTableProps> = ({
     ChargingPointTotal: 0,
   });
 
-  // Lấy danh sách trạm từ backend
+  // Fetch station list from backend
   useEffect(() => {
     if (propStations) {
       setStations(propStations);
@@ -53,11 +53,10 @@ const StationTable: React.FC<StationTableProps> = ({
       try {
         const data = await adminService.getAllStations();
         if (!mounted) return;
-        // adminService returns array of stations or []
         setStations(
           (data || []).map((s: any, idx: number) => ({
             StationId: s.StationId ?? s.id ?? idx + 1,
-            StationName: s.StationName ?? s.name ?? `Trạm ${idx + 1}`,
+            StationName: s.StationName ?? s.name ?? `Station ${idx + 1}`,
             Address: s.Address ?? s.address ?? "",
             StationStatus: (s.StationStatus ?? s.status ?? "INACTIVE").toUpperCase(),
             ChargingPointTotal: s.ChargingPointTotal ?? s.total ?? 0,
@@ -65,7 +64,7 @@ const StationTable: React.FC<StationTableProps> = ({
         );
       } catch (err: any) {
         console.error("Failed to load stations", err);
-        setError(err?.message || "Không thể lấy danh sách trạm");
+        setError(err?.message || "Cannot get station list");
       } finally {
         if (mounted) setLoading(false);
       }
@@ -77,17 +76,17 @@ const StationTable: React.FC<StationTableProps> = ({
     };
   }, [propStations]);
 
-  // 🆕 Mở modal thêm trạm
+  // Open add station modal
   const openModal = () => setShowModal(true);
   const closeModal = () => {
     setNewStation({ StationName: "", Address: "", StationDescrip: "", StationStatus: "ACTIVE", ChargingPointTotal: 0 });
     setShowModal(false);
   };
 
-  // ✅ Thêm trạm mới
+  // Add new station
   const handleAddStation = async () => {
     if (!newStation.StationName || !newStation.Address || !newStation.StationDescrip) {
-      toast.warn("⚠️ Vui lòng nhập đủ thông tin!");
+      toast.warn("Please fill in all information!");
       return;
     }
 
@@ -101,22 +100,21 @@ const StationTable: React.FC<StationTableProps> = ({
       );
 
       if (res.success) {
-        toast.success(res.message || "✅ Thêm trạm sạc thành công!");
+        toast.success(res.message || "Successfully added new charging station!");
         closeModal();
-        // Gọi callback để refresh danh sách
         if (onAdd) {
           onAdd();
         }
       } else {
-        toast.error(res.message || "Lỗi khi tạo trạm sạc");
+        toast.error(res.message || "Error creating charging station");
       }
     } catch (error) {
       console.error("Error creating station:", error);
-      toast.error("Lỗi khi tạo trạm sạc!");
+      toast.error("Error creating charging station!");
     }
   };
 
-  // 🔧 Đổi trạng thái bảo trì / kích hoạt
+  // Toggle maintenance/active status
   const toggleStatus = (id: number) => {
     setStations((prev) =>
       prev.map((s) =>
@@ -133,9 +131,9 @@ const StationTable: React.FC<StationTableProps> = ({
     const st = stations.find((s) => s.StationId === id);
     if (st) {
       if (st.StationStatus === "MAINTENANCE") {
-        toast.success(`🟢 Trạm "${st.StationName}" đã được kích hoạt lại!`);
+        toast.success(`Station "${st.StationName}" has been reactivated!`);
       } else {
-        toast.info(`🛠️ Trạm "${st.StationName}" đã chuyển sang bảo trì.`);
+        toast.info(`Station "${st.StationName}" is now under maintenance.`);
       }
     }
   };
@@ -143,9 +141,9 @@ const StationTable: React.FC<StationTableProps> = ({
   return (
     <section className="data-section">
       <div className="data-section-header">
-        <h2>⚡ Danh sách trạm sạc</h2>
+        <h2>⚡ Charging Station List</h2>
         <button className="btn-add" onClick={openModal}>
-          + Thêm trạm sạc
+          + Add Charging Station
         </button>
       </div>
 
@@ -153,18 +151,18 @@ const StationTable: React.FC<StationTableProps> = ({
         <thead>
           <tr>
             <th>ID</th>
-            <th>Tên trạm</th>
-            <th>Địa chỉ</th>
-            <th>Trạng thái</th>
-            <th>Tổng điểm sạc</th>
-            <th>Thao tác</th>
+            <th>Station Name</th>
+            <th>Address</th>
+            <th>Status</th>
+            <th>Total Charging Points</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           {loading ? (
             <tr>
               <td colSpan={6} style={{ textAlign: "center", padding: "18px" }}>
-                Đang tải danh sách trạm...
+                Loading station list...
               </td>
             </tr>
           ) : error ? (
@@ -176,7 +174,7 @@ const StationTable: React.FC<StationTableProps> = ({
           ) : stations.length === 0 ? (
             <tr>
               <td colSpan={6} style={{ textAlign: "center", padding: "18px" }}>
-                Không tìm thấy trạm sạc
+                No charging stations found
               </td>
             </tr>
           ) : (
@@ -215,7 +213,7 @@ const StationTable: React.FC<StationTableProps> = ({
                         className="btn-reject"
                         onClick={() => onDelete(s.StationId)}
                       >
-                        Xóa
+                        Delete
                       </button>
                     )}
                     {s.StationStatus !== "INACTIVE" && (
@@ -227,7 +225,7 @@ const StationTable: React.FC<StationTableProps> = ({
                         }
                         onClick={() => toggleStatus(s.StationId)}
                       >
-                        {s.StationStatus === "MAINTENANCE" ? "Kích hoạt lại" : "Bảo trì"}
+                        {s.StationStatus === "MAINTENANCE" ? "Reactivate" : "Maintenance"}
                       </button>
                     )}
                   </div>
@@ -242,9 +240,9 @@ const StationTable: React.FC<StationTableProps> = ({
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <h3>➕ Thêm trạm sạc mới</h3>
+            <h3>➕ Add New Charging Station</h3>
 
-            <label>Tên trạm</label>
+            <label>Station Name</label>
             <input
               type="text"
               value={newStation.StationName}
@@ -256,7 +254,7 @@ const StationTable: React.FC<StationTableProps> = ({
               }
             />
 
-            <label>Địa chỉ</label>
+            <label>Address</label>
             <input
               type="text"
               value={newStation.Address}
@@ -265,7 +263,7 @@ const StationTable: React.FC<StationTableProps> = ({
               }
             />
 
-            <label>Mô tả trạm</label>
+            <label>Station Description</label>
             <input
               type="text"
               value={newStation.StationDescrip}
@@ -274,7 +272,7 @@ const StationTable: React.FC<StationTableProps> = ({
               }
             />
 
-            <label>Trạng thái</label>
+            <label>Status</label>
             <select
               value={newStation.StationStatus}
               onChange={(e) =>
@@ -286,7 +284,7 @@ const StationTable: React.FC<StationTableProps> = ({
               <option value="MAINTENANCE">MAINTENANCE</option>
             </select>
 
-            <label>Tổng điểm sạc</label>
+            <label>Total Charging Points</label>
             <input
               type="number"
               value={newStation.ChargingPointTotal}
@@ -300,10 +298,10 @@ const StationTable: React.FC<StationTableProps> = ({
 
             <div className="modal-buttons">
               <button className="btn-save" onClick={handleAddStation}>
-                Lưu
+                Save
               </button>
               <button className="btn-cancel" onClick={closeModal}>
-                Hủy
+                Cancel
               </button>
             </div>
           </div>

@@ -37,7 +37,7 @@ const PortTable: React.FC<PortTableProps> = ({
   onDelete,
   onBack,
 }) => {
-  // Debug: In ra structure của port đầu tiên để xem các trường
+  // Debug: Print structure of the first port to check fields
   if (ports && ports.length > 0) {
     console.log("🔍 Port structure:", ports[0]);
     console.log("🔍 Port keys:", Object.keys(ports[0]));
@@ -65,13 +65,13 @@ const PortTable: React.FC<PortTableProps> = ({
     setEditingPort(null);
   };
 
-  // ➕ Mở modal thêm mới
+  // ➕ Open add modal
   const handleAdd = () => {
     resetForm();
     setShowModal(true);
   };
 
-  // ✏️ Mở modal chỉnh sửa
+  // ✏️ Open edit modal
   const handleEdit = (port: Port) => {
     setEditingPort(port);
     setFormData({
@@ -84,25 +84,25 @@ const PortTable: React.FC<PortTableProps> = ({
     setShowModal(true);
   };
 
-  // 💾 Lưu Port
+  // 💾 Save Port
   const handleSave = async () => {
     if (!formData.portName.trim()) {
-      toast.warning("⚠️ Vui lòng nhập tên Port!");
+      toast.warning("⚠️ Please enter Port name!");
       return;
     }
 
     if (formData.portTypeOfKwh <= 0) {
-      toast.warning("⚠️ Công suất (kW) phải lớn hơn 0!");
+      toast.warning("⚠️ Power (kW) must be greater than 0!");
       return;
     }
 
     if (formData.portTypePrice < 0) {
-      toast.warning("⚠️ Giá tiền không được âm!");
+      toast.warning("⚠️ Price cannot be negative!");
       return;
     }
 
     if (editingPort) {
-      // Cập nhật Port
+      // Update Port
       await onEdit({
         ...editingPort,
         PortName: formData.portName,
@@ -112,7 +112,7 @@ const PortTable: React.FC<PortTableProps> = ({
         PortTypePrice: formData.portTypePrice,
       });
     } else {
-      // Thêm mới Port - không cần truyền PointId vì đã có trong context
+      // Add new Port - no need to pass PointId as it's in context
       await onAdd({
         PortName: formData.portName,
         PortType: formData.portType,
@@ -126,9 +126,9 @@ const PortTable: React.FC<PortTableProps> = ({
     resetForm();
   };
 
-  // 🗑️ Xóa Port
+  // 🗑️ Delete Port
   const handleDelete = async (id: number) => {
-    if (window.confirm("⚠️ Bạn có chắc muốn xóa Port này?")) {
+    if (window.confirm("⚠️ Are you sure you want to delete this Port?")) {
       await onDelete(id);
     }
   };
@@ -138,17 +138,17 @@ const PortTable: React.FC<PortTableProps> = ({
       <div className="page-header">
         <button className="btn-back" onClick={onBack}>
           <ArrowLeft size={18} />
-          Quay lại Points
+          Back to Points
         </button>
         <div className="page-title">
-          <h2>🔌 Quản lý Charging Ports</h2>
+          <h2>🔌 Charging Ports Management</h2>
           {stationName && <p className="subtitle">Point ID: {pointId} - {stationName}</p>}
         </div>
       </div>
 
       <div className="table-actions">
         <div className="table-info">
-          <span className="info-badge">Tổng: {ports.length} Ports</span>
+          <span className="info-badge">Total: {ports.length} Ports</span>
           <span className="info-badge success">
             Available: {ports.filter(p => p.PortStatus === "AVAILABLE").length}
           </span>
@@ -160,7 +160,7 @@ const PortTable: React.FC<PortTableProps> = ({
           </span>
         </div>
         <button className="btn-add" onClick={handleAdd}>
-          <Plus size={18} /> Thêm Port
+          <Plus size={18} /> Add Port
         </button>
       </div>
 
@@ -169,10 +169,10 @@ const PortTable: React.FC<PortTableProps> = ({
           <tr>
             <th>ID</th>
             <th>Point ID</th>
-            <th>Tên Port</th>
-            <th>Loại Connector</th>
-            <th>Trạng thái</th>
-            <th>Hành động</th>
+            <th>Port Name</th>
+            <th>Connector Type</th>
+            <th>Status</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -180,7 +180,7 @@ const PortTable: React.FC<PortTableProps> = ({
             <tr>
               <td colSpan={6} style={{ textAlign: "center", padding: "20px" }}>
                 <p style={{ color: "#94a3b8", fontSize: "15px" }}>
-                  Không có Port nào trong Point này
+                  No Ports in this Point
                 </p>
               </td>
             </tr>
@@ -213,14 +213,14 @@ const PortTable: React.FC<PortTableProps> = ({
                     <button
                       className="btn-icon btn-edit"
                       onClick={() => handleEdit(port)}
-                      title="Sửa"
+                      title="Edit"
                     >
                       <Pencil size={16} />
                     </button>
                     <button
                       className="btn-icon btn-delete"
                       onClick={() => handleDelete(port.PortId)}
-                      title="Xóa"
+                      title="Delete"
                     >
                       <Trash2 size={16} />
                     </button>
@@ -232,12 +232,12 @@ const PortTable: React.FC<PortTableProps> = ({
         </tbody>
       </table>
 
-      {/* ========== MODAL THÊM/SỬA PORT ========== */}
+      {/* ========== ADD/EDIT PORT MODAL ========== */}
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">
             <div className="modal-header">
-              <h3>{editingPort ? "✏️ Sửa Port" : "➕ Thêm Port Mới"}</h3>
+              <h3>{editingPort ? "✏️ Edit Port" : "➕ Add New Port"}</h3>
               <button className="btn-close" onClick={() => setShowModal(false)}>
                 <X size={20} />
               </button>
@@ -245,19 +245,19 @@ const PortTable: React.FC<PortTableProps> = ({
 
             <div className="modal-body">
               <div className="form-group">
-                <label>Tên Port</label>
+                <label>Port Name</label>
                 <input
                   type="text"
                   value={formData.portName}
                   onChange={(e) =>
                     setFormData({ ...formData, portName: e.target.value })
                   }
-                  placeholder="Ví dụ: Port A1, Fast Charger 1"
+                  placeholder="e.g. Port A1, Fast Charger 1"
                 />
               </div>
 
               <div className="form-group">
-                <label>Loại Connector *</label>
+                <label>Connector Type *</label>
                 <select
                   value={formData.portType}
                   onChange={(e) =>
@@ -274,7 +274,7 @@ const PortTable: React.FC<PortTableProps> = ({
               </div>
 
               <div className="form-group">
-                <label>Công suất (kW) *</label>
+                <label>Power (kW) *</label>
                 <input
                   type="number"
                   min="0"
@@ -283,12 +283,12 @@ const PortTable: React.FC<PortTableProps> = ({
                   onChange={(e) =>
                     setFormData({ ...formData, portTypeOfKwh: Number(e.target.value) })
                   }
-                  placeholder="Ví dụ: 7, 22, 50"
+                  placeholder="e.g. 7, 22, 50"
                 />
               </div>
 
               <div className="form-group">
-                <label>Giá tiền (VNĐ) *</label>
+                <label>Price (VND) *</label>
                 <input
                   type="number"
                   min="0"
@@ -297,21 +297,21 @@ const PortTable: React.FC<PortTableProps> = ({
                   onChange={(e) =>
                     setFormData({ ...formData, portTypePrice: Number(e.target.value) })
                   }
-                  placeholder="Ví dụ: 5000, 8000"
+                  placeholder="e.g. 5000, 8000"
                 />
               </div>
 
               <div className="form-group">
-                <label>Trạng thái</label>
+                <label>Status</label>
                 <select
                   value={formData.portStatus}
                   onChange={(e) =>
                     setFormData({ ...formData, portStatus: e.target.value })
                   }
                 >
-                  <option value="AVAILABLE">AVAILABLE - Sẵn sàng</option>
-                  <option value="IN_USE">IN_USE - Đang sử dụng</option>
-                  <option value="FAULTY">FAULTY - Hỏng</option>
+                  <option value="AVAILABLE">AVAILABLE - Ready</option>
+                  <option value="IN_USE">IN_USE - In Use</option>
+                  <option value="FAULTY">FAULTY - Faulty</option>
           
                 </select>
               </div>
@@ -319,10 +319,10 @@ const PortTable: React.FC<PortTableProps> = ({
 
             <div className="modal-footer">
               <button className="btn-cancel" onClick={() => setShowModal(false)}>
-                Hủy
+                Cancel
               </button>
               <button className="btn-save" onClick={handleSave}>
-                💾 Lưu
+                💾 Save
               </button>
             </div>
           </div>

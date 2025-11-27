@@ -47,7 +47,7 @@ const getMarkerIcon = (color: 'green' | 'orange' | 'gray') => {
 }
 
 /**
- * Component hiển thị Google Map với các marker trạm sạc
+ * Component to display Google Map with charging station markers
  */
 export const MapSection: React.FC<MapSectionProps> = ({
   isLoaded,
@@ -60,7 +60,7 @@ export const MapSection: React.FC<MapSectionProps> = ({
   if (!isLoaded) {
     return (
       <div className='map-section'>
-        <div>Đang tải bản đồ...</div>
+        <div>Loading map...</div>
       </div>
     )
   }

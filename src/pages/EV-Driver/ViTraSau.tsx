@@ -44,7 +44,7 @@ const saveViTraSau = (data: ViTraSauData) => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
 }
 
-const formatMonthLabel = (monthStr: string) => (monthStr ? `Tháng ${monthStr}` : '')
+const formatMonthLabel = (monthStr: string) => (monthStr ? `Month ${monthStr}` : '')
 
 const getCurrentMonthString = (d = new Date()) => {
   const m = d.getMonth() + 1
@@ -95,10 +95,10 @@ const ViTraSau: React.FC = () => {
 
   const handlePayNow = () => {
     if (!currentMonth || currentMonth <= 0) {
-      alert('Không có số dư nào để thanh toán.')
+      alert('No balance to pay.')
       return
     }
-    if (!window.confirm(`Bạn có chắc muốn thanh toán ${currentMonth.toLocaleString()} đ cho tháng ${currentMonthKey}?`))
+    if (!window.confirm(`Are you sure you want to pay ${currentMonth.toLocaleString()} VND for month ${currentMonthKey}?`))
       return
 
     const data = loadViTraSau()
@@ -109,65 +109,65 @@ const ViTraSau: React.FC = () => {
     saveViTraSau(data)
     setCurrentMonth(0)
     setTransactions([...data.transactions].sort((a, b) => (a.date < b.date ? 1 : -1)))
-    alert('💳 Thanh toán thành công!')
+    alert('Payment successful!')
   }
 
   return (
     <div className='vi-tra-sau-container'>
       <button className='back-btn' onClick={() => navigate(-1)}>
-        ← Quay lại
+        ← Back
       </button>
 
       <div className='vi-tra-sau-card'>
         <div className='vi-tra-sau-info'>
-          <h2>Xin chào!</h2>
+          <h2>Hello!</h2>
           <p>
-            Chào mừng bạn đến với dịch vụ <b>Ví Trả Sau</b> – quản lý chi tiết các phiên sạc và thanh toán. Tại đây bạn
-            có thể theo dõi số dư hiện tại, các giao dịch đã thanh toán, chưa thanh toán và tổng quan chi tiêu của mình
-            một cách tiện lợi và trực quan.
+            Welcome to the <b>Pay Later Wallet</b> service – manage charging sessions and payments in detail. Here you
+            can track your current balance, paid transactions, unpaid transactions and spending overview
+            conveniently and visually.
           </p>
           <p>
-            Thanh toán sẽ thực hiện vào <b>ngày 30 hàng tháng</b>. Xem lịch sử giao dịch bằng cách nhấn nút bên dưới.
+            Payment will be made on <b>the 30th of each month</b>. View transaction history by clicking the button below.
           </p>
         </div>
 
         <div className='vi-tra-sau-wallet'>
-          <h3>Số dư tháng này</h3>
+          <h3>This Month Balance</h3>
           <h1 className='wallet-amount'>{(currentMonth || 0).toLocaleString()} VND</h1>
 
           <div className='summary-grid'>
             <div className='summary-item'>
-              <span>Giao Dịch Tháng Này</span>
-              <strong>{(currentMonth || 0).toLocaleString()} đ</strong>
+              <span>This Month Transactions</span>
+              <strong>{(currentMonth || 0).toLocaleString()} VND</strong>
             </div>
             <div className='summary-item'>
-              <span>Tháng trước ({formatMonthLabel(prevMonthKey)})</span>
-              <strong>{lastMonthAmount.toLocaleString()} đ</strong>
+              <span>Last Month ({formatMonthLabel(prevMonthKey)})</span>
+              <strong>{lastMonthAmount.toLocaleString()} VND</strong>
             </div>
             <div className='summary-item'>
-              <span>Trung bình mỗi tháng</span>
-              <strong>{averagePerMonth.toLocaleString()} đ</strong>
+              <span>Average per Month</span>
+              <strong>{averagePerMonth.toLocaleString()} VND</strong>
             </div>
           </div>
 
           <div className='total-box'>
-            <span>Tổng cộng: </span>
-            <strong>{totalAll.toLocaleString()} đ</strong>
+            <span>Total: </span>
+            <strong>{totalAll.toLocaleString()} VND</strong>
           </div>
 
           <button className='pay-btn' onClick={handlePayNow}>
-            Thanh toán ngay
+            Pay Now
           </button>
 
           <button className='pay-btn-1' onClick={() => setShowInvoices(!showInvoices)}>
-            {showInvoices ? 'Ẩn hóa đơn' : 'Xem chi tiết'}
+            {showInvoices ? 'Hide invoices' : 'View details'}
           </button>
 
           {showInvoices && (
             <div className='invoice-section'>
-              <h4>Hóa Đơn & Lịch Sử Giao Dịch</h4>
+              <h4>Invoices & Transaction History</h4>
               {transactions.length === 0 ? (
-                <div className='no-transactions'>Hiện chưa có giao dịch. Lịch sử trước đây sẽ hiển thị tại đây.</div>
+                <div className='no-transactions'>No transactions yet. Previous history will be displayed here.</div>
               ) : (
                 Object.keys(grouped)
                   .sort((a, b) => (a < b ? 1 : -1))
@@ -178,18 +178,18 @@ const ViTraSau: React.FC = () => {
                         style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}
                       >
                         <div>{formatMonthLabel(monthKey)}</div>
-                        <div>Tổng: {grouped[monthKey].reduce((s, t) => s + t.amount, 0).toLocaleString()} đ</div>
+                        <div>Total: {grouped[monthKey].reduce((s, t) => s + t.amount, 0).toLocaleString()} VND</div>
                       </div>
                       <table className='transactions-table'>
                         <thead>
                           <tr>
-                            <th>Ngày giờ</th>
-                            <th>Trạm / Địa chỉ</th>
-                            <th>Mã</th>
-                            <th>Thời gian</th>
+                            <th>Date & Time</th>
+                            <th>Station / Address</th>
+                            <th>Code</th>
+                            <th>Duration</th>
                             <th>KWh</th>
-                            <th>Số tiền</th>
-                            <th>Trạng thái</th>
+                            <th>Amount</th>
+                            <th>Status</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -201,12 +201,12 @@ const ViTraSau: React.FC = () => {
                                 <div className='station-address'>{t.address}</div>
                               </td>
                               <td>{t.code}</td>
-                              <td>{t.durationMinutes ? `${t.durationMinutes} phút` : '-'}</td>
+                              <td>{t.durationMinutes ? `${t.durationMinutes} min` : '-'}</td>
                               <td>{t.kwh ?? '-'} kWh</td>
-                              <td>{t.amount.toLocaleString()} đ</td>
+                              <td>{t.amount.toLocaleString()} VND</td>
                               <td>
                                 <span className={t.paid ? 'status paid-badge' : 'status unpaid-badge'}>
-                                  {t.paid ? 'Đã thanh toán' : 'Chưa thanh toán'}
+                                  {t.paid ? 'Paid' : 'Unpaid'}
                                 </span>
                               </td>
                             </tr>

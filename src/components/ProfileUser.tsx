@@ -34,12 +34,12 @@ const ProfileUser: React.FC = () => {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("user");
-      alert("Đăng xuất thành công!");
+      alert("Logout successful!");
       navigate("/login");
       setOpen(false);
     } catch (err) {
       console.error(err);
-      alert("Logout thất bại!");
+      alert("Logout failed!");
     }
   };
 
@@ -88,7 +88,7 @@ const ProfileUser: React.FC = () => {
               }}
             />
             <h3 className="profile-name">
-              {user ? user.email.split("@")[0] : "Đang tải..."}
+              {user ? user.email.split("@")[0] : "Loading..."}
             </h3>
             <p className="profile-id">ID: {user?.userId ?? "—"}</p>
             <p
@@ -108,13 +108,13 @@ const ProfileUser: React.FC = () => {
               marginTop: "10px",
             }}
           >
-            <button className="profile-btn">Thông tin cá nhân</button>
-            <button className="profile-btn">Mật khẩu & Bảo mật</button>
+            <button className="profile-btn">Personal Information</button>
+            <button className="profile-btn">Password & Security</button>
             <button
               className="profile-btn"
               onClick={() => handleNavigate("/vi-tra-sau")}
             >
-              Ví Trả Sau
+              Postpaid Wallet
             </button>
 
             <hr
@@ -133,7 +133,7 @@ const ProfileUser: React.FC = () => {
                 fontWeight: "bold",
               }}
             >
-              Đăng xuất
+              Logout
             </button>
           </div>
         </div>

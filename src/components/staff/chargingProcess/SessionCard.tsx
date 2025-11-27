@@ -25,8 +25,8 @@ const SessionCard: React.FC<SessionCardProps> = ({ session, onStartCharging }) =
           </Col>
           <Col md={2}>
             {session.UserId && <p className="mb-1">UserId: {session.UserId}</p>}
-            <p className="mb-1">Loại: {session.userType === "guest" ? "Khách" : "Tài khoản"}</p>
-            <p className="mb-1">Giá: {session.portPrice?.toLocaleString()} ₫/kWh</p>
+            <p className="mb-1">Type: {session.userType === "guest" ? "Guest" : "Account"}</p>
+            <p className="mb-1">Price: {session.portPrice?.toLocaleString()} ₫/kWh</p>
           </Col>
           <Col md={2}>
             <p className="mb-1"><FaCalendarAlt /> {session.date}</p>
@@ -39,7 +39,7 @@ const SessionCard: React.FC<SessionCardProps> = ({ session, onStartCharging }) =
               className="start-btn" 
               onClick={() => onStartCharging(session)}
             >
-              Bắt đầu sạc
+              Start Charging
             </Button>
           </Col>
         </Row>

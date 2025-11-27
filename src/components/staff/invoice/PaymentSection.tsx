@@ -17,14 +17,14 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
   if (paid) {
     return (
       <Alert variant="success" className="paid-text">
-        ✅ Đã thanh toán
+        ✅ Paid
       </Alert>
     );
   }
 
   return (
     <>
-      <h3 className="choose-method-title">Xác nhận thanh toán</h3>
+      <h3 className="choose-method-title">Confirm Payment</h3>
       {error && <Alert variant="danger">{error}</Alert>}
       <Button 
         onClick={onPayment} 
@@ -33,7 +33,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
         size="lg"
         className="pay-btn w-100"
       >
-        {loading ? "⏳ Đang xử lý..." : "💰 Thanh toán"}
+        {loading ? "⏳ Processing..." : "💰 Pay"}
       </Button>
     </>
   );

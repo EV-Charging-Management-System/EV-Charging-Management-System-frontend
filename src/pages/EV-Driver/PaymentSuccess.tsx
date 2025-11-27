@@ -104,7 +104,7 @@ const PaymentSuccess: React.FC = () => {
         throw new Error("Booking failed");
       }
     } catch (error) {
-      alert("Không thể tạo booking. Vui lòng thử lại!");
+      alert("Cannot create booking. Please try again!");
       navigate("/payment-fail");
     }
   };

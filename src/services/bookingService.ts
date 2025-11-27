@@ -1,7 +1,7 @@
 import { apiClient } from "../utils/api";
 
 /* ============================================================
- * 🧩 1️⃣ Định nghĩa kiểu dữ liệu dùng trong booking
+ * 🧩 1️⃣ Data type definitions for booking
  * ============================================================
  */
 
@@ -38,7 +38,7 @@ export interface BookingPayload {
   orderInfo?: string;
   userId?: number | string;
   carBrand?: string;
-  qr?: string; // ✅ Thêm field qr để lưu txnRef từ VNPay
+  qr?: string; // ✅ Add qr field to save txnRef from VNPay
 }
 
 export interface VnpayPayload {
@@ -69,13 +69,13 @@ export interface VnpayResponse {
 }
 
 /* ============================================================
- * 🚀 2️⃣ bookingService — Quản lý toàn bộ API Đặt Lịch & Thanh Toán
+ * 🚀 2️⃣ bookingService — Manage all Booking & Payment APIs
  * ============================================================
  */
 
 const bookingService = {
   /**
-   * ✅ Lấy danh sách tất cả trạm sạc
+   * ✅ Get list of all charging stations
    */
   async getAllStations(): Promise<Station[]> {
     try {
@@ -84,12 +84,12 @@ const bookingService = {
       return res.data?.data || [];
     } catch (error: any) {
       console.error("[bookingService] getAllStations error:", error);
-      throw new Error("Không thể tải danh sách trạm sạc.");
+      throw new Error("Cannot load charging station list.");
     }
   },
 
   /**
-   * ✅ Lấy danh sách điểm (Point) theo StationId
+   * ✅ Get list of points by StationId
    */
   async getPoints(stationId: number): Promise<Point[]> {
     try {
@@ -98,12 +98,12 @@ const bookingService = {
       return res.data?.data || [];
     } catch (error: any) {
       console.error("[bookingService] getPoints error:", error);
-      throw new Error("Không thể tải danh sách điểm sạc.");
+      throw new Error("Cannot load charging point list.");
     }
   },
 
   /**
-   * ✅ Lấy danh sách cổng (Port) theo PointId
+   * ✅ Get list of ports by PointId
    */
   async getPorts(pointId: number): Promise<Port[]> {
     try {
@@ -112,12 +112,12 @@ const bookingService = {
       return res.data?.data || [];
     } catch (error: any) {
       console.error("[bookingService] getPorts error:", error);
-      throw new Error("Không thể tải danh sách cổng sạc.");
+      throw new Error("Cannot load charging port list.");
     }
   },
 
   /**
-   * ✅ Lấy chi tiết cổng (Port) theo PortId
+   * ✅ Get port details by PortId
    */
   async getPortById(portId: number): Promise<any> {
     try {
@@ -126,14 +126,14 @@ const bookingService = {
       return res.data?.data || res.data;
     } catch (error: any) {
       console.error("[bookingService] getPortById error:", error);
-      throw new Error("Không thể tải thông tin cổng sạc.");
+      throw new Error("Cannot load charging port information.");
     }
   },
 
   /**
-   * ✅ Tạo thanh toán VNPay
-   * Gửi userId và amount đến API VNPay để tạo URL thanh toán
-   * @returns {VnpayResponse} - Trả về URL thanh toán và txnRef
+   * ✅ Create VNPay payment
+   * Send userId and amount to VNPay API to create payment URL
+   * @returns {VnpayResponse} - Returns payment URL and txnRef
    */
   async createVnpay(payload: VnpayPayload): Promise<VnpayResponse> {
     try {
@@ -153,13 +153,13 @@ const bookingService = {
         console.error("➡ Status:", error.response.status);
         console.error("➡ Data:", error.response.data);
       }
-      throw new Error(error?.response?.data?.message || "Không thể tạo thanh toán VNPay!");
+      throw new Error(error?.response?.data?.message || "Cannot create VNPay payment!");
     }
   },
 
   /**
-   * ✅ Tạo booking sau khi thanh toán thành công
-   * Gửi thông tin đầy đủ về trạm, cổng, xe, thời gian
+   * ✅ Create booking after successful payment
+   * Send complete information about station, port, vehicle, time
    */
   async createBooking(payload: BookingPayload): Promise<any> {
     try {
@@ -175,7 +175,7 @@ const bookingService = {
         console.error("➡ Status:", error.response.status);
         console.error("➡ Data:", error.response.data);
       }
-      throw new Error(error?.response?.data?.message || "Không thể tạo booking!");
+      throw new Error(error?.response?.data?.message || "Cannot create booking!");
     }
   },
 
@@ -187,7 +187,7 @@ const bookingService = {
       return res.data;
     } catch (error: any) {
       console.error("[bookingService] getBookingByUser error:", error);
-      throw new Error("Không thể tải danh sách booking của người dùng.");
+      throw new Error("Cannot load user booking list.");
     }
   },
 
@@ -202,7 +202,7 @@ const bookingService = {
       return res.data;
     } catch (error: any) {
       console.error("[bookingService] getBookingById error:", error);
-      throw new Error("Không thể tải thông tin booking.");
+      throw new Error("Cannot load booking information.");
     }
   },
 

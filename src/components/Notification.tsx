@@ -6,7 +6,7 @@ const Notification: React.FC = () => {
 
   return (
     <div className="notification-container" style={{ position: "relative" }}>
-      {/* Nút chuông */}
+      {/* Bell button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         style={{
@@ -19,7 +19,7 @@ const Notification: React.FC = () => {
         <FaBell size={22} />
       </button>
 
-      {/* Dropdown thông báo */}
+      {/* Notification dropdown */}
       {isOpen && (
         <div
           className="notification-dropdown"
@@ -47,7 +47,7 @@ const Notification: React.FC = () => {
               textAlign: "center",
             }}
           >
-            🔔 Thông báo
+            🔔 Notifications
           </h3>
           <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
             <li
@@ -64,7 +64,7 @@ const Notification: React.FC = () => {
                 (e.currentTarget.style.background = "transparent")
               }
             >
-              Bạn chưa có thông báo mới.
+              You have no new notifications.
             </li>
           </ul>
         </div>

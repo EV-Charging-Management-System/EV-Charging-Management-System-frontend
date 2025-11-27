@@ -19,7 +19,7 @@ const HeroSection: React.FC = () => {
           className='start-charge-btn' 
           onClick={() => navigate('/staff/location')}
         >
-          Bắt đầu sạc
+          Start Charging
         </Button>
       </div>
     </section>

@@ -3,7 +3,7 @@ import bookingService from '../../../services/bookingService'
 import type { Point } from './types'
 
 /**
- * Custom hook để load danh sách điểm sạc theo stationId
+ * Custom hook to load charging points by stationId
  */
 export const usePoints = (stationId: number) => {
   const [points, setPoints] = useState<Point[]>([])
@@ -22,8 +22,8 @@ export const usePoints = (stationId: number) => {
         console.log('[usePoints] Points loaded:', res)
         if (mounted) setPoints(res)
       } catch (err: any) {
-        console.error('❌ Lỗi load điểm sạc:', err)
-        if (mounted) setPointsError(err?.message || 'Không thể tải điểm sạc')
+        console.error('❌ Error loading charging points:', err)
+        if (mounted) setPointsError(err?.message || 'Failed to load charging points')
       } finally {
         if (mounted) setLoadingPoints(false)
       }

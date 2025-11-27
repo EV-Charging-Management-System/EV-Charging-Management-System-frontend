@@ -34,16 +34,16 @@ const ProfileAdmin: React.FC = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // ✅ Logout
+  // Logout
   const handleLogout = async () => {
     try {
       await authService.logout();
       localStorage.clear();
-      alert("Đăng xuất thành công!");
+      alert("Logout successful!");
       navigate("/login");
     } catch (err) {
       console.error(err);
-      alert("Logout thất bại!");
+      alert("Logout failed!");
     }
   };
 
@@ -64,10 +64,10 @@ const ProfileAdmin: React.FC = () => {
           </div>
 
           <div className="profile-menu">
-            <button className="profile-item">Quản lý tài khoản</button>
-            <button className="profile-item">Cài đặt hệ thống</button>
+            <button className="profile-item">Account Management</button>
+            <button className="profile-item">System Settings</button>
             <button className="profile-item logout" onClick={handleLogout}>
-              Đăng xuất
+              Logout
             </button>
           </div>
         </div>

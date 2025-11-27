@@ -3,55 +3,55 @@ import * as Yup from 'yup';
 // ===== LOGIN VALIDATION SCHEMA =====
 export const loginSchema = Yup.object().shape({
   email: Yup.string()
-    .email('Email không hợp lệ')
-    .required('Vui lòng nhập email'),
+    .email('Invalid email')
+    .required('Please enter email'),
   password: Yup.string()
-    .min(6, 'Mật khẩu phải có ít nhất 6 ký tự')
-    .required('Vui lòng nhập mật khẩu'),
+    .min(6, 'Password must be at least 6 characters')
+    .required('Please enter password'),
 });
 
 // ===== REGISTER VALIDATION SCHEMA =====
 export const registerSchema = Yup.object().shape({
   Email: Yup.string()
-    .email('Email không hợp lệ')
-    .required('Vui lòng nhập email'),
+    .email('Invalid email')
+    .required('Please enter email'),
   FullName: Yup.string()
-    .min(2, 'Họ tên phải có ít nhất 2 ký tự')
-    .max(50, 'Họ tên không được quá 50 ký tự')
-    .required('Vui lòng nhập họ và tên'),
+    .min(2, 'Full name must be at least 2 characters')
+    .max(50, 'Full name must not exceed 50 characters')
+    .required('Please enter full name'),
   PasswordHash: Yup.string()
-    .min(6, 'Mật khẩu phải có ít nhất 6 ký tự')
-    .max(100, 'Mật khẩu không được quá 100 ký tự')
+    .min(6, 'Password must be at least 6 characters')
+    .max(100, 'Password must not exceed 100 characters')
     .matches(
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-      'Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường và 1 số'
+      'Password must contain at least 1 uppercase, 1 lowercase and 1 number'
     )
-    .required('Vui lòng nhập mật khẩu'),
+    .required('Please enter password'),
   ConfirmPassword: Yup.string()
-    .oneOf([Yup.ref('PasswordHash')], 'Mật khẩu xác nhận không khớp')
-    .required('Vui lòng xác nhận mật khẩu'),
+    .oneOf([Yup.ref('PasswordHash')], 'Confirm password does not match')
+    .required('Please confirm password'),
 });
 
 // ===== VEHICLE VALIDATION SCHEMA =====
 export const vehicleSchema = Yup.object().shape({
   vehicleName: Yup.string()
-    .min(2, 'Tên xe phải có ít nhất 2 ký tự')
-    .max(50, 'Tên xe không được quá 50 ký tự')
-    .required('Vui lòng nhập tên xe'),
+    .min(2, 'Vehicle name must be at least 2 characters')
+    .max(50, 'Vehicle name must not exceed 50 characters')
+    .required('Please enter vehicle name'),
   vehicleType: Yup.string()
-    .min(2, 'Loại xe phải có ít nhất 2 ký tự')
-    .max(30, 'Loại xe không được quá 30 ký tự')
-    .required('Vui lòng nhập loại xe'),
+    .min(2, 'Vehicle type must be at least 2 characters')
+    .max(30, 'Vehicle type must not exceed 30 characters')
+    .required('Please enter vehicle type'),
   licensePlate: Yup.string()
     .matches(
       /^[0-9]{2}[A-Z]{1,2}-[0-9]{3,5}\.[0-9]{2}$/,
-      'Biển số xe không hợp lệ (VD: 51H-123.45)'
+      'Invalid license plate (e.g.: 51H-123.45)'
     )
-    .required('Vui lòng nhập biển số xe'),
+    .required('Please enter license plate'),
   battery: Yup.number()
-    .positive('Dung lượng pin phải là số dương')
-    .min(0.1, 'Dung lượng pin phải lớn hơn 0')
-    .max(1000, 'Dung lượng pin không được quá 1000 kWh')
+    .positive('Battery capacity must be a positive number')
+    .min(0.1, 'Battery capacity must be greater than 0')
+    .max(1000, 'Battery capacity must not exceed 1000 kWh')
     .nullable()
     .transform((value, originalValue) => 
       originalValue === '' ? null : value

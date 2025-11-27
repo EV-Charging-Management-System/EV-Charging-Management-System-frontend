@@ -9,7 +9,7 @@ interface ChargerGridProps {
 }
 
 const renderStatus = (s?: string) =>
-  s === "AVAILABLE" ? "Còn trống" : s === "BUSY" ? "Đang sạc" : "Bảo trì";
+  s === "AVAILABLE" ? "Available" : s === "BUSY" ? "Charging" : "Maintenance";
 
 const getStatusVariant = (s?: string) => {
   if (s === "AVAILABLE") return "success";
@@ -19,11 +19,11 @@ const getStatusVariant = (s?: string) => {
 
 const ChargerGrid: React.FC<ChargerGridProps> = ({ chargers, loading, onOpenForm }) => {
   if (loading) {
-    return <p className="text-center">Đang tải danh sách điểm sạc...</p>;
+    return <p className="text-center">Loading charging points...</p>;
   }
 
   if (chargers.length === 0) {
-    return <p className="text-center text-muted">Chưa có điểm sạc nào</p>;
+    return <p className="text-center text-muted">No charging points available</p>;
   }
 
   return (
@@ -36,7 +36,7 @@ const ChargerGrid: React.FC<ChargerGridProps> = ({ chargers, loading, onOpenForm
           style={{ cursor: 'pointer' }}
         >
           <Card.Body className="text-center">
-            <h3>Điểm #{ch.PointId}</h3>
+            <h3>Point #{ch.PointId}</h3>
             <Badge bg={getStatusVariant(ch.ChargingPointStatus)}>
               {renderStatus(ch.ChargingPointStatus)}
             </Badge>

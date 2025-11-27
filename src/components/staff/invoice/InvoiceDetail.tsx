@@ -11,41 +11,41 @@ const InvoiceDetail: React.FC<InvoiceDetailProps> = ({ invoice }) => {
     <Card className="invoice-box shadow-sm mb-4">
       <Card.Body>
         <Card.Title className="mb-3">
-          <h2>Hóa đơn phiên sạc #{invoice.sessionId}</h2>
+          <h2>Charging Session Invoice #{invoice.sessionId}</h2>
         </Card.Title>
 
         {invoice.invoiceId && (
-          <p><strong>🧾 Mã hóa đơn:</strong> #{invoice.invoiceId}</p>
+          <p><strong>🧾 Invoice ID:</strong> #{invoice.invoiceId}</p>
         )}
-        <p><strong>📱 Phiên sạc:</strong> #{invoice.sessionId}</p>
+        <p><strong>📱 Session:</strong> #{invoice.sessionId}</p>
         
         {invoice.stationName && (
-          <p><strong>📍 Trạm:</strong> {invoice.stationName}</p>
+          <p><strong>📍 Station:</strong> {invoice.stationName}</p>
         )}
         
         {invoice.chargerName && (
           <p>
-            <strong>⚡ Cổng sạc:</strong> {invoice.chargerName} 
+            <strong>⚡ Charger:</strong> {invoice.chargerName} 
             {invoice.power && ` (${invoice.power})`}
           </p>
         )}
         
         {invoice.customer && (
-          <p><strong>🚗 Xe/Khách hàng:</strong> {invoice.customer}</p>
+          <p><strong>🚗 Vehicle/Customer:</strong> {invoice.customer}</p>
         )}
         
         {invoice.startTime && (
-          <p><strong>🕐 Bắt đầu:</strong> {invoice.startTime}</p>
+          <p><strong>🕐 Start Time:</strong> {invoice.startTime}</p>
         )}
         
         {invoice.endTime && (
-          <p><strong>🕐 Kết thúc:</strong> {invoice.endTime}</p>
+          <p><strong>🕐 End Time:</strong> {invoice.endTime}</p>
         )}
         
         {invoice.createdAt && (
           <p>
-            <strong>📅 Ngày tạo HĐ:</strong>{' '}
-            {new Date(invoice.createdAt).toLocaleString("vi-VN")}
+            <strong>📅 Invoice Created At:</strong>{' '}
+            {new Date(invoice.createdAt).toLocaleString("en-US")}
           </p>
         )}
         
@@ -53,7 +53,7 @@ const InvoiceDetail: React.FC<InvoiceDetailProps> = ({ invoice }) => {
         
         {invoice.sessionPrice !== undefined && (
           <p style={{ fontSize: "1.1em" }}>
-            <strong>💰 Chi phí sạc:</strong> 
+            <strong>💰 Charging Cost:</strong> 
             <span className="text-success fw-bold ms-2">
               {invoice.sessionPrice.toLocaleString()} ₫
             </span>
@@ -62,7 +62,7 @@ const InvoiceDetail: React.FC<InvoiceDetailProps> = ({ invoice }) => {
         
         {invoice.penaltyFee !== undefined && invoice.penaltyFee > 0 && (
           <p style={{ fontSize: "1.1em" }}>
-            <strong>⚠️ Phí phạt:</strong> 
+            <strong>⚠️ Penalty Fee:</strong> 
             <span className="text-warning fw-bold ms-2">
               {invoice.penaltyFee.toLocaleString()} ₫
             </span>
@@ -76,7 +76,7 @@ const InvoiceDetail: React.FC<InvoiceDetailProps> = ({ invoice }) => {
             paddingTop: "12px", 
             borderTop: "1px solid rgba(124, 255, 178, 0.5)" 
           }}>
-            <strong>💵 TỔNG CỘNG:</strong> 
+            <strong>💵 TOTAL:</strong> 
             <span className="text-success fw-bold fs-4 ms-2">
               {(invoice.totalAmount ?? invoice.cost ?? 0).toLocaleString()} ₫
             </span>
@@ -87,12 +87,12 @@ const InvoiceDetail: React.FC<InvoiceDetailProps> = ({ invoice }) => {
         
         {invoice.PaidStatus && (
           <p>
-            <strong>📊 Trạng thái:</strong>{' '}
+            <strong>📊 Status:</strong>{' '}
             <Badge 
               bg={invoice.PaidStatus.toUpperCase() === "PAID" ? "success" : "warning"}
               className="ms-2"
             >
-              {invoice.PaidStatus.toUpperCase() === "PAID" ? "✅ Đã thanh toán" : "⏳ Chưa thanh toán"}
+              {invoice.PaidStatus.toUpperCase() === "PAID" ? "✅ Paid" : "⏳ Unpaid"}
             </Badge>
           </p>
         )}

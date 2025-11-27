@@ -3,7 +3,7 @@ import bookingService from '../../../services/bookingService'
 import type { Port } from './types'
 
 /**
- * Custom hook để load danh sách cổng sạc theo pointId
+ * Custom hook to load the list of charging ports by pointId
  */
 export const usePorts = (selectedPointId: number | null) => {
   const [ports, setPorts] = useState<Port[]>([])
@@ -25,8 +25,8 @@ export const usePorts = (selectedPointId: number | null) => {
         console.log('[usePorts] Ports loaded:', res)
         if (mounted) setPorts(res)
       } catch (err: any) {
-        console.error('❌ Lỗi load port:', err)
-        if (mounted) setPortsError(err?.message || 'Không thể tải cổng sạc')
+        console.error('❌ Error loading ports:', err)
+        if (mounted) setPortsError(err?.message || 'Unable to load charging ports')
       } finally {
         if (mounted) setLoadingPorts(false)
       }

@@ -11,14 +11,14 @@ interface BookingListProps {
 }
 
 /**
- * Component hiển thị danh sách bookings với loading và empty state
+ * Component displays a list of bookings with loading and empty state
  */
 export const BookingList: React.FC<BookingListProps> = ({ bookings, loading, onStartCharging }) => {
   if (loading) {
     return (
       <div className='text-center mt-5'>
         <Spinner animation='border' variant='warning' />
-        <p className='mt-2'>Đang tải dữ liệu...</p>
+        <p className='mt-2'>Loading data...</p>
       </div>
     )
   }

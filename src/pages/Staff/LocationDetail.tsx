@@ -37,7 +37,7 @@ const LocationDetail: React.FC = () => {
       <div className={`location-main-wrapper ${fadeIn ? "fade-in" : "hidden"}`}>
         <main className="location-main">
           <header className="location-header">
-            <h1>Chi tiết trạm sạc</h1>
+            <h1>Charging Station Detail</h1>
             <div className="location-header-actions">
               <ProfileStaff />
             </div>

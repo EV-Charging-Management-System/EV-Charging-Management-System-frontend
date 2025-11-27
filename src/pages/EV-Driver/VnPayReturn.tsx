@@ -5,7 +5,7 @@ const VnPayReturn: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [statusText, setStatusText] = useState("🔄 Đang xử lý giao dịch VNPay...");
+  const [statusText, setStatusText] = useState("🔄 Processing VNPay transaction...");
   const [isSuccess, setIsSuccess] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -23,25 +23,25 @@ const VnPayReturn: React.FC = () => {
     });
 
     if (!responseCode || !transactionStatus) {
-      setStatusText("⚠️ Không tìm thấy thông tin giao dịch VNPay.");
+      setStatusText("⚠️ Transaction information not found.");
       setIsSuccess(false);
       setLoading(false);
       return;
     }
 
     if (responseCode === "00" && transactionStatus === "00") {
-      setStatusText("✅ Thanh toán thành công! Cảm ơn bạn đã sử dụng dịch vụ.");
+      setStatusText("✅ Payment successful! Thank you for using our service.");
       setIsSuccess(true);
       setLoading(false);
 
-      // ⏳ Điều hướng sau 2s
+      // ⏳ Redirect after 2s
       setTimeout(() => navigate("/payment-success"), 2000);
     } else {
-      setStatusText("❌ Thanh toán thất bại hoặc bị hủy!");
+      setStatusText("❌ Payment failed or cancelled!");
       setIsSuccess(false);
       setLoading(false);
 
-      // ⏳ Điều hướng sau 2s
+      // ⏳ Redirect after 2s
       setTimeout(() => navigate("/payment-failed"), 2000);
     }
   }, [location, navigate]);
@@ -80,15 +80,15 @@ const VnPayReturn: React.FC = () => {
             }}
           >
             <p>
-              <b>Mã giao dịch:</b> {txnRef || "Không có"}
+              <b>Transaction ID:</b> {txnRef || "Not available"}
             </p>
             <p>
-              <b>Số tiền:</b>{" "}
-              {amount ? `${Number(amount) / 100} VNĐ` : "Không xác định"}
+              <b>Amount:</b>{" "}
+              {amount ? `${Number(amount) / 100} VND` : "Unknown"}
             </p>
           </div>
           <p style={{ marginTop: "20px", color: "#aef7d3", fontSize: "15px" }}>
-            Bạn sẽ được chuyển hướng trong giây lát...
+            You will be redirected shortly...
           </p>
         </>
       )}

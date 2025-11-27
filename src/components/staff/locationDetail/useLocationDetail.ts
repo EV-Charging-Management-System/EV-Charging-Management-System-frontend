@@ -51,7 +51,7 @@ export const useLocationDetail = () => {
         const res = await locationService.getStationInfo(decodedAddress);
         setStation(res);
       } catch {
-        alert("⚠️ Lỗi khi lấy thông tin trạm");
+        alert("⚠️ Error fetching station information");
       } finally {
         setLoadingStation(false);
       }
@@ -68,7 +68,7 @@ export const useLocationDetail = () => {
         const list = await chargingPointService.getByStationId(station.StationId);
         setChargers(list);
       } catch {
-        alert("⚠️ Lỗi khi lấy danh sách điểm sạc");
+        alert("⚠️ Error fetching charging points list");
       } finally {
         setLoadingChargers(false);
       }
@@ -84,7 +84,7 @@ export const useLocationDetail = () => {
 
   const openForm = async (charger: ChargingPoint) => {
     if (charger.ChargingPointStatus?.toLowerCase() !== "available") {
-      return alert("⚠️ Điểm đang bận!");
+      return alert("⚠️ Charging point is busy!");
     }
 
     setSelectedCharger(charger);
@@ -108,7 +108,7 @@ export const useLocationDetail = () => {
       const portsList = await chargingPointService.getPortsByPoint(charger.PointId);
       setPorts(Array.isArray(portsList) ? portsList : []);
     } catch {
-      alert("⚠️ Lỗi lấy cổng sạc");
+      alert("⚠️ Error fetching charging ports");
       setPorts([]);
     } finally {
       setLoadingPorts(false);
@@ -126,7 +126,7 @@ export const useLocationDetail = () => {
 
   const handleLookupCompany = async () => {
     const plate = form.licensePlate.trim();
-    if (!plate) return alert("⚠️ Nhập biển số xe!");
+    if (!plate) return alert("⚠️ Enter license plate!");
 
     try {
       const v = await vehicleService.getVehicleByLicensePlate(plate);
@@ -138,15 +138,15 @@ export const useLocationDetail = () => {
           battery: "",
           userId: "",
         }));
-        return alert("⚠️ Xe chưa đăng ký. Hãy nhập % pin thủ công!");
+        return alert("⚠️ Vehicle not registered. Please enter battery % manually!");
       }
 
-      let display = `UserId: ${v.userId} - Xe: ${v.licensePlate}`;
+      let display = `UserId: ${v.userId} - Vehicle: ${v.licensePlate}`;
 
-      if (v.companyName) display = `Công ty: ${v.companyName} - UserId: ${v.userId}`;
-      if (v.userName) display = `Khách hàng: ${v.userName} - UserId: ${v.userId}`;
+      if (v.companyName) display = `Company: ${v.companyName} - UserId: ${v.userId}`;
+      if (v.userName) display = `Customer: ${v.userName} - UserId: ${v.userId}`;
 
-      if (v.battery) display += ` - Pin: ${v.battery}`;
+      if (v.battery) display += ` - Battery: ${v.battery}`;
 
       setForm(prev => ({
         ...prev,
@@ -155,9 +155,9 @@ export const useLocationDetail = () => {
         userId: v.userId ? String(v.userId) : "",
       }));
 
-      alert("✅ Tra cứu thành công!");
+      alert("✅ Lookup successful!");
     } catch (error: any) {
-      alert(`⚠️ Lỗi tra cứu: ${error.message || error}`);
+      alert(`⚠️ Lookup error: ${error.message || error}`);
     }
   };
 
@@ -172,7 +172,7 @@ export const useLocationDetail = () => {
     setLoadingSubmit(true);
     try {
       const token = localStorage.getItem("accessToken");
-      if (!token) return alert("Hết hạn đăng nhập!");
+      if (!token) return alert("Session expired!");
 
       const body: any = {
         licensePlate,
@@ -216,7 +216,7 @@ export const useLocationDetail = () => {
     setLoadingSubmit(true);
     try {
       const token = localStorage.getItem("accessToken");
-      if (!token) return alert("Hết hạn đăng nhập!");
+      if (!token) return alert("Session expired!");
 
       const res = await fetch(`${API_BASE_URL}/guest/start`, {
         method: "POST",
@@ -246,11 +246,11 @@ export const useLocationDetail = () => {
     e.preventDefault();
 
     if (!selectedCharger || !form.portId)
-      return alert("⚠️ Chọn cổng sạc trước!");
+      return alert("⚠️ Select charging port first!");
 
     try {
       if (userType === "EV-Driver") {
-        if (!form.licensePlate) return alert("⚠️ Nhập biển số!");
+        if (!form.licensePlate) return alert("⚠️ Enter license plate!");
 
         await createChargingSession(
           form.licensePlate,
@@ -261,7 +261,7 @@ export const useLocationDetail = () => {
           form.userId
         );
 
-        alert("✅ Tạo phiên sạc EV-Driver thành công!");
+        alert("✅ EV-Driver charging session created successfully!");
       } else {
         await createChargingSessionGuest(
           station!.StationId,
@@ -270,13 +270,13 @@ export const useLocationDetail = () => {
           0
         );
 
-        alert("✅ Tạo phiên sạc Guest thành công!");
+        alert("✅ Guest charging session created successfully!");
       }
 
       setShowForm(false);
       navigate("/staff/charging-process");
     } catch (err: any) {
-      alert(`⚠️ Lỗi tạo phiên sạc: ${err.message}`);
+      alert(`⚠️ Error creating charging session: ${err.message}`);
     }
   };
 

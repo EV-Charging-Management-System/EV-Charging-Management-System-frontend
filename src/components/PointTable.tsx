@@ -46,13 +46,13 @@ const PointTable: React.FC<PointTableProps> = ({
     setEditingPoint(null);
   };
 
-  // ➕ Mở modal thêm mới
+  // ➕ Open add modal
   const handleAdd = () => {
     resetForm();
     setShowModal(true);
   };
 
-  // ✏️ Mở modal chỉnh sửa
+  // ✏️ Open edit modal
   const handleEdit = (point: Point) => {
     setEditingPoint(point);
     setFormData({
@@ -62,22 +62,22 @@ const PointTable: React.FC<PointTableProps> = ({
     setShowModal(true);
   };
 
-  // 💾 Lưu Point
+  // 💾 Save Point
   const handleSave = async () => {
     if (formData.numberOfPort <= 0) {
-      toast.warning("⚠️ Số lượng port phải lớn hơn 0!");
+      toast.warning("⚠️ Number of ports must be greater than 0!");
       return;
     }
 
     if (editingPoint) {
-      // Cập nhật Point
+      // Update Point
       await onEdit({
         ...editingPoint,
         NumberOfPort: formData.numberOfPort,
         ChargingPointStatus: formData.chargingPointStatus,
       });
     } else {
-      // Thêm mới Point
+      // Add new Point
       await onAdd(formData.numberOfPort);
     }
 
@@ -85,9 +85,9 @@ const PointTable: React.FC<PointTableProps> = ({
     resetForm();
   };
 
-  // 🗑️ Xóa Point
+  // 🗑️ Delete Point
   const handleDelete = async (id: number) => {
-    if (window.confirm("⚠️ Bạn có chắc muốn xóa Point này? (Chỉ xóa được khi không còn Port nào)")) {
+    if (window.confirm("⚠️ Are you sure you want to delete this Point? (You can only delete when there are no Ports left)")) {
       await onDelete(id);
     }
   };
@@ -97,17 +97,17 @@ const PointTable: React.FC<PointTableProps> = ({
       <div className="page-header">
         <button className="btn-back" onClick={onBack}>
           <ArrowLeft size={18} />
-          Quay lại
+          Back
         </button>
         <div className="page-title">
-          <h2>📍 Quản lý Charging Points</h2>
-          {stationName && <p className="subtitle">Trạm: {stationName} (ID: {stationId})</p>}
+          <h2>📍 Charging Points Management</h2>
+          {stationName && <p className="subtitle">Station: {stationName} (ID: {stationId})</p>}
         </div>
       </div>
 
       <div className="table-actions">
         <div className="table-info">
-          <span className="info-badge">Tổng: {points.length} Points</span>
+          <span className="info-badge">Total: {points.length} Points</span>
           <span className="info-badge success">
             Available: {points.filter(p => p.ChargingPointStatus === "AVAILABLE").length}
           </span>
@@ -119,7 +119,7 @@ const PointTable: React.FC<PointTableProps> = ({
           </span>
         </div>
         <button className="btn-add" onClick={handleAdd}>
-          <Plus size={18} /> Thêm Point
+          <Plus size={18} /> Add Point
         </button>
       </div>
 
@@ -128,9 +128,9 @@ const PointTable: React.FC<PointTableProps> = ({
           <tr>
             <th>Point ID</th>
             <th>Station ID</th>
-            <th>Số lượng Port</th>
-            <th>Trạng thái</th>
-            <th>Hành động</th>
+            <th>Number of Ports</th>
+            <th>Status</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -138,7 +138,7 @@ const PointTable: React.FC<PointTableProps> = ({
             <tr>
               <td colSpan={5} style={{ textAlign: "center", padding: "20px" }}>
                 <p style={{ color: "#94a3b8", fontSize: "15px" }}>
-                  Không có Charging Point nào trong trạm này
+                  There are no Charging Points in this station
                 </p>
               </td>
             </tr>
@@ -164,21 +164,21 @@ const PointTable: React.FC<PointTableProps> = ({
                     <button
                       className="btn-icon btn-view"
                       onClick={() => onViewPorts(point.PointId)}
-                      title="Xem Ports"
+                      title="View Ports"
                     >
                       📋
                     </button>
                     <button
                       className="btn-icon btn-edit"
                       onClick={() => handleEdit(point)}
-                      title="Sửa"
+                      title="Edit"
                     >
                       <Pencil size={16} />
                     </button>
                     <button
                       className="btn-icon btn-delete"
                       onClick={() => handleDelete(point.PointId)}
-                      title="Xóa"
+                      title="Delete"
                     >
                       <Trash2 size={16} />
                     </button>
@@ -190,12 +190,12 @@ const PointTable: React.FC<PointTableProps> = ({
         </tbody>
       </table>
 
-      {/* ========== MODAL THÊM/SỬA POINT ========== */}
+      {/* ========== ADD/EDIT POINT MODAL ========== */}
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">
             <div className="modal-header">
-              <h3>{editingPoint ? "✏️ Sửa Point" : "➕ Thêm Point Mới"}</h3>
+              <h3>{editingPoint ? "✏️ Edit Point" : "➕ Add New Point"}</h3>
               <button className="btn-close" onClick={() => setShowModal(false)}>
                 <X size={20} />
               </button>
@@ -203,7 +203,7 @@ const PointTable: React.FC<PointTableProps> = ({
 
             <div className="modal-body">
               <div className="form-group">
-                <label>Số lượng Port *</label>
+                <label>Number of Ports *</label>
                 <input
                   type="number"
                   min="0"
@@ -211,22 +211,22 @@ const PointTable: React.FC<PointTableProps> = ({
                   onChange={(e) =>
                     setFormData({ ...formData, numberOfPort: Number(e.target.value) })
                   }
-                  placeholder="Nhập số lượng port"
+                  placeholder="Enter number of ports"
                 />
               </div>
 
               {editingPoint && (
                 <div className="form-group">
-                  <label>Trạng thái</label>
+                  <label>Status</label>
                   <select
                     value={formData.chargingPointStatus}
                     onChange={(e) =>
                       setFormData({ ...formData, chargingPointStatus: e.target.value })
                     }
                   >
-                    <option value="AVAILABLE">AVAILABLE - Sẵn sàng</option>
-                    <option value="BUSY">BUSY - Đang bận</option>
-                    <option value="OFFLINE">OFFLINE - Không hoạt động</option>
+                    <option value="AVAILABLE">AVAILABLE - Ready</option>
+                    <option value="BUSY">BUSY - In Use</option>
+                    <option value="OFFLINE">OFFLINE - Offline</option>
                   </select>
                 </div>
               )}
@@ -234,10 +234,10 @@ const PointTable: React.FC<PointTableProps> = ({
 
             <div className="modal-footer">
               <button className="btn-cancel" onClick={() => setShowModal(false)}>
-                Hủy
+                Cancel
               </button>
               <button className="btn-save" onClick={handleSave}>
-                💾 Lưu
+                💾 Save
               </button>
             </div>
           </div>

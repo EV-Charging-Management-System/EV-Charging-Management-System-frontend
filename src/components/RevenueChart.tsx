@@ -16,14 +16,14 @@ const RevenueChart: React.FC = () => {
   useEffect(() => {
     const loadChartData = async () => {
       try {
-        const res = await adminService.getMonthlyRevenue(); // API backend
+        const res = await adminService.getMonthlyRevenue(); // Backend API
         console.log("📊 Revenue chart data:", res);
 
         if (Array.isArray(res)) {
           setData(res);
         }
       } catch (err) {
-        console.error("❌ Lỗi tải dữ liệu biểu đồ:", err);
+        console.error("❌ Error loading chart data:", err);
       }
     };
     loadChartData();
@@ -38,7 +38,7 @@ const RevenueChart: React.FC = () => {
           <YAxis stroke="#9ca3af" />
           <Tooltip
             formatter={(value: number) =>
-              value.toLocaleString("vi-VN") + " ₫"
+              value.toLocaleString("en-US") + " ₫"
             }
             contentStyle={{
               backgroundColor: "#0f172a",
@@ -53,4 +53,4 @@ const RevenueChart: React.FC = () => {
   );
 };
 
-export default RevenueChart; // ✅ Dòng này cực kỳ quan trọng
+export default RevenueChart; // ✅ This line is extremely important

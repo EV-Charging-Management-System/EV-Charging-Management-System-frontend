@@ -42,7 +42,7 @@ export const authService = {
         localStorage.setItem("user", JSON.stringify(normalizedUser));
         localStorage.setItem("userId", String(normalizedUser.userId || normalizedUser.UserId));
       } catch (err) {
-        console.warn("⚠️ Không thể load thông tin user sau đăng nhập:", err);
+        console.warn("⚠️ Cannot load user information after login:", err);
       }
     }
 
@@ -109,13 +109,13 @@ export const authService = {
     try {
       // ⚙️ lấy token từ local
       const token = localStorage.getItem("accessToken");
-      if (!token) throw new Error("Chưa đăng nhập");
+      if (!token) throw new Error("Not logged in");
 
       // ✅ gọi API để luôn lấy user mới nhất
       const response = await apiClient.get<ApiResponse<{ user: User }>>("/auth/me");
       const user = response.data.user;
 
-      if (!user) throw new Error("Không nhận được thông tin user");
+      if (!user) throw new Error("Cannot get user information");
 
       const normalizedUser = {
         ...user,

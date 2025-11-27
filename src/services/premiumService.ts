@@ -2,7 +2,7 @@ import { apiClient } from "../utils/api";
 
 export const premiumService = {
   /**
-   * 💳 1️⃣ Tạo đăng ký gói Premium & nhận URL thanh toán VNPay
+   * 💳 1️⃣ Create Premium subscription & get VNPay payment URL
    * Endpoint: POST /api/subscriptions
    */
   async createSubscription(payload: {
@@ -24,11 +24,11 @@ export const premiumService = {
       const data = res?.data?.data || {};
       const vnpUrl = data?.vnpUrl || res?.data?.vnpUrl || res?.vnpUrl || "";
 
-      // 🧩 Kiểm tra backend trả lỗi "đã có gói ACTIVE"
+      // 🧩 Check if backend returns error "already has ACTIVE package"
       if (res?.data?.success === false) {
         return {
           success: false,
-          message: res?.data?.message || "Không thể tạo gói Premium mới.",
+          message: res?.data?.message || "Cannot create new Premium package.",
         };
       }
 
@@ -37,7 +37,7 @@ export const premiumService = {
           success: true,
           vnpUrl,
           txnRef: data?.TxnRef || "",
-          message: res?.data?.message || "Tạo URL thanh toán thành công.",
+          message: res?.data?.message || "Payment URL created successfully.",
         };
       }
 
@@ -45,7 +45,7 @@ export const premiumService = {
         success: false,
         message:
           res?.data?.message ||
-          "Không nhận được đường dẫn thanh toán từ máy chủ.",
+          "Payment URL not received from server.",
       };
     } catch (error: any) {
       console.error(
@@ -57,13 +57,13 @@ export const premiumService = {
         success: false,
         message:
           error?.response?.data?.message ||
-          "Không thể tạo gói Premium (Lỗi máy chủ hoặc kết nối).",
+          "Cannot create Premium package (Server or connection error).",
       };
     }
   },
 
   /**
-   * 👤 2️⃣ Lấy thông tin hội viên Premium hiện tại
+   * 👤 2️⃣ Get current Premium membership information
    * Endpoint: GET /api/subscriptions/current
    */
   async getCurrentSubscription() {
@@ -83,14 +83,14 @@ export const premiumService = {
       );
       return {
         success: false,
-        message: "Không thể lấy thông tin hội viên hiện tại.",
+        message: "Cannot get current member information.",
         data: null,
       };
     }
   },
 
   /**
-   * 🌟 3️⃣ Kiểm tra trạng thái hội viên (Premium hay không)
+   * 🌟 3️⃣ Check membership status (Premium or not)
    */
   async checkPremiumStatus() {
     try {

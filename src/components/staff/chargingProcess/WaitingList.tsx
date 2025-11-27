@@ -14,12 +14,12 @@ const WaitingList: React.FC<WaitingListProps> = ({ sessions, onStartCharging, on
   return (
     <>
       <h2 className="charging-title d-flex justify-content-between align-items-center">
-        Lịch Sạc Sắp Tới
+        Upcoming Charging Sessions
         <Button 
           variant="outline-success" 
           size="sm" 
           onClick={onRefresh} 
-          title="Làm mới danh sách"
+          title="Refresh list"
         >
           <FaSyncAlt />
         </Button>
@@ -27,7 +27,7 @@ const WaitingList: React.FC<WaitingListProps> = ({ sessions, onStartCharging, on
 
       <div className="waiting-list">
         {sessions.length === 0 ? (
-          <p className="text-center text-muted">Chưa có phiên sạc nào</p>
+          <p className="text-center text-muted">No charging sessions yet</p>
         ) : (
           sessions.map(session => (
             <SessionCard 

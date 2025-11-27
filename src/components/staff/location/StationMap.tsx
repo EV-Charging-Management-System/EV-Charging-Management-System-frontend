@@ -57,8 +57,8 @@ const StationMap: React.FC<StationMapProps> = ({
               >
                 <div className='info-window'>
                   <p><strong>{station.StationName}</strong></p>
-                  <p>📍 Địa chỉ: {station.address}</p>
-                  <p>⚡ Trạng thái: {station.status}</p>
+                  <p>📍 Address: {station.address}</p>
+                  <p>⚡ Status: {station.status}</p>
                   <Button
                     variant="success"
                     size="sm"
@@ -66,7 +66,7 @@ const StationMap: React.FC<StationMapProps> = ({
                       navigate(`/staff/locationDetail/${encodeURIComponent(station.address)}`)
                     }
                   >
-                    Xem chi tiết trạm
+                    View station details
                   </Button>
                 </div>
               </InfoWindow>

@@ -37,19 +37,19 @@ const ProfileStaff: React.FC = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // ✅ Xử lý logout
+  // ✅ Handle logout
   const handleLogout = async () => {
     try {
       await authService.logout();
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("user");
-      alert("Đăng xuất thành công!");
+      alert("Logout successful!");
       navigate("/login");
       setOpenMenu(false);
     } catch (err) {
       console.error(err);
-      alert("Logout thất bại!");
+      alert("Logout failed!");
     }
   };
 
@@ -102,7 +102,7 @@ const ProfileStaff: React.FC = () => {
               }}
             />
             <h4 style={{ fontSize: "16px", marginBottom: "2px" }}>
-              {user ? user.email.split("@")[0] : "Đang tải..."}
+              {user ? user.email.split("@")[0] : "Loading..."}
             </h4>
             <p style={{ fontSize: "13px", color: "#9ca3af" }}>
               Staff ID: {user?.userId ?? "—"}
@@ -116,8 +116,8 @@ const ProfileStaff: React.FC = () => {
             className="profile-menu"
             style={{ display: "flex", flexDirection: "column", gap: "8px" }}
           >
-            <button className="profile-item">Thông tin cá nhân</button>
-            <button className="profile-item">Cài đặt tài khoản</button>
+            <button className="profile-item">Personal Information</button>
+            <button className="profile-item">Account Settings</button>
             <hr
               style={{
                 borderColor: "rgba(255,255,255,0.2)",
@@ -133,7 +133,7 @@ const ProfileStaff: React.FC = () => {
                 fontWeight: "bold",
               }}
             >
-              Đăng xuất
+              Logout
             </button>
           </div>
         </div>

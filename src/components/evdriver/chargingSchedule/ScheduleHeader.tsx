@@ -3,7 +3,7 @@ import { Button } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
 
 /**
- * Component header với title và nút đặt lịch mới
+ * Header component with title and new booking button
  */
 export const ScheduleHeader: React.FC = () => {
   const navigate = useNavigate()
@@ -11,11 +11,11 @@ export const ScheduleHeader: React.FC = () => {
   return (
     <div className='d-flex justify-content-between align-items-center mb-4'>
       <div>
-        <h2 className='fw-bold text-warning mb-1'>Lịch Đặt Sạc</h2>
-        <p className='text-secondary'>Theo dõi và quản lý lịch đặt sạc của bạn</p>
+        <h2 className='fw-bold text-warning mb-1'>Charging Schedule</h2>
+        <p className='text-secondary'>Monitor and manage your charging bookings</p>
       </div>
       <Button variant='warning' onClick={() => navigate('/booking-online-station')}>
-        + Đặt Lịch Mới
+        + New Booking
       </Button>
     </div>
   )

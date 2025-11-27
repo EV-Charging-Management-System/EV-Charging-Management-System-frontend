@@ -31,7 +31,7 @@ const BookingTable: React.FC<BookingTableProps> = ({
       {
         BookingId: 101,
         UserName: "driver01",
-        StationName: "Trạm Sạc Trung Tâm",
+        StationName: "Central Charging Station",
         StartTime: "2025-10-27T08:00:00",
         EndTime: "2025-10-27T10:00:00",
         Status: "COMPLETED",
@@ -39,7 +39,7 @@ const BookingTable: React.FC<BookingTableProps> = ({
       {
         BookingId: 102,
         UserName: "business01",
-        StationName: "Trạm Sạc Bình Dương",
+        StationName: "Binh Duong Charging Station",
         StartTime: "2025-10-28T13:00:00",
         EndTime: "2025-10-28T14:30:00",
         Status: "SCHEDULED",
@@ -47,7 +47,7 @@ const BookingTable: React.FC<BookingTableProps> = ({
       {
         BookingId: 103,
         UserName: "staff01",
-        StationName: "Trạm Sạc Hà Nội",
+        StationName: "Hanoi Charging Station",
         StartTime: "2025-10-25T15:00:00",
         EndTime: "2025-10-25T16:30:00",
         Status: "CANCELLED",
@@ -59,19 +59,19 @@ const BookingTable: React.FC<BookingTableProps> = ({
   return (
     <section className="data-section">
       <div className="data-section-header">
-        <h2>📅 Danh sách đặt lịch</h2>
-        <button className="btn-add">+ Thêm lịch</button>
+        <h2>📅 Booking List</h2>
+        <button className="btn-add">+ Add Booking</button>
       </div>
 
       <table className="admin-table">
         <thead>
           <tr>
             <th>ID</th>
-            <th>Người dùng</th>
-            <th>Trạm sạc</th>
-            <th>Bắt đầu</th>
-            <th>Kết thúc</th>
-            <th>Trạng thái</th>
+            <th>User</th>
+            <th>Charging Station</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Status</th>
           </tr>
         </thead>
         <tbody>

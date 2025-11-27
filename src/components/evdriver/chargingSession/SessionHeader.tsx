@@ -7,16 +7,16 @@ interface SessionHeaderProps {
 }
 
 /**
- * Component header với title và status
+ * Header component with title and status
  */
 export const SessionHeader: React.FC<SessionHeaderProps> = ({ booking, status }) => {
-  const statusText = status === 'done' ? 'Đã hoàn tất' : status === 'running' ? 'Đang sạc' : 'Đang chờ sạc'
+  const statusText = status === 'done' ? 'Completed' : status === 'running' ? 'Charging' : 'Waiting to charge'
   const statusClass = status
 
   return (
     <div className='session-header'>
       <div>
-        <h1 className='session-title'>Phiên Sạc</h1>
+        <h1 className='session-title'>Charging Session</h1>
         <p className='session-subtitle'>{booking ? booking.stationName : 'Trạm Sạc Trung Tâm Quận 1'}</p>
       </div>
 

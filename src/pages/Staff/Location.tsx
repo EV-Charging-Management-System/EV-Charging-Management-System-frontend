@@ -26,8 +26,8 @@ const Location: React.FC = () => {
     return () => clearTimeout(timer)
   }, [])
 
-  if (loadError) return <div style={{ color: 'red' }}>Không thể tải Google Maps</div>
-  if (!isLoaded) return <div className='map-loading'>Đang tải bản đồ trạm sạc...</div>
+  if (loadError) return <div style={{ color: 'red' }}>Cannot load Google Maps</div>
+  if (!isLoaded) return <div className='map-loading'>Loading charging station map...</div>
 
   return (
     <div className='location-wrapper'>
@@ -35,7 +35,7 @@ const Location: React.FC = () => {
       <div className={`location-main-wrapper ${showContent ? 'fade-in' : 'hidden'}`}>
         <main className='location-main'>
           <header className='location-header'>
-            <h1>Quản lý vị trí trạm sạc</h1>
+            <h1>Charging Station Location Management</h1>
             <div className='location-header-actions'>
               <ProfileStaff />
             </div>

@@ -14,7 +14,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({ currentUser }) => {
       <p className='booking-subtitle'>“Choose a charging station near you and book now”</p>
       {currentUser && (
         <div className='user-greeting' style={{ color: '#7cffb2', marginBottom: 8 }}>
-          Xin chào, {currentUser.fullName || currentUser.fullname || currentUser.email}
+          Hello, {currentUser.fullName || currentUser.fullname || currentUser.email}
         </div>
       )}
     </div>

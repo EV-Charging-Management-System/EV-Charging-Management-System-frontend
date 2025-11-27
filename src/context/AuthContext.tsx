@@ -73,7 +73,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (data: RegisterRequest) => {
     try {
       const response = await authService.register(data)
-      return response // ✅ Trả về để componxent sử dụng message
+      return response // Trả về để componxent sử dụng message
     } catch (error) {
       console.error('Register error:', error)
       throw error

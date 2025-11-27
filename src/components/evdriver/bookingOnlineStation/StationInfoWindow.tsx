@@ -9,7 +9,7 @@ interface StationInfoWindowProps {
 }
 
 /**
- * Component hiển thị InfoWindow khi click vào marker trên map
+ * Component displays InfoWindow when clicking on a marker on the map
  */
 export const StationInfoWindow: React.FC<StationInfoWindowProps> = ({ station, onClose }) => {
   const navigate = useNavigate()
@@ -20,7 +20,7 @@ export const StationInfoWindow: React.FC<StationInfoWindowProps> = ({ station, o
         <h3 className='station-popup-title'>{station.name}</h3>
         <p className='station-popup-address'>{station.address}</p>
         <p className='station-popup-info'>
-          Số trống: {station.empty}/{station.total}
+          Empty slots: {station.empty}/{station.total}
         </p>
         <button className='detail-btn' onClick={() => navigate(`/booking-detail/${station.id}`)}>
           View & Book

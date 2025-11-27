@@ -12,7 +12,7 @@ export interface Vehicle {
 }
 
 /**
- * Custom hook để fetch danh sách xe của user
+ * Custom hook to fetch the user's vehicle list
  */
 export const useVehicles = (userId: string | undefined) => {
   const [vehicles, setVehicles] = useState<Vehicle[]>([])
@@ -37,8 +37,8 @@ export const useVehicles = (userId: string | undefined) => {
           setVehicles([])
         }
       } catch (err: any) {
-        console.error('❌ Lỗi khi tải danh sách xe:', err)
-        setError(err.message || 'Không thể tải danh sách xe')
+        console.error('❌ Error loading vehicle list:', err)
+        setError(err.message || 'Unable to load vehicle list')
         setVehicles([])
       } finally {
         setLoading(false)

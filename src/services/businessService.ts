@@ -18,7 +18,7 @@ export const businessService = {
     } catch (err: any) {
       return {
         success: false,
-        message: err.response?.data?.message || "Không thể tạo công ty.",
+        message: err.response?.data?.message || "Cannot create company.",
       };
     }
   },
@@ -38,7 +38,7 @@ export const businessService = {
     } catch (err: any) {
       return {
         success: false,
-        message: err.response?.data?.message || "Không thể thêm xe.",
+        message: err.response?.data?.message || "Cannot add vehicle.",
       };
     }
   },
@@ -55,7 +55,7 @@ export const businessService = {
     } catch (err: any) {
       return {
         success: false,
-        message: err.response?.data?.message || "Không thể xoá xe.",
+        message: err.response?.data?.message || "Cannot delete vehicle.",
       };
     }
   },
@@ -72,7 +72,7 @@ export const businessService = {
       return {
         success: false,
         data: [],
-        message: err.response?.data?.message || "Không thể tải danh sách xe.",
+        message: err.response?.data?.message || "Cannot load vehicle list.",
       };
     }
   },
@@ -90,7 +90,7 @@ export const businessService = {
         success: false,
         data: {},
         message:
-          err.response?.data?.message || "Không thể tải tổng quan thanh toán.",
+          err.response?.data?.message || "Cannot load payment overview.",
       };
     }
   },
@@ -107,7 +107,7 @@ export const businessService = {
       return {
         success: false,
         data: [],
-        message: err.response?.data?.message || "Không thể tải lịch sử sạc.",
+        message: err.response?.data?.message || "Cannot load charging history.",
       };
     }
   },
@@ -124,7 +124,7 @@ export const businessService = {
       return {
         success: false,
         data: {},
-        message: err.response?.data?.message || "Không thể tải tổng quan.",
+        message: err.response?.data?.message || "Cannot load overview.",
       };
     }
   },
@@ -142,7 +142,7 @@ export const businessService = {
     } catch (err: any) {
       return {
         success: false,
-        message: err.response?.data?.message || "Không thể tra cứu công ty!",
+        message: err.response?.data?.message || "Cannot lookup company!",
       };
     }
   },
@@ -159,7 +159,7 @@ export const businessService = {
       return {
         success: false,
         data: [],
-        message: err.response?.data?.message || "Không thể tải hóa đơn.",
+        message: err.response?.data?.message || "Cannot load invoices.",
       };
     }
   },
@@ -180,7 +180,7 @@ export const businessService = {
       console.error("[businessService] ❌ paySingleInvoice:", err);
       return {
         success: false,
-        message: err.response?.data?.message || "Không thể tạo thanh toán.",
+        message: err.response?.data?.message || "Cannot create payment.",
       };
     }
   },

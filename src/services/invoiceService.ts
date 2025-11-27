@@ -60,7 +60,7 @@ export const invoiceService = {
       if (!contentType || !contentType.includes('application/json')) {
         const textResponse = await res.text();
         console.error("❌ Response is not JSON:", textResponse.substring(0, 200));
-        throw new Error("API endpoint không tồn tại hoặc trả về HTML thay vì JSON");
+        throw new Error("API endpoint does not exist or returns HTML instead of JSON");
       }
 
       const data = await res.json();

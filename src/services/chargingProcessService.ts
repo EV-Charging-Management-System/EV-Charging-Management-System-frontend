@@ -9,7 +9,7 @@ export const chargingService = {
     const res = await fetch(`${API_BASE}/api/station/getPort?pointId=${pointId}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    if (!res.ok) throw new Error("Lỗi khi tải cổng sạc");
+    if (!res.ok) throw new Error("Error loading charging ports");
     const json = await res.json();
     return json.data || [];
   },
@@ -19,7 +19,7 @@ export const chargingService = {
     const res = await fetch(`${API_BASE}/api/staff/station/sessions`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    if (!res.ok) throw new Error("Lỗi khi tải session nhân viên");
+    if (!res.ok) throw new Error("Error loading staff sessions");
     const json = await res.json();
     return json.data || [];
   },
@@ -29,7 +29,7 @@ export const chargingService = {
     const res = await fetch(`${API_BASE}/api/charging-session/guest?stationId=${stationId}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    if (!res.ok) throw new Error("Lỗi khi tải session khách");
+    if (!res.ok) throw new Error("Error loading guest sessions");
     const json = await res.json();
     return json.data || [];
   },
@@ -39,7 +39,7 @@ export const chargingService = {
     const res = await fetch(`${API_BASE}/api/station/getAllStations`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    if (!res.ok) throw new Error("Lỗi khi tải danh sách trạm");
+    if (!res.ok) throw new Error("Error loading stations list");
     const json = await res.json();
     return json.data || [];
   },
@@ -57,7 +57,7 @@ export const chargingService = {
         batteryPercentage,
       }),
     });
-    if (!res.ok) throw new Error("Lỗi khi cập nhật pin");
+    if (!res.ok) throw new Error("Error updating battery");
     return await res.json();
   },
 

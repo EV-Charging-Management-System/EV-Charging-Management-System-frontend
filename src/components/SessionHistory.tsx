@@ -60,11 +60,11 @@ const SessionHistory: React.FC<Props> = ({ companyId }) => {
               <td>{s.SessionId}</td>
               <td>{s.LicensePlate}</td>
               <td>{s.VehicleName}</td>
-              <td>{new Date(s.CheckinTime).toLocaleString("vi-VN")}</td>
-              <td>{new Date(s.CheckoutTime).toLocaleString("vi-VN")}</td>
+              <td>{new Date(s.CheckinTime).toLocaleString("en-US")}</td>
+              <td>{new Date(s.CheckoutTime).toLocaleString("en-US")}</td>
               <td>{s.TotalTime}</td>
               <td>{s.ChargingStatus}</td>
-              <td>{s.SessionPrice?.toLocaleString("vi-VN") ?? 0}</td>
+              <td>{s.SessionPrice?.toLocaleString("en-US") ?? 0}</td>
             </tr>
           ))}
         </tbody>

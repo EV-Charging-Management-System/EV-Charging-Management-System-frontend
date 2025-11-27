@@ -17,7 +17,7 @@ const PaymentTable: React.FC = () => {
   const [selected, setSelected] = useState<Payment | null>(null);
 
   useEffect(() => {
-    // 🎯 Dữ liệu giả lập để hiển thị bảng
+    // 🎯 Mock data for displaying the table
     const mockData: Payment[] = [
       {
         PaymentId: 1001,
@@ -27,7 +27,7 @@ const PaymentTable: React.FC = () => {
         Status: "PAID",
         CreatedAt: "2025-10-26T09:00:00",
         UserName: "driver01",
-        StationName: "Trạm Sạc Trung Tâm",
+        StationName: "Central Charging Station",
       },
       {
         PaymentId: 1002,
@@ -37,7 +37,7 @@ const PaymentTable: React.FC = () => {
         Status: "PENDING",
         CreatedAt: "2025-10-25T14:30:00",
         UserName: "business01",
-        StationName: "Trạm Sạc Hà Nội",
+        StationName: "Hanoi Charging Station",
       },
       {
         PaymentId: 1003,
@@ -47,7 +47,7 @@ const PaymentTable: React.FC = () => {
         Status: "FAILED",
         CreatedAt: "2025-10-24T10:00:00",
         UserName: "staff01",
-        StationName: "Trạm Sạc Bình Dương",
+        StationName: "Binh Duong Charging Station",
       },
     ];
     setPayments(mockData);
@@ -58,17 +58,17 @@ const PaymentTable: React.FC = () => {
 
   return (
     <section className="data-section">
-      <h2>💳 Danh sách hóa đơn</h2>
+      <h2>💳 Invoice List</h2>
       <table className="admin-table">
         <thead>
           <tr>
             <th>ID</th>
             <th>Booking</th>
-            <th>Số tiền (VNĐ)</th>
-            <th>Phương thức</th>
-            <th>Trạng thái</th>
-            <th>Ngày tạo</th>
-            <th>Thao tác</th>
+            <th>Amount (VND)</th>
+            <th>Method</th>
+            <th>Status</th>
+            <th>Created At</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -97,7 +97,7 @@ const PaymentTable: React.FC = () => {
                   className="btn-detail"
                   onClick={() => setSelected(p)}
                 >
-                  Xem
+                  View
                 </button>
               </td>
             </tr>
@@ -105,21 +105,21 @@ const PaymentTable: React.FC = () => {
         </tbody>
       </table>
 
-      {/* Popup xem chi tiết */}
+      {/* Detail popup */}
       {selected && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <h3>🧾 Chi tiết hóa đơn</h3>
-            <p><b>Mã hóa đơn:</b> {selected.PaymentId}</p>
-            <p><b>Người dùng:</b> {selected.UserName}</p>
-            <p><b>Trạm sạc:</b> {selected.StationName}</p>
+            <h3>🧾 Invoice Details</h3>
+            <p><b>Invoice ID:</b> {selected.PaymentId}</p>
+            <p><b>User:</b> {selected.UserName}</p>
+            <p><b>Charging Station:</b> {selected.StationName}</p>
             <p><b>Booking ID:</b> {selected.BookingId}</p>
-            <p><b>Phương thức:</b> {selected.Method}</p>
-            <p><b>Số tiền:</b> {formatCurrency(selected.Amount)}</p>
-            <p><b>Trạng thái:</b> {selected.Status}</p>
-            <p><b>Ngày tạo:</b> {new Date(selected.CreatedAt).toLocaleString()}</p>
+            <p><b>Method:</b> {selected.Method}</p>
+            <p><b>Amount:</b> {formatCurrency(selected.Amount)}</p>
+            <p><b>Status:</b> {selected.Status}</p>
+            <p><b>Created At:</b> {new Date(selected.CreatedAt).toLocaleString()}</p>
             <button className="btn-cancel" onClick={() => setSelected(null)}>
-              Đóng
+              Close
             </button>
           </div>
         </div>

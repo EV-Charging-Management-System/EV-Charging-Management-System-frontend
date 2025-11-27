@@ -29,15 +29,15 @@ const StationSelector: React.FC<StationSelectorProps> = ({
 
   return (
     <div className='location-left-panel center-panel'>
-      <h2>Danh sách Trạm sạc - TP.HCM</h2>
+      <h2>Charging Station List - Ho Chi Minh City</h2>
       <Form.Group>
-        <Form.Label>Chọn trạm để xem trên bản đồ:</Form.Label>
+        <Form.Label>Select a station to view on the map:</Form.Label>
         <Form.Select
           value={selectedStationId ?? ''}
           onChange={handleChange}
           size="lg"
         >
-          <option value=''>-- Hiển thị tất cả trạm --</option>
+          <option value=''>-- Show all stations --</option>
           {stations.map((s) => (
             <option key={s.StationId} value={s.StationId}>
               {s.StationName}
@@ -47,7 +47,7 @@ const StationSelector: React.FC<StationSelectorProps> = ({
       </Form.Group>
 
       <div className="mt-3">
-        <small>Tổng số trạm đang quản lý: {stations.length}</small>
+        <small>Total stations managed: {stations.length}</small>
         {fetchError && <Alert variant="danger" className="mt-2">{fetchError}</Alert>}
       </div>
     </div>

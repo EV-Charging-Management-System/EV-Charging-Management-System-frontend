@@ -3,7 +3,7 @@ import { authService } from '../../../services/authService'
 import type { BookingFormData } from './types'
 
 /**
- * Custom hook quản lý form data và load thông tin user
+ * Custom hook to manage form data and load user information
  */
 export const useBookingForm = () => {
   const [formData, setFormData] = useState<BookingFormData>({
@@ -27,7 +27,7 @@ export const useBookingForm = () => {
           email: user?.email || ''
         }))
       } catch (e) {
-        console.error('❌ Không thể load profile:', e)
+        console.error('❌ Failed to load profile:', e)
       }
     })()
   }, [])

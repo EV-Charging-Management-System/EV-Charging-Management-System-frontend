@@ -11,7 +11,7 @@ const BusinessAccountTable: React.FC = () => {
   const [selectedDetail, setSelectedDetail] = useState<any | null>(null);
   const [showModal, setShowModal] = useState(false);
 
-  // 🔹 Lấy danh sách tài khoản doanh nghiệp chờ duyệt
+  // 🔹 Fetch pending business accounts
   const fetchAccounts = async () => {
     try {
       setLoading(true);
@@ -20,8 +20,8 @@ const BusinessAccountTable: React.FC = () => {
       else if (Array.isArray(res)) setAccounts(res);
       else setAccounts([]);
     } catch (err) {
-      console.error("❌ Lỗi tải danh sách doanh nghiệp:", err);
-      toast.error("Không thể tải danh sách doanh nghiệp!");
+      console.error("❌ Failed to load business accounts:", err);
+      toast.error("Unable to load business accounts!");
     } finally {
       setLoading(false);
     }
@@ -31,59 +31,59 @@ const BusinessAccountTable: React.FC = () => {
     fetchAccounts();
   }, []);
 
-  // 🔹 Cập nhật trạng thái trong FE
+  // 🔹 Update status in FE
   const updateStatus = (id: number, status: string) =>
     setAccounts((prev) =>
       prev.map((acc) => (acc.UserId === id ? { ...acc, AccountStatus: status } : acc))
     );
 
-  // ✅ Duyệt
+  // ✅ Approve
   const handleApprove = async (id: number) => {
     setProcessingId(id);
     try {
       const res = await adminService.approveBusinessAccount(id);
       if (res.success) {
         updateStatus(id, "APPROVED");
-        toast.success(res.message || "✅ Đã duyệt doanh nghiệp!");
+        toast.success(res.message || "✅ Business account approved!");
         await fetchAccounts();
-      } else toast.error(res.message || "❌ Duyệt thất bại!");
+      } else toast.error(res.message || "❌ Approval failed!");
     } catch (err) {
       console.error(err);
-      toast.error("❌ Lỗi khi duyệt tài khoản!");
+      toast.error("❌ Error while approving account!");
     } finally {
       setProcessingId(null);
     }
   };
 
-  // ❌ Từ chối
+  // ❌ Reject
   const handleReject = async (id: number) => {
     setProcessingId(id);
     try {
       const res = await adminService.rejectBusinessAccount(id);
       if (res.success) {
         updateStatus(id, "REJECTED");
-        toast.info(res.message || "🚫 Đã từ chối!");
+        toast.info(res.message || "🚫 Rejected!");
         await fetchAccounts();
-      } else toast.error(res.message || "❌ Từ chối thất bại!");
+      } else toast.error(res.message || "❌ Rejection failed!");
     } catch (err) {
       console.error(err);
-      toast.error("❌ Lỗi khi từ chối tài khoản!");
+      toast.error("❌ Error while rejecting account!");
     } finally {
       setProcessingId(null);
     }
   };
 
-  // 🔍 Xem chi tiết yêu cầu (hiện modal)
+  // 🔍 View request details (show modal)
   const handleViewDetail = async (id: number) => {
     try {
       const res = await adminService.getBusinessDetail(id);
       if (res?.success && res.data) {
         setSelectedDetail(res.data);
         setShowModal(true);
-      } else toast.warn("Không tìm thấy thông tin doanh nghiệp!");
+      } else toast.warn("Business information not found!");
     } catch (err) {
-      console.error("❌ Lỗi khi xem chi tiết:", err);
-      toast.error("Không thể tải chi tiết!");
+      console.error("❌ Error while viewing details:", err);
+      toast.error("Unable to load details!");
     }
   };
 
@@ -91,32 +91,32 @@ const BusinessAccountTable: React.FC = () => {
     return (
       <div className="loading-container">
         <div className="spinner"></div>
-        <p>Đang tải danh sách doanh nghiệp...</p>
+        <p>Loading business accounts...</p>
       </div>
     );
 
   if (!accounts.length)
     return (
       <div className="empty-container">
-        <p>Không có tài khoản doanh nghiệp nào đang chờ duyệt.</p>
+        <p>No pending business accounts.</p>
       </div>
     );
 
   return (
     <section className="admin-section">
-      <h2>🏢 Danh sách tài khoản doanh nghiệp</h2>
+      <h2>🏢 Business Account List</h2>
       <p className="section-desc">
-        Quản trị viên có thể xem chi tiết, duyệt hoặc từ chối yêu cầu nâng cấp.
+        Admins can view details, approve, or reject upgrade requests.
       </p>
 
       <table className="admin-table">
         <thead>
           <tr>
             <th>ID</th>
-            <th>Tên người dùng</th>
+            <th>User Name</th>
             <th>Email</th>
-            <th>Trạng thái</th>
-            <th>Thao tác</th>
+            <th>Status</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -146,7 +146,7 @@ const BusinessAccountTable: React.FC = () => {
                       className="btn-detail"
                       onClick={() => handleViewDetail(acc.UserId)}
                     >
-                      Xem chi tiết
+                      View Details
                     </button>
                     {status === "PENDING_BUSINESS" || status === "PENDING" ? (
                       <>
@@ -155,14 +155,14 @@ const BusinessAccountTable: React.FC = () => {
                           disabled={processingId === acc.UserId}
                           onClick={() => handleApprove(acc.UserId)}
                         >
-                          {processingId === acc.UserId ? "Đang duyệt..." : "Duyệt"}
+                          {processingId === acc.UserId ? "Approving..." : "Approve"}
                         </button>
                         <button
                           className="btn-reject"
                           disabled={processingId === acc.UserId}
                           onClick={() => handleReject(acc.UserId)}
                         >
-                          {processingId === acc.UserId ? "Đang từ chối..." : "Từ chối"}
+                          {processingId === acc.UserId ? "Rejecting..." : "Reject"}
                         </button>
                       </>
                     ) : (
@@ -176,20 +176,20 @@ const BusinessAccountTable: React.FC = () => {
         </tbody>
       </table>
 
-      {/* 🔹 Modal hiển thị chi tiết */}
+      {/* 🔹 Modal for details */}
       {showModal && selectedDetail && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h3>📋 Chi tiết doanh nghiệp</h3>
-            <p><strong>👤 Người dùng:</strong> {selectedDetail.UserName}</p>
+            <h3>📋 Business Details</h3>
+            <p><strong>👤 User:</strong> {selectedDetail.UserName}</p>
             <p><strong>📧 Email:</strong> {selectedDetail.UserMail}</p>
-            <p><strong>🏢 Công ty:</strong> {selectedDetail.CompanyName || "Chưa có"}</p>
-            <p><strong>📍 Địa chỉ:</strong> {selectedDetail.Address || "Chưa có"}</p>
-            <p><strong>📞 SĐT:</strong> {selectedDetail.Phone || "Chưa có"}</p>
-            <p><strong>✉️ Email công ty:</strong> {selectedDetail.CompanyMail || "Chưa có"}</p>
+            <p><strong>🏢 Company:</strong> {selectedDetail.CompanyName || "N/A"}</p>
+            <p><strong>📍 Address:</strong> {selectedDetail.Address || "N/A"}</p>
+            <p><strong>📞 Phone:</strong> {selectedDetail.Phone || "N/A"}</p>
+            <p><strong>✉️ Company Email:</strong> {selectedDetail.CompanyMail || "N/A"}</p>
 
             <button className="modal-close-btn" onClick={() => setShowModal(false)}>
-              Đóng
+              Close
             </button>
           </div>
         </div>

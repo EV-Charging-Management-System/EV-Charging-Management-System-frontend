@@ -34,31 +34,31 @@ const BookingForm: React.FC<BookingFormProps> = ({
   return (
     <Modal show={show} onHide={onClose} centered size="lg">
       <Modal.Header closeButton>
-        <Modal.Title>⚡ Đặt Phiên Sạc</Modal.Title>
+        <Modal.Title>⚡ Book Charging Session</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form onSubmit={onSubmit}>
-          {/* Loại người dùng */}
+          {/* User Type */}
           <Form.Group className="mb-3">
-            <Form.Label>Loại người dùng</Form.Label>
+            <Form.Label>User Type</Form.Label>
             <Form.Select
               value={userType}
               onChange={(e) => onUserTypeChange(e.target.value as "EV-Driver" | "Guest")}
             >
-              <option value="EV-Driver">🚗 Có tài khoản (EV-Driver)</option>
-              <option value="Guest">👤 Khách vãng lai (Guest)</option>
+              <option value="EV-Driver">🚗 Registered User (EV-Driver)</option>
+              <option value="Guest">👤 Guest</option>
             </Form.Select>
           </Form.Group>
 
-          {/* Biển số xe */}
+          {/* License Plate */}
           {userType === "EV-Driver" && (
             <Form.Group className="mb-3">
-              <Form.Label>Biển số xe</Form.Label>
+              <Form.Label>License Plate</Form.Label>
               <Row>
                 <Col xs={8}>
                   <Form.Control
                     type="text"
-                    placeholder="Nhập biển số xe (VD: 51A-12345)"
+                    placeholder="Enter license plate (e.g.: 51A-12345)"
                     value={form.licensePlate}
                     onChange={onLicenseChange}
                     required
@@ -66,7 +66,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                 </Col>
                 <Col xs={4}>
                   <Button variant="info" onClick={onLookup} className="w-100">
-                    🔍 Tra cứu
+                    🔍 Lookup
                   </Button>
                 </Col>
               </Row>
@@ -79,16 +79,16 @@ const BookingForm: React.FC<BookingFormProps> = ({
             </Form.Group>
           )}
 
-          {/* Cổng sạc */}
+          {/* Charging Port */}
           <Form.Group className="mb-3">
-            <Form.Label>Chọn cổng sạc</Form.Label>
+            <Form.Label>Select Charging Port</Form.Label>
             <Form.Select
               value={form.portId}
               onChange={onPortSelect}
               required
               disabled={loadingPorts}
             >
-              <option value="">-- Chọn cổng sạc --</option>
+              <option value="">-- Select charging port --</option>
               {ports.map(p => (
                 <option key={p.PortId} value={p.PortId}>
                   {p.PortType} - {p.PortTypeOfKwh} kWh
@@ -97,16 +97,16 @@ const BookingForm: React.FC<BookingFormProps> = ({
             </Form.Select>
           </Form.Group>
 
-          {/* Thông tin cổng */}
+          {/* Port Info */}
           {form.portId && (
             <div className="mb-3 p-3 bg-light rounded">
               <Row>
                 <Col>
-                  <span>⚡ Công suất:</span>
+                  <span>⚡ Power:</span>
                   <strong className="ms-2">{form.kwh} kWh</strong>
                 </Col>
                 <Col>
-                  <span>💰 Giá:</span>
+                  <span>💰 Price:</span>
                   <strong className="ms-2">{Number(form.price).toLocaleString()} ₫/kWh</strong>
                 </Col>
               </Row>
@@ -120,10 +120,10 @@ const BookingForm: React.FC<BookingFormProps> = ({
               disabled={loadingSubmit}
               className="flex-grow-1"
             >
-              {loadingSubmit ? "⏳ Đang xử lý..." : "✅ Xác nhận"}
+              {loadingSubmit ? "⏳ Processing..." : "✅ Confirm"}
             </Button>
             <Button variant="secondary" onClick={onClose}>
-              ❌ Hủy
+              ❌ Cancel
             </Button>
           </div>
         </Form>

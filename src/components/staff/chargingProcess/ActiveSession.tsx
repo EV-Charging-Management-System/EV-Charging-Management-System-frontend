@@ -45,23 +45,23 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({
       {/* Stop Button */}
       <div className="charging-buttons" style={{ margin: '24px 0' }}>
         <button className="charging-btn" onClick={onEndCharging}>
-          ⚡ Dừng sạc
+          ⚡ Stop Charging
         </button>
       </div>
 
       {/* Session Info Grid */}
       <div className="session-info">
         <div className="info-box">
-          <h3><FaBatteryFull style={{ marginRight: '8px' }} />Thông Tin Sạc</h3>
-          <p>Mức pin hiện tại: <strong>{battery.toFixed(0)}%</strong></p>
-          <p>Năng lượng tiêu thụ: <strong>0.00 kWh</strong></p>
-          <p>Công suất: <strong>{session.power}</strong></p>
+          <h3><FaBatteryFull style={{ marginRight: '8px' }} />Charging Info</h3>
+          <p>Current battery level: <strong>{battery.toFixed(0)}%</strong></p>
+          <p>Energy consumed: <strong>0.00 kWh</strong></p>
+          <p>Power: <strong>{session.power}</strong></p>
         </div>
 
         <div className="info-box">
-          <h3><FaClock style={{ marginRight: '8px' }} />Thời Gian & Chi Phí</h3>
-          <p>Thời gian sạc: <strong>{formatDuration(elapsedSeconds)}</strong></p>
-          <p>Chi phí: <strong>{cost.toFixed(0)} ₫</strong></p>
+          <h3><FaClock style={{ marginRight: '8px' }} />Time & Cost</h3>
+          <p>Charging time: <strong>{formatDuration(elapsedSeconds)}</strong></p>
+          <p>Cost: <strong>{cost.toFixed(0)} ₫</strong></p>
         </div>
       </div>
     </div>

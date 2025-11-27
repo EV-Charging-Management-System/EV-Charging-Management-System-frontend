@@ -8,27 +8,27 @@ const Blog: React.FC = () => {
   const posts = [
     {
       id: 1,
-      title: "VinFast ra mắt loạt xe điện tại CES 2022",
+      title: "VinFast launches electric vehicles at CES 2022",
       description:
-        "VinFast chính thức giới thiệu dải sản phẩm xe điện VF5, VF6, VF7, VF8, VF9 tại CES 2022 cùng nhiều chính sách ưu đãi đặt cọc hấp dẫn.",
+        "VinFast officially introduces the VF5, VF6, VF7, VF8, VF9 electric vehicle lineup at CES 2022 with attractive pre-order policies.",
       image:
         "https://kenh14cdn.com/203336854389633024/2022/1/7/loat-xe-dien-vinfast-ra-mat-tai-ces-2022-gia-ban-va-chinh-sach-dat-coc-hap-dan-danvietvn-4-16414384301251621413589-16415367450621803239908.jpg",
       date: "07/01/2022",
     },
     {
       id: 2,
-      title: "Công nghệ pin mới tăng quãng đường di chuyển 40%",
+      title: "New battery technology increases range by 40%",
       description:
-        "Các hãng xe đang đua nhau đầu tư vào công nghệ pin lithium thế hệ mới giúp xe điện hiệu quả hơn và sạc nhanh hơn.",
+        "Automakers are competing to invest in new generation lithium battery technology to make electric vehicles more efficient and charge faster.",
       image:
         "https://storage.googleapis.com/vinfast-data-01/cong-nghe-pin_1640916776.jpg",
       date: "01/11/2025",
     },
     {
       id: 3,
-      title: "Trạm sạc xe điện Siemens tại Việt Nam",
+      title: "Siemens electric vehicle charging station in Vietnam",
       description:
-        "Hệ thống trạm sạc nhanh Siemens giúp rút ngắn thời gian sạc xe điện, hướng tới mạng lưới năng lượng sạch và hiện đại.",
+        "Siemens fast charging system helps shorten electric vehicle charging time, towards a clean and modern energy network.",
       image:
         "https://photo2.tinhte.vn/data/attachment-files/2023/04/6394813_evs_tram_sac_xe_dien_siemens_viet_nam.jpg",
       date: "25/10/2025",
@@ -45,10 +45,10 @@ const Blog: React.FC = () => {
 
       {/* ===== BODY ===== */}
       <main className="blog-body">
-        <h1 className="page-title">Tin Tức & Blog Nổi Bật</h1>
+        <h1 className="page-title">Featured News & Blog</h1>
         <p className="page-description">
-          Cập nhật những thông tin mới nhất về trạm sạc, công nghệ năng lượng
-          xanh và xu hướng ô tô điện.
+          Get the latest information about charging stations, energy technology
+          and electric vehicle trends.
         </p>
 
         {/* 🔥 BÀI VIẾT NỔI BẬT */}
@@ -62,7 +62,7 @@ const Blog: React.FC = () => {
             <h2>{featuredPost.title}</h2>
             <p className="featured-date">{featuredPost.date}</p>
             <p className="featured-desc">{featuredPost.description}</p>
-            <button className="read-more">Đọc thêm</button>
+            <button className="read-more">Read More</button>
           </div>
         </div>
 
@@ -75,7 +75,7 @@ const Blog: React.FC = () => {
                 <h3 className="blog-title">{post.title}</h3>
                 <p className="blog-date">{post.date}</p>
                 <p className="blog-desc">{post.description}</p>
-                <button className="read-more">Đọc thêm</button>
+                <button className="read-more">Read More</button>
               </div>
             </div>
           ))}

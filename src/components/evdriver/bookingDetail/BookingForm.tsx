@@ -27,15 +27,15 @@ export const BookingForm: React.FC<BookingFormProps> = ({
   return (
     <div className='form-section'>
       <form className='booking-form' onSubmit={onSubmit}>
-        <h2>Đặt Lịch Sạc</h2>
+        <h2>Booking Schedule</h2>
 
-        <label>Họ và tên</label>
+        <label>Full Name</label>
         <input type='text' value={formData.name} readOnly />
 
         <label>Email</label>
         <input type='email' value={formData.email} readOnly />
 
-        <label>Hãng xe</label>
+        <label>Vehicle Brand</label>
         <select
           value={formData.vehicleId}
           onChange={(e) => {
@@ -49,7 +49,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
           disabled={vehiclesLoading}
         >
           <option value=''>
-            {vehiclesLoading ? 'Đang tải...' : vehicles.length === 0 ? 'Không có xe nào' : 'Chọn hãng xe'}
+            {vehiclesLoading ? 'Loading...' : vehicles.length === 0 ? 'No vehicles' : 'Select vehicle brand'}
           </option>
 
           {vehicles.map((vehicle) => (
@@ -59,13 +59,13 @@ export const BookingForm: React.FC<BookingFormProps> = ({
           ))}
         </select>
 
-        <label>Cổng sạc</label>
+        <label>Charging Port</label>
         <select
           value={selectedPortId ?? ''}
           onChange={(e) => onPortChange(Number(e.target.value))}
           required
         >
-          <option value=''>Chọn port</option>
+          <option value=''>Select port</option>
           {ports.map((pt: Port) => (
             <option key={pt.PortId} value={pt.PortId}>
               {pt.PortType} (Port {pt.PortId})
@@ -75,13 +75,13 @@ export const BookingForm: React.FC<BookingFormProps> = ({
 
         {/* PRICE BOX */}
         <div className='price-box'>
-          <label>Giá đặt cọc cho 3h sạc</label>
+          <label>Deposit for 3h charging</label>
           <div className='price'>30,000 ₫</div>
         </div>
 
         <div className='form-buttons'>
           <button type='submit' className='submit-btn' disabled={payLoading}>
-            {payLoading ? 'Đang xử lý...' : 'Thanh toán'}
+            {payLoading ? 'Processing...' : 'Payment'}
           </button>
         </div>
       </form>

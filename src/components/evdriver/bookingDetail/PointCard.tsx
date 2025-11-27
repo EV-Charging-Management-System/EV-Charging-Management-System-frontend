@@ -8,7 +8,7 @@ interface PointCardProps {
 }
 
 /**
- * Component card cho mỗi điểm sạc
+ * Card component for each charging point
  */
 export const PointCard: React.FC<PointCardProps> = ({ point, isSelected, onSelect }) => {
   const status = (point.ChargingPointStatus || '').toUpperCase()

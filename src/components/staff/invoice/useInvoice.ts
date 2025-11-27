@@ -21,7 +21,7 @@ export const useInvoice = () => {
     const stateInvoice = stateAny?.invoice as Partial<InvoiceData> | undefined;
     const stateCost = stateAny?.cost as number | undefined;
 
-    // Nếu có invoice từ state
+    // If there is an invoice from state
     if (stateInvoice) {
       const rawData = stateAny?.raw;
       
@@ -48,7 +48,7 @@ export const useInvoice = () => {
       return;
     }
 
-    // Nếu có sessionId từ query
+    // If there is sessionId from query
     const sid = query.get("sessionId");
     if (sid) {
       (async () => {
@@ -68,13 +68,13 @@ export const useInvoice = () => {
           });
           setInvoices([]);
         } catch (err: any) {
-          setError(err?.message || "Không thể tải hóa đơn");
+          setError(err?.message || "Unable to load invoice");
         }
       })();
       return;
     }
 
-    // Load lịch sử hóa đơn
+    // Load invoice history
     const fetchHistory = async () => {
       try {
         const token = localStorage.getItem("accessToken");
@@ -87,10 +87,10 @@ export const useInvoice = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.message || "Lỗi tải lịch sử hóa đơn");
+        if (!res.ok) throw new Error(data.message || "Failed to load invoice history");
         setInvoices(data || []);
       } catch (err: any) {
-        setError(err.message || "Lỗi không xác định");
+        setError(err.message || "Unknown error");
       }
     };
     fetchHistory();
@@ -99,12 +99,12 @@ export const useInvoice = () => {
 
   const handlePayment = async () => {
     if (!invoice) {
-      alert("Không có thông tin hóa đơn");
+      alert("No invoice information");
       return;
     }
 
     if (!invoice.invoiceId) {
-      setError("Không có mã hóa đơn để thanh toán");
+      setError("No invoice ID to process payment");
       return;
     }
 
@@ -112,7 +112,7 @@ export const useInvoice = () => {
     setError(null);
     const accessToken = localStorage.getItem("accessToken");
     if (!accessToken) {
-      alert("⚠️ Phiên đăng nhập hết hạn, vui lòng đăng nhập lại");
+      alert("⚠️ Session expired, please login again");
       navigate("/login");
       return;
     }
@@ -127,14 +127,14 @@ export const useInvoice = () => {
 
       const data = await res.json();
 
-      if (!res.ok) throw new Error(data.message || "Lỗi thanh toán");
+      if (!res.ok) throw new Error(data.message || "Payment failed");
 
       setInvoice(prev => prev ? { ...prev, paid: true, PaidStatus: "PAID" } : null);
       setPaid(true);
-      alert("✅ Thanh toán thành công!");
+      alert("✅ Payment successful!");
     } catch (err: any) {
       console.error("❌ Payment error:", err);
-      setError(err.message || "Lỗi không xác định");
+      setError(err.message || "Unknown error");
     } finally {
       setLoading(false);
     }

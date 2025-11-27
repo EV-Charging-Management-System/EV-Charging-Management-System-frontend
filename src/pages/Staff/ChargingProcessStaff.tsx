@@ -33,7 +33,7 @@ const ChargingProcessStaff: React.FC = () => {
         <main className="charging-body" style={{ background: 'linear-gradient(135deg, #02402cff 0%, #11071cff 100%)' }}>
           {activeSession ? (
         <>
-          <h2 className="charging-title">Phiên Sạc Đang Diễn Ra</h2>
+          <h2 className="charging-title">Ongoing Charging Sessions</h2>
           <ActiveSession
             session={activeSession}
             battery={battery}

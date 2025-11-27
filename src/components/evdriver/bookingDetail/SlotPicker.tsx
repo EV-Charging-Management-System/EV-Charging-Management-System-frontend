@@ -24,7 +24,7 @@ export const SlotPicker: React.FC<SlotPickerProps> = ({
 }) => {
   return (
     <div className="slot-picker">
-      <h3>Chọn khung giờ</h3>
+      <h3>Select Time Slot</h3>
 
       <div className="slot-grid">
         {ALL_SLOTS.map((slot) => {

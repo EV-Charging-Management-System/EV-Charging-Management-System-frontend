@@ -8,24 +8,24 @@ interface InvoiceListProps {
 
 const InvoiceList: React.FC<InvoiceListProps> = ({ invoices }) => {
   if (invoices.length === 0) {
-    return <p className="text-center text-muted">Chưa có hóa đơn nào.</p>;
+    return <p className="text-center text-muted">No invoices available.</p>;
   }
 
   return (
     <div>
-      <h2 className="mb-3">Lịch sử hóa đơn</h2>
+      <h2 className="mb-3">Invoice History</h2>
       {invoices.map(inv => (
         <Card key={inv.sessionId} className="invoice-box shadow-sm mb-3">
           <Card.Body>
-            <p><strong>Hóa đơn #{inv.sessionId}</strong></p>
-            <p>Trạm: {inv.stationName}</p>
+            <p><strong>Invoice #{inv.sessionId}</strong></p>
+            <p>Station: {inv.stationName}</p>
             <p>Charger: {inv.chargerName} ({inv.power})</p>
-            <p>Khách: {inv.customer}</p>
-            <p>Bắt đầu: {inv.startTime}</p>
-            <p>Kết thúc: {inv.endTime}</p>
-            <p>Tổng tiền: {inv.cost.toLocaleString()}₫</p>
+            <p>Customer: {inv.customer}</p>
+            <p>Start: {inv.startTime}</p>
+            <p>End: {inv.endTime}</p>
+            <p>Total: {inv.cost.toLocaleString()}₫</p>
             <Badge bg={inv.paid ? "success" : "warning"}>
-              {inv.paid ? "✅ Đã thanh toán" : "💰 Chưa thanh toán"}
+              {inv.paid ? "✅ Paid" : "💰 Unpaid"}
             </Badge>
           </Card.Body>
         </Card>

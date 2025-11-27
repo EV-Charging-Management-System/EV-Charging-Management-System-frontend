@@ -6,7 +6,7 @@ import "../css/AdminDashboard.css";
 import type { StationAddress } from "utils/types";
 
 interface CreateStaffProps {
-  onCreated?: () => void; // callback sau khi tạo thành công
+  onCreated?: () => void; // callback after successful creation
 }
 
 const CreateStaff: React.FC<CreateStaffProps> = ({ onCreated }) => {
@@ -24,7 +24,7 @@ const CreateStaff: React.FC<CreateStaffProps> = ({ onCreated }) => {
       return res;
     }
     catch (error) {
-      console.error("⚠️ Lỗi lấy danh sách trạm:", error);
+      console.error("⚠️ Error fetching station list:", error);
       return [];
     }
   };
@@ -33,25 +33,25 @@ const CreateStaff: React.FC<CreateStaffProps> = ({ onCreated }) => {
   }, []);
   const handleCreate = async () => {
     if (!userName || !mail || !password || !address ) {
-      toast.warn("⚠️ Vui lòng nhập đầy đủ thông tin!");
+      toast.warn("⚠️ Please fill in all information!");
       return;
     }
 
     setLoading(true);
     try {
-      const res = await adminService.createStaff(mail, password, userName, address); // ✅ đúng thứ tự: email, password, fullname, address
+      const res = await adminService.createStaff(mail, password, userName, address); // ✅ correct order: email, password, fullname, address
 
       if (res.success) {
-        toast.success("✅ Tạo tài khoản staff thành công!");
+        toast.success("✅ Staff account created successfully!");
         setUserName("");
         setMail("");
         setPassword("");
-        if (onCreated) onCreated(); // gọi callback để reload list
+        if (onCreated) onCreated(); // call callback to reload list
       } else {
-        toast.error(res.message || "❌ Lỗi khi tạo staff!");
+        toast.error(res.message || "❌ Error creating staff!");
       }
     } catch (err) {
-      toast.error("❌ Lỗi khi tạo staff!");
+      toast.error("❌ Error creating staff!");
       console.error(err);
     } finally {
       setLoading(false);
@@ -61,15 +61,15 @@ const CreateStaff: React.FC<CreateStaffProps> = ({ onCreated }) => {
   return (
     <div className="staff-create-container">
       <h2 className="staff-title">
-        <UserPlus size={22} /> Tạo tài khoản <span>Staff</span> mới
+        <UserPlus size={22} /> Create new <span>Staff</span> account
       </h2>
 
       <div className="staff-form">
         <div className="form-group">
-          <label>Tên nhân viên</label>
+          <label>Staff Name</label>
           <input
             type="text"
-            placeholder="Nhập tên..."
+            placeholder="Enter name..."
             value={userName}
             onChange={(e) => setUserName(e.target.value)}
           />
@@ -80,7 +80,7 @@ const CreateStaff: React.FC<CreateStaffProps> = ({ onCreated }) => {
             value={address}
             onChange={(e) => setAddress(e.target.value)}
           >
-            <option value="">-- Chọn địa chỉ trạm --</option>
+            <option value="">-- Select station address --</option>
             {stations.map((s) => (
               <option key={s.stationId} value={s.Address}>
                 {s.Address}
@@ -93,17 +93,17 @@ const CreateStaff: React.FC<CreateStaffProps> = ({ onCreated }) => {
           <label>Email</label>
           <input
             type="email"
-            placeholder="Email công ty..."
+            placeholder="Company email..."
             value={mail}
             onChange={(e) => setMail(e.target.value)}
           />
         </div>
 
         <div className="form-group">
-          <label>Mật khẩu</label>
+          <label>Password</label>
           <input
             type="password"
-            placeholder="Tạo mật khẩu..."
+            placeholder="Create password..."
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
@@ -115,7 +115,7 @@ const CreateStaff: React.FC<CreateStaffProps> = ({ onCreated }) => {
         onClick={handleCreate}
         disabled={loading}
       >
-        {loading ? "⏳ Đang tạo..." : "Tạo tài khoản"}
+        {loading ? "⏳ Creating..." : "Create account"}
       </button>
     </div>
   );

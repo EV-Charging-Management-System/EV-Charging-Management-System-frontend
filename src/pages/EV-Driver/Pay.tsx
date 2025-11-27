@@ -68,13 +68,13 @@ const Pay: React.FC = () => {
   } = (location.state as any) || {}
 
   const handleConfirm = () => {
-    // Tạo transaction
+    // Create transaction
     const nowIso = new Date().toISOString()
     const tx: Transaction = {
       id: `txn_${Date.now()}`,
       date: nowIso,
       month: getMonthStr(nowIso),
-      station: stationName || 'Trạm Sạc',
+      station: stationName || 'Charging Station',
       address,
       port,
       power,
@@ -85,63 +85,63 @@ const Pay: React.FC = () => {
       paid: false
     }
 
-    // Lưu vào localStorage
+    // Save to localStorage
     const data = loadViTraSau()
     data.transactions = data.transactions || []
     data.transactions.push(tx)
     data.currentMonth = (data.currentMonth || 0) + tx.amount
     saveViTraSau(data)
 
-    alert('💰 Đã thêm giao dịch vào Ví Trả Sau (chưa thanh toán).')
+    alert('Transaction added to Pay Later Wallet (not paid yet).')
 
-    // Điều hướng về Booking Online Station
+    // Navigate back to Booking Online Station
     navigate('/booking-online-station')
   }
 
   return (
     <div className='pay-container'>
       <div className='pay-card'>
-        <h1>Thanh Toán Hóa Đơn</h1>
-        <p className='desc'>Vui lòng xác nhận phương thức thanh toán của bạn</p>
+        <h1>Pay Invoice</h1>
+        <p className='desc'>Please confirm your payment method</p>
 
         <div className='method-box'>
-          <h3>Phương thức thanh toán</h3>
+          <h3>Payment Method</h3>
           <div className='method-item selected'>
-            <span>💳 Ví Trả Sau</span>
+            <span>💳 Pay Later Wallet</span>
           </div>
         </div>
 
         <div className='session-details'>
           <p>
-            <strong>Trạm:</strong> {stationName}
+            <strong>Station:</strong> {stationName}
           </p>
           <p>
-            <strong>Địa chỉ:</strong> {address}
+            <strong>Address:</strong> {address}
           </p>
           <p>
-            <strong>Mã sạc:</strong> {code}
+            <strong>Charge Code:</strong> {code}
           </p>
           <p>
-            <strong>Thời gian:</strong> {durationMinutes} phút
+            <strong>Duration:</strong> {durationMinutes} minutes
           </p>
           <p>
-            <strong>Năng lượng:</strong> {kwh} kWh
+            <strong>Energy:</strong> {kwh} kWh
           </p>
           <p>
-            <strong>Bắt đầu:</strong> {startTime ? new Date(startTime).toLocaleString() : '-'}
+            <strong>Start Time:</strong> {startTime ? new Date(startTime).toLocaleString() : '-'}
           </p>
           <p>
-            <strong>Kết thúc:</strong> {endTime ? new Date(endTime).toLocaleString() : '-'}
+            <strong>End Time:</strong> {endTime ? new Date(endTime).toLocaleString() : '-'}
           </p>
         </div>
 
         <div className='total-box'>
-          <p>Tổng số tiền cần ghi vào Ví Trả Sau (nợ tháng này):</p>
+          <p>Total amount to be added to Pay Later Wallet (this month’s debt):</p>
           <h2>{Number(totalCost || 0).toLocaleString()} đ</h2>
         </div>
 
         <button className='confirm-btn' onClick={handleConfirm}>
-          Xác Nhận
+          Confirm
         </button>
       </div>
     </div>

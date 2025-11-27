@@ -90,7 +90,7 @@ export const useChargingSessions = (stationId: number = 1) => {
       });
       const stationJson = await stationRes.json();
       const stationMap = Object.fromEntries(
-        (stationJson.data || []).map((st: any) => [st.StationId, st.Address || "Địa chỉ chưa rõ"])
+        (stationJson.data || []).map((st: any) => [st.StationId, st.Address || "Address unknown"])
       );
 
       const uniquePoints = Array.from(new Set(sessionsRaw.map((s: any) => s.PointId)));
@@ -129,13 +129,13 @@ export const useChargingSessions = (stationId: number = 1) => {
         return {
           ...s,
           UserId: userId,
-          chargerName: port ? `${port.PortType} - ${port.PortTypeOfKwh} kWh` : "Cổng chưa rõ",
+          chargerName: port ? `${port.PortType} - ${port.PortTypeOfKwh} kWh` : "Unknown port",
           power: port ? `${port.PortTypeOfKwh} kW` : "0 kW",
           portPrice: price,
           Status: status,
-          address: stationMap[s.StationId] || "Địa chỉ chưa rõ",
-          date: s.CheckinTime ? new Date(s.CheckinTime).toLocaleDateString("vi-VN") : "Chưa rõ",
-          time: s.CheckinTime ? new Date(s.CheckinTime).toLocaleTimeString("vi-VN", { 
+          address: stationMap[s.StationId] || "Address unknown",
+          date: s.CheckinTime ? new Date(s.CheckinTime).toLocaleDateString("en-US") : "Unknown",
+          time: s.CheckinTime ? new Date(s.CheckinTime).toLocaleTimeString("en-US", { 
             hour:"2-digit", 
             minute:"2-digit"
           }) : "--:--",
@@ -154,7 +154,7 @@ export const useChargingSessions = (stationId: number = 1) => {
       setTimeout(() => cleanupOldSessionUserIds(), 1000);
     } catch (err: any) {
       console.error("❌ Fetch sessions error:", err);
-      alert(`⚠️ Lỗi tải session: ${err.message}`);
+      alert(`⚠️ Failed to load sessions: ${err.message}`);
     }
   };
 
@@ -182,7 +182,7 @@ export const useChargingSessions = (stationId: number = 1) => {
       setCost(prev => prev + costPerSecond * timeMultiplier);
     }, 1000) as unknown as number;
 
-    alert(`✅ Bắt đầu sạc, pin hiện tại ${randomBattery}%`);
+    alert(`✅ Charging started, current battery ${randomBattery}%`);
 
     const token = localStorage.getItem("accessToken");
     if (!token) { navigate("/login"); return; }
@@ -204,19 +204,19 @@ export const useChargingSessions = (stationId: number = 1) => {
 
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.message || "Lỗi cập nhật battery");
+        throw new Error(err.message || "Failed to update battery");
       }
 
       await fetchSessions();
     } catch (err: any) {
       console.error("❌ Update battery error:", err);
-      alert(`⚠️ Lỗi cập nhật pin: ${err.message}`);
+      alert(`⚠️ Failed to update battery: ${err.message}`);
     }
   };
 
   const endCharging = async () => {
     if (!activeSession) {
-      console.warn("⚠️ Không có activeSession");
+      console.warn("⚠️ No activeSession");
       return;
     }
 
@@ -239,7 +239,7 @@ export const useChargingSessions = (stationId: number = 1) => {
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Lỗi kết thúc phiên sạc");
+      if (!res.ok) throw new Error(data.message || "Failed to end charging session");
 
       const userIdSessionKey = `session_${activeSession.SessionId}_userId`;
       const savedUserId = localStorage.getItem(userIdSessionKey);
@@ -257,10 +257,10 @@ export const useChargingSessions = (stationId: number = 1) => {
           setElapsedSeconds(0);
           setCost(0);
 
-          alert("✅ Kết thúc sạc thành công!\n\nHóa đơn đã được tạo cho user.");
+          alert("✅ Charging ended successfully!\n\nInvoice has been created for the user.");
         } catch (invoiceError: any) {
           console.error("❌ Failed to create invoice:", invoiceError);
-          alert(`⚠️ Cảnh báo: Kết thúc sạc thành công nhưng không tạo được hóa đơn`);
+          alert(`⚠️ Warning: Charging ended successfully but failed to create invoice`);
           
           setSessions(prev => prev.filter(s => s.SessionId !== activeSession.SessionId));
           setActiveSession(null);
@@ -276,7 +276,7 @@ export const useChargingSessions = (stationId: number = 1) => {
             sessionId: created?.sessionId ?? created?.SessionId ?? sessionId,
             customer: activeSession.LicensePlate ?? undefined,
             startTime: activeSession.date,
-            endTime: new Date().toLocaleTimeString("vi-VN"),
+            endTime: new Date().toLocaleTimeString("en-US"),
             cost: Number(created?.totalAmount ?? created?.amount ?? created?.sessionPrice ?? cost ?? 0),
             stationName: activeSession.StationName,
             chargerName: activeSession.chargerName,
@@ -291,7 +291,7 @@ export const useChargingSessions = (stationId: number = 1) => {
           setElapsedSeconds(0);
           setCost(0);
 
-          alert("✅ Kết thúc sạc thành công!\n\n🧾 Tạo hóa đơn cho khách vãng lai thành công.");
+          alert("✅ Charging ended successfully!\n\n🧾 Invoice for guest created successfully.");
           navigate("/staff/invoice", { state: { invoice: normalizedInvoice, raw: created } });
         } catch (invErr: any) {
           console.error("❌ Failed to create guest invoice:", invErr);
@@ -301,13 +301,13 @@ export const useChargingSessions = (stationId: number = 1) => {
           setElapsedSeconds(0);
           setCost(0);
 
-          alert(`⚠️ Kết thúc sạc thành công nhưng tạo hóa đơn thất bại`);
+          alert(`⚠️ Charging ended successfully but failed to create invoice`);
           navigate(`/staff/invoice?sessionId=${sessionId}`);
         }
       }
     } catch (err: any) {
       console.error("❌ End charging error:", err);
-      alert(`⚠️ Lỗi kết thúc sạc: ${err.message}`);
+      alert(`⚠️ Failed to end charging: ${err.message}`);
     }
   };
 

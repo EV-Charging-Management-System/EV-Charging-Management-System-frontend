@@ -62,9 +62,9 @@ const BookingDetail: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!selectedPointId || !selectedPortId) return alert("⚠ Chưa chọn cổng sạc!")
-    if (!selectedSlotId) return alert("⚠ Chưa chọn khung giờ!")
-    if (!formData.vehicleId) return alert("⚠ Chưa chọn xe!")
+    if (!selectedPointId || !selectedPortId) return alert("⚠ Please select a charging port!")
+    if (!selectedSlotId) return alert("⚠ Please select a time slot!")
+    if (!formData.vehicleId) return alert("⚠ Please select a vehicle!")
 
     const vnpayTab = window.open('', '_blank')
 
@@ -82,7 +82,7 @@ const BookingDetail: React.FC = () => {
 
       if (!paymentUrl) {
         vnpayTab?.close()
-        return alert("Không nhận được URL thanh toán!")
+        return alert("Payment URL not received!")
       }
 
       const bookingData = {
@@ -105,7 +105,7 @@ const BookingDetail: React.FC = () => {
     } catch (err: any) {
       console.error(err)
       vnpayTab?.close()
-      alert("Lỗi khi tạo thanh toán!")
+      alert("Error creating payment!")
     } finally {
       setPayLoading(false)
     }

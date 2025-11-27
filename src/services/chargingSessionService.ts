@@ -50,7 +50,7 @@ const chargingSessionService = {
         console.error("➡ Status:", error.response.status);
         console.error("➡ Data:", error.response.data);
       }
-      throw new Error(error?.response?.data?.message || "Không thể bắt đầu phiên sạc!");
+      throw new Error(error?.response?.data?.message || "Cannot start charging session!");
     }
   },
 
@@ -71,7 +71,7 @@ const chargingSessionService = {
         console.error("➡ Status:", error.response.status);
         console.error("➡ Data:", error.response.data);
       }
-      throw new Error(error?.response?.data?.message || "Không thể kết thúc phiên sạc!");
+      throw new Error(error?.response?.data?.message || "Cannot end charging session!");
     }
   },
 
@@ -93,7 +93,7 @@ const chargingSessionService = {
         console.error("➡ Status:", error.response.status);
         console.error("➡ Data:", error.response.data);
       }
-      throw new Error(error?.response?.data?.message || "Không thể tạo hóa đơn!");
+      throw new Error(error?.response?.data?.message || "Cannot create invoice!");
     }
   },
 
@@ -117,7 +117,7 @@ const chargingSessionService = {
         console.error("➡ Status:", error.response.status);
         console.error("➡ Data:", error.response.data);
       }
-      throw new Error(error?.response?.data?.message || "Không thể áp dụng phí phạt!");
+      throw new Error(error?.response?.data?.message || "Cannot apply penalty fee!");
     }
   }
 };

@@ -1,7 +1,7 @@
 import { apiClient } from "../utils/api";
 
 /* ============================================================
- * 🧩 Định nghĩa kiểu dữ liệu Invoice
+ * 🧩 Invoice data type definition
  * ============================================================
  */
 
@@ -41,13 +41,13 @@ export interface CreateInvoiceResponse {
 }
 
 /* ============================================================
- * 🚀 paymentService — Quản lý API Thanh Toán Invoice
+ * 🚀 paymentService — Invoice Payment API Management
  * ============================================================
  */
 
 const paymentService = {
   /**
-   * ✅ Lấy danh sách Invoice của user đang đăng nhập
+   * ✅ Get invoice list of logged-in user
    * GET /api/payment/invoices
    */
   async getInvoices(): Promise<Invoice[]> {
@@ -62,14 +62,14 @@ const paymentService = {
       return res.data?.data || [];
     } catch (error: any) {
       console.error("[paymentService] getInvoices error:", error);
-      throw new Error("Không thể tải danh sách hóa đơn.");
+      throw new Error("Cannot load invoice list.");
     }
   },
 
   /**
-   * ✅ Thanh toán Invoice
+   * ✅ Pay Invoice
    * PATCH /api/payment/:invoiceId/pay
-   * Body: {} (không cần truyền gì)
+   * Body: {} (no parameters needed)
    */
   async payInvoice(
     invoiceId: number
@@ -91,7 +91,7 @@ const paymentService = {
         console.error("➡ Data:", error.response.data);
       }
       throw new Error(
-        error?.response?.data?.message || "Không thể thanh toán hóa đơn!"
+        error?.response?.data?.message || "Cannot pay invoice!"
       );
     }
   },
@@ -121,7 +121,7 @@ const paymentService = {
         console.error("➡ Data:", error.response.data);
       }
       throw new Error(
-        error?.response?.data?.message || "Không thể tạo thanh toán VNPay!"
+        error?.response?.data?.message || "Cannot create VNPay payment!"
       );
     }
   },

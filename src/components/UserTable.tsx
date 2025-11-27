@@ -70,11 +70,11 @@ const UserTable: React.FC<Props> = ({ users, onAdd, onEdit, onDelete }) => {
         <thead>
           <tr>
             <th>ID</th>
-            <th>Tên đăng nhập</th>
+            <th>Username</th>
             <th>Email</th>
-            <th>Vai trò</th>
-            <th>Công ty</th>
-            <th>Hành động</th>
+            <th>Role</th>
+            <th>Company</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -88,7 +88,7 @@ const UserTable: React.FC<Props> = ({ users, onAdd, onEdit, onDelete }) => {
                 <td>{u.CompanyId || "—"}</td>
                 <td>
                   <button className="btn-edit" onClick={() => handleEditClick(u)}>
-                    Sửa
+                    Edit
                   </button>
                   <button
                     className="btn-delete"
@@ -97,14 +97,14 @@ const UserTable: React.FC<Props> = ({ users, onAdd, onEdit, onDelete }) => {
                       setShowDeleteModal(true);
                     }}
                   >
-                    Xóa
+                    Delete
                   </button>
                 </td>
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan={6}>Không có tài khoản nào.</td>
+              <td colSpan={6}>No accounts found.</td>
             </tr>
           )}
         </tbody>
@@ -114,9 +114,9 @@ const UserTable: React.FC<Props> = ({ users, onAdd, onEdit, onDelete }) => {
       {showEditModal && selectedUser && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <h3>✏️ Chỉnh sửa tài khoản</h3>
+            <h3>✏️ Edit Account</h3>
 
-            <label>Tên đăng nhập</label>
+            <label>Username</label>
             <input
               type="text"
               value={selectedUser.UserName}
@@ -134,7 +134,7 @@ const UserTable: React.FC<Props> = ({ users, onAdd, onEdit, onDelete }) => {
               }
             />
 
-            <label>Vai trò</label>
+            <label>Role</label>
             <select
               value={selectedUser.RoleName}
               onChange={(e) =>
@@ -147,7 +147,7 @@ const UserTable: React.FC<Props> = ({ users, onAdd, onEdit, onDelete }) => {
               <option value="BUSINESS">BUSINESS</option>
             </select>
 
-            <label>Mã công ty</label>
+            <label>Company ID</label>
             <input
               type="number"
               value={selectedUser.CompanyId || 0}
@@ -161,10 +161,10 @@ const UserTable: React.FC<Props> = ({ users, onAdd, onEdit, onDelete }) => {
 
             <div className="modal-buttons">
               <button className="btn-save" onClick={handleSave}>
-                Lưu
+                Save
               </button>
               <button className="btn-cancel" onClick={handleClose}>
-                Hủy
+                Cancel
               </button>
             </div>
           </div>
@@ -175,18 +175,18 @@ const UserTable: React.FC<Props> = ({ users, onAdd, onEdit, onDelete }) => {
       {showDeleteModal && selectedUser && (
         <div className="modal-overlay">
           <div className="modal-content delete-modal">
-            <h3>⚠️ Xác nhận xóa</h3>
+            <h3>⚠️ Confirm Deletion</h3>
             <p>
-              Bạn có chắc chắn muốn xóa tài khoản{" "}
-              <strong>{selectedUser.UserName}</strong> không?
+              Are you sure you want to delete account{" "}
+              <strong>{selectedUser.UserName}</strong>?
             </p>
 
             <div className="modal-buttons">
               <button className="btn-delete" onClick={handleConfirmDelete}>
-                Xóa
+                Delete
               </button>
               <button className="btn-cancel" onClick={handleClose}>
-                Hủy
+                Cancel
               </button>
             </div>
           </div>

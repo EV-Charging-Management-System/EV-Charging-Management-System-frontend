@@ -26,7 +26,7 @@ const Invoice: React.FC = () => {
 
       <div className="charging-main-wrapper fade-in">
         <header className="charging-header">
-          <h1>Hóa đơn sạc xe</h1>
+          <h1>Charging Invoices</h1>
           <div className="charging-header-actions">
             <ProfileStaff />
           </div>
@@ -49,7 +49,7 @@ const Invoice: React.FC = () => {
             {invoices.length > 0 && <InvoiceList invoices={invoices} />}
             
             {!invoice && invoices.length === 0 && (
-              <p className="text-center text-muted">Chưa có hóa đơn nào.</p>
+              <p className="text-center text-muted">No invoices yet.</p>
             )}
           </Container>
         </main>

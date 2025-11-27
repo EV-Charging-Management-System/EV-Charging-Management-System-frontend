@@ -8,7 +8,7 @@ export const adminService = {
       const res = await apiClient.get("/admin/users");
       return Array.isArray(res.data?.data) ? res.data.data : [];
     } catch (error) {
-      console.error("⚠️ Lỗi lấy danh sách người dùng:", error);
+      console.error("⚠️ Error fetching users list:", error);
       return [];
     }
   },
@@ -19,7 +19,7 @@ export const adminService = {
       const res = await apiClient.get("/station/getAllStations");
       return Array.isArray(res.data?.data) ? res.data.data : res.data || [];
     } catch (error) {
-      console.error("⚠️ Lỗi lấy danh sách trạm sạc:", error);
+      console.error("⚠️ Error fetching stations list:", error);
       return [];
     }
   },
@@ -43,12 +43,12 @@ export const adminService = {
       const res = await apiClient.post("/admin/createStation", payload);
       return {
         success: res.data?.success ?? res.status === 201,
-        message: res.data?.message || "Tạo trạm sạc thành công!",
+        message: res.data?.message || "Charging station created successfully!",
         data: res.data?.data,
       };
     } catch (error) {
-      console.error("❌ Lỗi tạo trạm sạc:", error);
-      return { success: false, message: "Lỗi khi tạo trạm sạc!" };
+      console.error("❌ Error creating station:", error);
+      return { success: false, message: "Error creating station!" };
     }
   },
 
@@ -58,7 +58,7 @@ export const adminService = {
       const res = await apiClient.get("/payment/getInvoices");
       return Array.isArray(res.data?.data) ? res.data.data : res.data || [];
     } catch (error) {
-      console.error("⚠️ Lỗi lấy danh sách thanh toán:", error);
+      console.error("⚠️ Error fetching payments list:", error);
       return [];
     }
   },
@@ -69,7 +69,7 @@ export const adminService = {
       const res = await apiClient.get("/admin/bookings");
       return Array.isArray(res.data?.data) ? res.data.data : res.data || [];
     } catch (error) {
-      console.error("⚠️ Lỗi lấy danh sách đặt lịch:", error);
+      console.error("⚠️ Error fetching bookings list:", error);
       return [];
     }
   },
@@ -80,7 +80,7 @@ export const adminService = {
       const res = await apiClient.get("/admin/approvals");
       return Array.isArray(res.data?.data) ? res.data.data : res.data || [];
     } catch (error) {
-      console.error("⚠️ Lỗi lấy danh sách doanh nghiệp:", error);
+      console.error("⚠️ Error fetching business list:", error);
       return [];
     }
   },
@@ -91,11 +91,11 @@ export const adminService = {
       const res = await apiClient.patch(`/admin/approvals/${id}/approve`);
       return {
         success: res.data?.success ?? res.status === 200,
-        message: res.data?.message || "Duyệt doanh nghiệp thành công!",
+        message: res.data?.message || "Business approved successfully!",
       };
     } catch (error) {
-      console.error("❌ Lỗi duyệt doanh nghiệp:", error);
-      return { success: false, message: "Lỗi khi duyệt doanh nghiệp!" };
+      console.error("❌ Error approving business:", error);
+      return { success: false, message: "Error approving business!" };
     }
   },
 
@@ -105,10 +105,10 @@ export const adminService = {
       const res = await apiClient.patch(`/admin/approvals/${id}/reject`);
       return {
         success: res.data?.success ?? res.status === 200,
-        message: res.data?.message || "Từ chối doanh nghiệp thành công!",
+        message: res.data?.message || "Business rejected successfully!",
       };
     } catch (error) {
-      console.error("❌ Lỗi từ chối doanh nghiệp:", error);
+      console.error("❌ Error rejecting business:", error);
       return { success: false, message: "Lỗi khi từ chối doanh nghiệp!" };
     }
   },
@@ -131,7 +131,7 @@ export const adminService = {
       const res = await apiClient.post("/admin/createstaff", payload);
       return {
         success: res.data?.success ?? res.status === 200,
-        message: res.data?.message || "Tạo tài khoản staff thành công!",
+        message: res.data?.message || "Staff account created successfully!",
       };
     } catch (error) {
       console.error("❌ Lỗi tạo staff:", error);
@@ -167,7 +167,7 @@ export const adminService = {
       const res = await apiClient.patch("/admin/deleteStation", { stationId });
       return {
         success: res.data?.success ?? res.status === 200,
-        message: res.data?.message || "Xóa trạm thành công!",
+        message: res.data?.message || "Station deleted successfully!",
       };
     } catch (error) {
       console.error("❌ Lỗi xóa trạm:", error);
@@ -182,7 +182,7 @@ export const adminService = {
       const res = await apiClient.post("/admin/createPoint", payload);
       return {
         success: res.data?.success ?? res.status === 201,
-        message: res.data?.message || "Tạo Point thành công!",
+        message: res.data?.message || "Point created successfully!",
         data: res.data?.data,
       };
     } catch (error) {
@@ -198,7 +198,7 @@ export const adminService = {
       const res = await apiClient.put("/admin/updatePoint", payload);
       return {
         success: res.data?.success ?? res.status === 200,
-        message: res.data?.message || "Cập nhật Point thành công!",
+        message: res.data?.message || "Point updated successfully!",
       };
     } catch (error) {
       console.error("❌ Lỗi cập nhật Point:", error);
@@ -212,7 +212,7 @@ export const adminService = {
       const res = await apiClient.delete("/admin/deletePoint", { data: { pointId } });
       return {
         success: res.data?.success ?? res.status === 200,
-        message: res.data?.message || "Xóa Point thành công!",
+        message: res.data?.message || "Point deleted successfully!",
       };
     } catch (error) {
       console.error("❌ Lỗi xóa Point:", error);
@@ -241,7 +241,7 @@ export const adminService = {
       const res = await apiClient.post("/admin/createPort", payload);
       return {
         success: res.data?.success ?? res.status === 201,
-        message: res.data?.message || "Tạo Port thành công!",
+        message: res.data?.message || "Port created successfully!",
         data: res.data?.data,
       };
     } catch (error) {
@@ -271,7 +271,7 @@ export const adminService = {
       const res = await apiClient.put("/admin/updatePort", payload);
       return {
         success: res.data?.success ?? res.status === 200,
-        message: res.data?.message || "Cập nhật Port thành công!",
+        message: res.data?.message || "Port updated successfully!",
       };
     } catch (error) {
       console.error("❌ Lỗi cập nhật Port:", error);
@@ -285,7 +285,7 @@ export const adminService = {
       const res = await apiClient.delete("/admin/deletePort", { data: { portId } });
       return {
         success: res.data?.success ?? res.status === 200,
-        message: res.data?.message || "Xóa Port thành công!",
+        message: res.data?.message || "Port deleted successfully!",
       };
     } catch (error) {
       console.error("❌ Lỗi xóa Port:", error);
@@ -333,7 +333,7 @@ export const adminService = {
       const res = await apiClient.put(`/admin/update-user`, payload);
       return {
         success: res.data?.success ?? res.status === 200,
-        message: res.data?.message || "Cập nhật user thành công!",
+        message: res.data?.message || "User updated successfully!",
       };
     } catch (error) {
       console.error("❌ Lỗi cập nhật user:", error);
@@ -345,7 +345,7 @@ export const adminService = {
   const res = await apiClient.delete(`/admin/delete-users/${userId}`);
   return {
     success: res.data?.success ?? res.status === 200,
-    message: res.data?.message || "Xóa người dùng thành công!"
+    message: res.data?.message || "User deleted successfully!"
   };
 }
   ,

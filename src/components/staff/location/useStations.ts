@@ -26,7 +26,7 @@ export const useStations = () => {
         setStations(mappedWithFallback);
         setFetchError(null);
       } catch (error) {
-        setFetchError((error as any)?.message || 'Lỗi tải dữ liệu trạm');
+        setFetchError((error as any)?.message || 'Failed to load station data');
       }
     };
     fetchStations();
