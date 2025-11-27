@@ -65,17 +65,17 @@ const BusinessInvoices = ({ companyId }) => {
             <tr key={inv.invoiceId}>
               <td>{inv.invoiceId}</td>
 
-              {/* Backend only returns userId */}
-              <td>User #{inv.userId}</td>
+             {/* 🟢 HIỂN THỊ TÊN USER */}
+              <td>{inv.userName ? inv.userName : `User #${inv.userId}`}</td>
 
-              {/* Backend does not return vehicle details */}
-              <td>—</td>
-              <td>—</td>
+              {/* 🟢 HIỂN THỊ TÊN XE */}
+              <td>{inv.vehicleName || "—"}</td>
 
-              {/* Amount */}
+              {/* 🟢 HIỂN THỊ BIỂN SỐ */}
+              <td>{inv.licensePlate || "—"}</td>
+
               <td>{Number(inv.totalAmount || 0).toLocaleString()} đ</td>
 
-              {/* Paid status */}
               <td
                 style={{
                   color: inv.paidStatus === "Paid" ? "#00ff99" : "#ff4444",
