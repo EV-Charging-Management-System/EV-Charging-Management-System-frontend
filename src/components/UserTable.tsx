@@ -48,18 +48,6 @@ const UserTable: React.FC<Props> = ({ users, onAdd, onEdit, onDelete }) => {
     }
   };
 
-  // ✅ Xóa người dùng
-  const handleConfirmDelete = async () => {
-    if (!selectedUser) return;
-    try {
-      await onDelete(selectedUser.UserId);
-    } catch (err) {
-      console.error("❌ Lỗi FE khi xóa:", err);
-    } finally {
-      handleClose();
-    }
-  };
-
   return (
     <section className="data-section">
       <div className="data-section-header">
@@ -89,15 +77,6 @@ const UserTable: React.FC<Props> = ({ users, onAdd, onEdit, onDelete }) => {
                 <td>
                   <button className="btn-edit" onClick={() => handleEditClick(u)}>
                     Edit
-                  </button>
-                  <button
-                    className="btn-delete"
-                    onClick={() => {
-                      setSelectedUser(u);
-                      setShowDeleteModal(true);
-                    }}
-                  >
-                    Delete
                   </button>
                 </td>
               </tr>
@@ -182,12 +161,6 @@ const UserTable: React.FC<Props> = ({ users, onAdd, onEdit, onDelete }) => {
             </p>
 
             <div className="modal-buttons">
-              <button className="btn-delete" onClick={handleConfirmDelete}>
-                Delete
-              </button>
-              <button className="btn-cancel" onClick={handleClose}>
-                Cancel
-              </button>
             </div>
           </div>
         </div>
