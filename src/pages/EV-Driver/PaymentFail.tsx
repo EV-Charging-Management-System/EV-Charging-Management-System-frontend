@@ -19,18 +19,21 @@ const PaymentFail: React.FC = () => {
       <MenuBar />
 
       <main className="page-body text-center fade-in">
-        <h1 className="page-title fail-title">❌ Thanh Toán Thất Bại</h1>
-           <p> Vui lòng thử lại hoặc liên hệ hỗ trợ nếu vẫn gặp lỗi.
-          Giao dịch của bạn không thành công hoặc đã bị hủy.  
-          <br />Vui lòng thử lại sau hoặc liên hệ hỗ trợ.
+        <h1 className="page-title fail-title">❌ Payment Failed</h1>
+
+        <p>
+          Your transaction was unsuccessful or has been canceled.  
+          <br />
+          Please try again later or contact support if the issue continues.
         </p>
 
         <div className="action-group">
           <button className="confirm-btn" onClick={() => navigate("/")}>
-            Quay lại Trang chủ
+            Back to Home
           </button>
+
           <button className="back-btn" onClick={() => navigate("/")}>
-            Trang chủ 
+            Home
           </button>
         </div>
       </main>

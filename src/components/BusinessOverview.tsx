@@ -16,7 +16,7 @@ const BusinessOverview: React.FC<Props> = ({ companyId }) => {
         const res = await businessService.getCompanyOverview(companyId);
         if (res.success) setOverview(res.data);
       } catch (err) {
-        console.error("❌ Lỗi tải tổng quan doanh nghiệp:", err);
+        console.error("❌ Error loading business overview:", err);
       } finally {
         setLoading(false);
       }
@@ -24,39 +24,43 @@ const BusinessOverview: React.FC<Props> = ({ companyId }) => {
     fetchData();
   }, [companyId]);
 
-  if (loading) return <p>Đang tải...</p>;
-  if (!overview) return <p>Không có dữ liệu tổng quan.</p>;
+  if (loading) return <p>Loading...</p>;
+  if (!overview) return <p>No overview data available.</p>;
 
   return (
     <div className="overview-container">
-      <h3>📈 Báo Cáo Tổng Quan Doanh Nghiệp</h3>
+      <h3>📈 Business Overview Report</h3>
+
       <div className="overview-grid">
 
-  <div className="overview-card">
-    <h3>Tổng phiên sạc</h3>
-    <p>{overview.totalSessions}</p>
-  </div>
+        <div className="overview-card">
+          <h3>Total Charging Sessions</h3>
+          <p>{overview.totalSessions}</p>
+        </div>
 
-  <div className="overview-card">
-    <h3>Tổng số xe</h3>
-    <p>{overview.totalVehicles}</p>
-  </div>
+        <div className="overview-card">
+          <h3>Total Vehicles</h3>
+          <p>{overview.totalVehicles}</p>
+        </div>
 
-  <div className="overview-card">
-    <h3>Gói đăng ký hoạt động</h3>
-    <p>{overview.subscriptionCount}</p>
-  </div>
+        <div className="overview-card">
+          <h3>Active Subscriptions</h3>
+          <p>{overview.subscriptionCount}</p>
+        </div>
 
-</div>
+      </div>
 
-      <h4 style={{ marginTop: "25px", color: "#00ffa3" }}>🏆 Người dùng tích cực nhất</h4>
+      <h4 style={{ marginTop: "25px", color: "#00ffa3" }}>
+        🏆 Top Active Users
+      </h4>
+
       <table className="session-table">
         <thead>
           <tr>
             <th>ID</th>
-            <th>Tên</th>
-            <th>Số phiên sạc</th>
-            <th>Tổng chi tiêu (VNĐ)</th>
+            <th>Name</th>
+            <th>Charging Sessions</th>
+            <th>Total Spending (VND)</th>
           </tr>
         </thead>
         <tbody>

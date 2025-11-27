@@ -14,7 +14,7 @@ interface PointGridProps {
 export const PointGrid: React.FC<PointGridProps> = ({ points, selectedPointId, onSelectPoint }) => {
   return (
     <section className='station-grid'>
-      <h3>Chọn Cổng Sạc</h3>
+      <h3>"Select Charging Port"</h3>
       <div className='grid-container'>
         {points.map((point) => (
           <PointCard

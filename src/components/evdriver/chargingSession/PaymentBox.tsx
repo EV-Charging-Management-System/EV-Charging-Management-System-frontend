@@ -6,17 +6,18 @@ interface PaymentBoxProps {
 }
 
 /**
- * Component payment box khi hoàn tất
+ * Payment box component when a session is completed
  */
 export const PaymentBox: React.FC<PaymentBoxProps> = ({ cost }) => {
   return (
     <div className='payment-box'>
       <h3>
-        <FaDollarSign /> Hoàn Tất
+        <FaDollarSign /> Completed
       </h3>
-      <p>Phiên sạc đã hoàn tất. Hóa đơn sẽ được thanh toán qua ví trả sau.</p>
+      <p>The charging session has finished. The invoice will be paid via the postpaid wallet.</p>
+
       <div className='payment-total'>
-        Tổng chi phí: <strong>{cost.toLocaleString()}đ</strong>
+        Total Cost: <strong>{cost.toLocaleString()}đ</strong>
       </div>
     </div>
   )

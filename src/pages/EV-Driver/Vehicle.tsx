@@ -15,14 +15,14 @@ const Vehicle: React.FC = () => {
   const [battery, setBattery] = useState<number | "">("");
   const [errors, setErrors] = useState<any>({});
 
-  // 🔹 Lấy danh sách xe
+  // 🔹 Load vehicle list
   const fetchVehicles = async () => {
     try {
       const res = await vehicleService.getVehicles();
       if (res.success) setVehicles(res.data);
       else toast.error(res.message);
     } catch {
-      toast.error("Không thể tải danh sách xe!");
+      toast.error("Unable to load vehicle list!");
     }
   };
 
@@ -30,7 +30,7 @@ const Vehicle: React.FC = () => {
     fetchVehicles();
   }, []);
 
-  // 🔹 Thêm xe mới
+  // 🔹 Add a new vehicle
   const handleAddVehicle = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
@@ -54,13 +54,13 @@ const Vehicle: React.FC = () => {
       return;
     }
 
-    console.log("[Vehicle] Payload gửi:", payload);
+    console.log("[Vehicle] Payload:", payload);
 
     const res = await vehicleService.addVehicle(payload);
     console.log("[Vehicle] Response:", res);
 
     if (res.success) {
-      toast.success("✅ Đăng ký xe thành công!");
+      toast.success("✅ Vehicle registered successfully!");
       setVehicleName("");
       setVehicleType("");
       setLicensePlate("");
@@ -68,7 +68,7 @@ const Vehicle: React.FC = () => {
       setErrors({});
       await fetchVehicles();
     } else {
-      toast.error(res.message || "Không thể đăng ký xe!");
+      toast.error(res.message || "Failed to register vehicle!");
     }
   };
 
@@ -78,16 +78,16 @@ const Vehicle: React.FC = () => {
       <MenuBar />
 
       <div className="page-body">
-        <h2 className="page-title">🚗 Xe Của Tôi</h2>
+        <h2 className="page-title">🚗 My Vehicles</h2>
 
-        {/* Form thêm xe */}
+        {/* Add vehicle form */}
         <form className="add-vehicle-form" onSubmit={handleAddVehicle}>
           <div className="form-row">
             <div>
               <input
                 type="text"
                 name="vehicleName"
-                placeholder="Tên xe (VD: VinFast VF5)"
+                placeholder="Vehicle name (e.g., VinFast VF5)"
                 className="form-input"
                 value={vehicleName}
                 onChange={(e) => setVehicleName(e.target.value)}
@@ -101,7 +101,7 @@ const Vehicle: React.FC = () => {
               <input
                 type="text"
                 name="vehicleType"
-                placeholder="Loại xe (VD: Ô tô, Xe máy, Xe tải)"
+                placeholder="Type (e.g., Car, Motorbike, Truck)"
                 className="form-input"
                 value={vehicleType}
                 onChange={(e) => setVehicleType(e.target.value)}
@@ -115,7 +115,7 @@ const Vehicle: React.FC = () => {
               <input
                 type="text"
                 name="licensePlate"
-                placeholder="Biển số xe (VD: 51H-123.45)"
+                placeholder="License plate (e.g., 51H-123.45)"
                 className="form-input"
                 value={licensePlate}
                 onChange={(e) => setLicensePlate(e.target.value.toUpperCase())}
@@ -129,7 +129,7 @@ const Vehicle: React.FC = () => {
               <input
                 type="number"
                 name="battery"
-                placeholder="Dung lượng pin (kWh)"
+                placeholder="Battery capacity (kWh)"
                 className="form-input"
                 min="0"
                 step="0.1"
@@ -145,21 +145,21 @@ const Vehicle: React.FC = () => {
           </div>
 
           <button type="submit" className="btn-premium">
-            ➕ Đăng ký xe
+            ➕ Register Vehicle
           </button>
         </form>
 
-        {/* Danh sách xe */}
+        {/* Vehicle list */}
         {vehicles.length === 0 ? (
-          <p className="empty-text">Bạn chưa đăng ký xe nào.</p>
+          <p className="empty-text">You have not registered any vehicles.</p>
         ) : (
           <table className="vehicle-table">
             <thead>
               <tr>
-                <th>Tên Xe</th>
-                <th>Biển Số</th>
-                <th>Loại Xe</th>
-                <th>Dung Lượng Pin</th>
+                <th>Vehicle Name</th>
+                <th>License Plate</th>
+                <th>Type</th>
+                <th>Battery Capacity</th>
               </tr>
             </thead>
             <tbody>

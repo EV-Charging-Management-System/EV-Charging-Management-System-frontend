@@ -88,6 +88,3 @@ export const BookingForm: React.FC<BookingFormProps> = ({
     </div>
   )
 }
-
-
-

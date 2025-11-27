@@ -34,7 +34,7 @@ export const BookingCard: React.FC<BookingCardProps> = ({ booking, onStartChargi
           </p>
 
           <p className='mb-0'>
-            <FaHashtag className='me-2' /> Mã đặt: <strong>#{booking.qr}</strong>
+            <FaHashtag className='me-2' /> Booking Code: <strong>#{booking.qr}</strong>
           </p>
         </div>
 
@@ -45,7 +45,7 @@ export const BookingCard: React.FC<BookingCardProps> = ({ booking, onStartChargi
 
           <div className='d-flex gap-2 justify-content-end'>
             <Button size='sm' variant='warning' onClick={() => onStartCharging(booking)}>
-              Bắt đầu sạc
+              Start Charging
             </Button>
           </div>
         </div>

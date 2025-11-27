@@ -18,17 +18,17 @@ const DiscountSection: React.FC = () => {
       setPercent(current);
       setLoading(false);
     } catch {
-      toast.error("Không thể tải dữ liệu giảm giá!");
+      toast.error("Unable to load discount data!");
     }
   };
 
   const updateAllDiscount = async () => {
     try {
       await adminService.updatePremiumDiscount({ percent });
-      toast.success("Cập nhật giảm giá thành công!");
+      toast.success("Discount updated successfully!");
       loadDiscount();
     } catch {
-      toast.error("Lỗi khi cập nhật giảm giá!");
+      toast.error("Error updating discount!");
     }
   };
 
@@ -37,7 +37,7 @@ const DiscountSection: React.FC = () => {
   return (
     <div className="p-10">
       <h2 className="text-3xl font-bold text-white mb-8">
-        Giảm giá tất cả gói đăng ký
+        Discount for All Subscription Packages
       </h2>
 
       <div
@@ -55,10 +55,10 @@ const DiscountSection: React.FC = () => {
         <div>
           <h3 className="text-xl font-semibold text-white flex items-center gap-2">
             <Percent size={20} color="#00ffa3" />
-            Giảm giá áp dụng cho tất cả gói
+            Discount applied to all packages
           </h3>
           <p className="text-gray-400">
-            Giá trị giảm hiện tại: {percent}% 
+            Current discount value: {percent}% 
           </p>
         </div>
 

@@ -185,117 +185,116 @@ const PaymentSuccess: React.FC = () => {
 
     handlePaymentCallback();
   }, [navigate, params]);
+// ===== RENDER =====
+return (
+  <div className="page-container">
+    <Header />
+    <MenuBar />
 
-  // ===== RENDER =====
-  return (
-    <div className="page-container">
-      <Header />
-      <MenuBar />
+    <main className="page-body text-center fade-in">
+      <h1 className="page-title success-title">✅ Payment Successful!</h1>
 
-      <main className="page-body text-center fade-in">
-        <h1 className="page-title success-title">✅ Thanh Toán Thành Công!</h1>
+      {paymentType === "invoice" && (
+        <div className="success-message">
+          <p>🎉 Your invoice has been paid successfully!</p>
+          <p>Returning to invoice page in 3 seconds...</p>
+        </div>
+      )}
 
-        {paymentType === "invoice" && (
-          <div className="success-message">
-            <p>🎉 Hóa đơn của bạn đã được thanh toán!</p>
-            <p>Chờ 3 giây để quay về trang hóa đơn...</p>
-          </div>
-        )}
+      {paymentType === "business-invoice" && (
+        <div className="success-message">
+          <p>🎉 The business invoice has been paid!</p>
+          <p>Returning to business invoice page in 3 seconds...</p>
+        </div>
+      )}
 
-        {paymentType === "business-invoice" && (
-          <div className="success-message">
-            <p>🎉 Hóa đơn doanh nghiệp đã được thanh toán!</p>
-            <p>Chờ 3 giây để quay về trang hóa đơn doanh nghiệp...</p>
-          </div>
-        )}
+      {paymentType === "booking" && (
+        <div className="success-message">
+          <p>🎉 Your booking has been confirmed!</p>
+        </div>
+      )}
 
-        {paymentType === "booking" && (
-          <div className="success-message">
-            <p>🎉 Đặt lịch đã được xác nhận!</p>
-          </div>
-        )}
+      {paymentType === "premium" && (
+        <div className="success-message">
+          <p>🎉 Your Premium package is now active!</p>
+        </div>
+      )}
 
-        {paymentType === "premium" && (
-          <div className="success-message">
-            <p>🎉 Gói Premium đã được kích hoạt!</p>
-          </div>
-        )}
-
-        {(txnRef || vnp_TxnRef) && (
-          <div className="txn-box mt-4 p-3 border rounded text-center">
+      {(txnRef || vnp_TxnRef) && (
+        <div className="txn-box mt-4 p-3 border rounded text-center">
+          <p>
+            <b>Transaction ID:</b> {txnRef || vnp_TxnRef}
+          </p>
+          {amount && (
             <p>
-              <b>Mã giao dịch:</b> {txnRef || vnp_TxnRef}
+              <b>Amount:</b> {amount.toLocaleString()} VND
             </p>
-            {amount && (
-              <p>
-                <b>Số tiền:</b> {amount.toLocaleString()} VND
-              </p>
-            )}
-          </div>
-        )}
+          )}
+        </div>
+      )}
 
-        {paymentType === "premium" && membership && (
-          <div className="membership-box">
-            <h3>🎫 Thông tin hội viên</h3>
-            <p>
-              <b>Mã gói:</b> #{membership.id}
-            </p>
-            <p>
-              <b>Ngày bắt đầu:</b> {membership.startDate}
-            </p>
-            <p>
-              <b>Ngày hết hạn:</b> {membership.endDate}
-            </p>
-            <p>
-              <b>Trạng thái:</b> {membership.status}
-            </p>
-          </div>
-        )}
+      {paymentType === "premium" && membership && (
+        <div className="membership-box">
+          <h3>🎫 Membership Information</h3>
+          <p>
+            <b>Package ID:</b> #{membership.id}
+          </p>
+          <p>
+            <b>Start Date:</b> {membership.startDate}
+          </p>
+          <p>
+            <b>End Date:</b> {membership.endDate}
+          </p>
+          <p>
+            <b>Status:</b> {membership.status}
+          </p>
+        </div>
+      )}
 
-        <Row className="justify-content-center mt-4">
-          <Col xs="auto">
-            <div className="d-flex flex-wrap justify-content-center gap-2">
-              {paymentType === "invoice" && (
-                <Button variant="success" onClick={() => navigate("/payment")}>
-                  🧾 Quay về hóa đơn
-                </Button>
-              )}
-
-              {paymentType === "business-invoice" && (
-                <Button
-                  variant="success"
-                  onClick={() => navigate("/business/invoices")}
-                >
-                  🧾 Về hóa đơn doanh nghiệp
-                </Button>
-              )}
-
-              {paymentType === "booking" && (
-                <Button
-                  variant="primary"
-                  onClick={() => navigate("/charging-schedule")}
-                >
-                  📅 Xem lịch đặt
-                </Button>
-              )}
-
-              {paymentType === "premium" && (
-                <Button variant="warning" onClick={() => navigate("/premium")}>
-                  💎 Xem gói Premium
-                </Button>
-              )}
-
-              <Button
-                variant="outline-secondary"
-                onClick={() => navigate("/customer/dashboard")}
-              >
-                🏠 Về trang chủ
+      <Row className="justify-content-center mt-4">
+        <Col xs="auto">
+          <div className="d-flex flex-wrap justify-content-center gap-2">
+            
+            {paymentType === "invoice" && (
+              <Button variant="success" onClick={() => navigate("/payment")}>
+                🧾 Back to Invoices
               </Button>
-            </div>
-          </Col>
-        </Row>
-      </main>
+            )}
 
+            {paymentType === "business-invoice" && (
+              <Button
+                variant="success"
+                onClick={() => navigate("/business/invoices")}
+              >
+                🧾 Back to Business Invoices
+              </Button>
+            )}
+
+            {paymentType === "booking" && (
+              <Button
+                variant="primary"
+                onClick={() => navigate("/charging-schedule")}
+              >
+                📅 View Booking
+              </Button>
+            )}
+
+            {paymentType === "premium" && (
+              <Button variant="warning" onClick={() => navigate("/premium")}>
+                💎 View Premium Packages
+              </Button>
+            )}
+
+            <Button
+              variant="outline-secondary"
+              onClick={() => navigate("/customer/dashboard")}
+            >
+              🏠 Back to Home
+            </Button>
+          </div>
+        </Col>
+      </Row>
+    </main>
       <Footer />
     </div>
   );

@@ -18,16 +18,14 @@ const Business: React.FC = () => {
   const [company, setCompany] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  // 🟢 Tab hiện tại
   const [activeTab, setActiveTab] = useState<
-    "vehicles" | "sessions" | "overview" | "lookup"
+    "vehicles" | "sessions" | "overview" | "lookup" | "invoices"
   >("vehicles");
 
-  // 🟢 Tra cứu công ty theo biển số
   const [licenseLookup, setLicenseLookup] = useState("");
   const [lookupResult, setLookupResult] = useState<any>(null);
 
-  // 🔹 Lấy thông tin user hiện tại
+  // Load current user
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -36,8 +34,8 @@ const Business: React.FC = () => {
         setUser(u);
         console.log("👤 User profile:", u);
       } catch (err) {
-        console.error("❌ Không thể tải thông tin người dùng:", err);
-        toast.error("Không thể tải thông tin người dùng.");
+        console.error("❌ Failed to load user info:", err);
+        toast.error("Failed to load user information.");
       } finally {
         setLoading(false);
       }
@@ -45,65 +43,60 @@ const Business: React.FC = () => {
     fetchUser();
   }, []);
 
-  // 🔹 Lấy thông tin công ty (chỉ dành cho user BUSINESS)
- useEffect(() => {
-  const fetchCompany = async () => {
-    if (!user) return;
+  // Load company information for BUSINESS user
+  useEffect(() => {
+    const fetchCompany = async () => {
+      if (!user) return;
 
-    const role = user.RoleName || user.role;
-    if (role !== "BUSINESS") return;
+      const role = user.RoleName || user.role;
+      if (role !== "BUSINESS") return;
 
-    // ✔️ CHỈ LẤY COMPANYID – KHÔNG BAO GIỜ LẤY USERID
-   const id = user.CompanyId ?? user.companyId;
+      const id = user.CompanyId ?? user.companyId;
 
-
-    if (!id) {
-      console.warn("⚠️ User không có companyId!");
-      return;
-    }
-
-    try {
-      const res = await businessService.getCompanyOverview(id);
-      if (res.success && res.data) {
-        setCompany(res.data);
-        console.log("🏢 Company data:", res.data);
-      } else {
-        toast.warn("Không tìm thấy thông tin công ty!");
+      if (!id) {
+        console.warn("⚠️ User has no companyId!");
+        return;
       }
-    } catch (err) {
-      console.error("❌ Lỗi khi tải thông tin công ty:", err);
-      toast.error("Lỗi khi tải thông tin công ty!");
-    }
-  };
 
-  fetchCompany();
-}, [user]);
+      try {
+        const res = await businessService.getCompanyOverview(id);
+        if (res.success && res.data) {
+          setCompany(res.data);
+          console.log("🏢 Company data:", res.data);
+        } else {
+          toast.warn("Company information not found!");
+        }
+      } catch (err) {
+        console.error("❌ Error loading company info:", err);
+        toast.error("Error loading company information!");
+      }
+    };
 
+    fetchCompany();
+  }, [user]);
 
-  // 🔍 Tra cứu công ty theo biển số
+  // Lookup company by license plate
   const handleLookup = async () => {
     if (!licenseLookup.trim()) {
-      toast.warn("⚠️ Vui lòng nhập biển số xe để tra cứu!");
+      toast.warn("⚠️ Please enter a license plate.");
       return;
     }
     try {
-      const res = await businessService.lookupCompanyByPlate(
-        licenseLookup.trim()
-      );
+      const res = await businessService.lookupCompanyByPlate(licenseLookup.trim());
       if (res.success && res.data) {
         setLookupResult(res.data);
-        toast.success("✅ Đã tìm thấy công ty!");
+        toast.success("✅ Company found!");
       } else {
         setLookupResult(null);
-        toast.error(res.message || "Không tìm thấy công ty nào sở hữu xe này!");
+        toast.error(res.message || "No company owns this vehicle.");
       }
     } catch (err) {
-      console.error("❌ Lỗi khi tra cứu:", err);
-      toast.error("Không thể kết nối đến máy chủ.");
+      console.error("❌ Lookup error:", err);
+      toast.error("Unable to connect to server.");
     }
   };
 
-  // 🔹 Gửi yêu cầu nâng cấp Business
+  // Send business upgrade request
   const handleUpgrade = async () => {
     try {
       const res = await businessService.requestUpgrade(
@@ -111,102 +104,138 @@ const Business: React.FC = () => {
       );
       if (res.success) {
         toast.success(
-          "🎯 Đã gửi yêu cầu nâng cấp tài khoản doanh nghiệp. Vui lòng chờ admin duyệt."
+          "🎯 Business upgrade request sent. Please wait for admin approval."
         );
       } else {
-        toast.error(res.message || "Không thể gửi yêu cầu hợp tác.");
+        toast.error(res.message || "Unable to submit request.");
       }
     } catch (err) {
-      console.error("❌ Lỗi gửi yêu cầu doanh nghiệp:", err);
-      toast.error("Đã xảy ra lỗi, vui lòng thử lại sau.");
+      console.error("❌ Upgrade request error:", err);
+      toast.error("An error occurred. Please try again later.");
     }
   };
 
-  if (loading) return <div className="loading-text">Đang tải...</div>;
+  if (loading) return <div className="loading-text">Loading...</div>;
 
- // ✅ Nếu là user doanh nghiệp
-if ((user?.RoleName || user?.role) === "BUSINESS") {
+  // ==============================
+  // DISPLAY BUSINESS DASHBOARD
+  // ==============================
+  if ((user?.RoleName || user?.role) === "BUSINESS") {
+    return (
+      <div className="page-container">
+        <Header />
+        <MenuBar />
+
+        <main className="page-body fade-in">
+          <div className="business-dashboard">
+            <h1 className="page-title">👔 Business Dashboard</h1>
+            <p className="page-description">
+              Welcome, <b>{user?.FullName || user?.UserName}</b>! Manage your business here.
+            </p>
+
+            {/* TAB MENU */}
+            <div className="business-tabs">
+              <button
+                className={`tab-btn ${activeTab === "vehicles" ? "active" : ""}`}
+                onClick={() => setActiveTab("vehicles")}
+              >
+                🚗 Vehicle Management
+              </button>
+
+              <button
+                className={`tab-btn ${activeTab === "sessions" ? "active" : ""}`}
+                onClick={() => setActiveTab("sessions")}
+              >
+                ⚡ Charging History
+              </button>
+
+              <button
+                className={`tab-btn ${activeTab === "overview" ? "active" : ""}`}
+                onClick={() => setActiveTab("overview")}
+              >
+                💰 Analytics
+              </button>
+
+              <button
+                className={`tab-btn ${activeTab === "invoices" ? "active" : ""}`}
+                onClick={() => setActiveTab("invoices")}
+              >
+                🧾 Invoices
+              </button>
+            </div>
+
+            {/* TAB CONTENT */}
+            <div className="tab-content">
+              {activeTab === "vehicles" && (
+                <VehicleManager companyId={company?.companyId || user?.CompanyId} />
+              )}
+
+              {activeTab === "sessions" && (
+                <div className="business-section">
+                  <SessionHistory companyId={company?.companyId || user?.CompanyId} />
+                </div>
+              )}
+
+              {activeTab === "overview" && (
+                <div className="business-section">
+                  <BusinessOverview companyId={company?.companyId || user?.CompanyId} />
+                </div>
+              )}
+
+              {activeTab === "invoices" && (
+                <BusinessInvoices companyId={company?.companyId || user?.CompanyId} />
+              )}
+
+              {activeTab === "lookup" && (
+                <div className="business-section">
+                  {lookupResult && (
+                    <div className="lookup-result">
+                      <p><strong>Company:</strong> {lookupResult.CompanyName || "N/A"}</p>
+                      <p><strong>Address:</strong> {lookupResult.Address || "N/A"}</p>
+                      <p><strong>Email:</strong> {lookupResult.CompanyMail || "N/A"}</p>
+                      <p><strong>Phone:</strong> {lookupResult.Phone || "N/A"}</p>
+                      <p><strong>Vehicle:</strong> {lookupResult.VehicleName} ({lookupResult.LicensePlate})</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </main>
+
+        <Footer />
+      </div>
+    );
+  }
+
+  // ==============================
+  // NOT A BUSINESS USER → SHOW UPGRADE PAGE
+  // ==============================
   return (
     <div className="page-container">
       <Header />
       <MenuBar />
 
       <main className="page-body fade-in">
-        <div className="business-dashboard">
-          <h1 className="page-title">👔 Trang Doanh Nghiệp</h1>
+        <div className="business-card text-center">
+          <h1 className="page-title">Business Partnership</h1>
           <p className="page-description">
-            Xin chào, <b>{user?.FullName || user?.UserName}</b>! Quản lý doanh nghiệp của bạn tại đây.
+            Expand your EV charging network with us — a green energy solution for the future.
           </p>
 
-          {/* === TAB MENU === */}
-          <div className="business-tabs">
-            <button
-              className={`tab-btn ${activeTab === "vehicles" ? "active" : ""}`}
-              onClick={() => setActiveTab("vehicles")}
-            >
-              🚗 Quản lý xe
+          <div className="business-content">
+            <h3>🎯 Become an EV Business Partner</h3>
+            <p>
+              Manage charging stations, vehicles, staff, and receive periodic revenue reports.
+            </p>
+
+            <button className="btn-premium" onClick={handleUpgrade}>
+              Submit Upgrade Request
             </button>
 
-            <button
-              className={`tab-btn ${activeTab === "sessions" ? "active" : ""}`}
-              onClick={() => setActiveTab("sessions")}
-            >
-              ⚡ Lịch sử sạc
+            <button className="btn-back" onClick={() => navigate("/premium")}>
+              ← Back
             </button>
-
-            <button
-              className={`tab-btn ${activeTab === "overview" ? "active" : ""}`}
-              onClick={() => setActiveTab("overview")}
-            >
-              💰 Thống kê
-            </button>
-
-            <button
-              className={`tab-btn ${activeTab === "invoices" ? "active" : ""}`}
-              onClick={() => setActiveTab("invoices")}
-            >
-              🧾 Hóa đơn
-            </button>
-          </div>
-
-          {/* === TAB CONTENT === */}
-          <div className="tab-content">
-
-            {activeTab === "vehicles" && (
-              <VehicleManager companyId={company?.companyId || user?.CompanyId} />
-            )}
-
-            {activeTab === "sessions" && (
-              <div className="business-section">
-                <SessionHistory companyId={company?.companyId || user?.CompanyId} />
-              </div>
-            )}
-
-            {activeTab === "overview" && (
-              <div className="business-section">
-                <BusinessOverview companyId={company?.companyId || user?.CompanyId} />
-              </div>
-            )}
-
-           {activeTab === "invoices" && (
-  <BusinessInvoices companyId={company?.companyId || user?.CompanyId} />
-)}
-
-
-            {activeTab === "lookup" && (
-              <div className="business-section">
-                {lookupResult && (
-                  <div className="lookup-result">
-                    <p><strong>Công ty:</strong> {lookupResult.CompanyName || "Chưa có"}</p>
-                    <p><strong>Địa chỉ:</strong> {lookupResult.Address || "N/A"}</p>
-                    <p><strong>Email:</strong> {lookupResult.CompanyMail || "N/A"}</p>
-                    <p><strong>Điện thoại:</strong> {lookupResult.Phone || "N/A"}</p>
-                    <p><strong>Xe:</strong> {lookupResult.VehicleName} ({lookupResult.LicensePlate})</p>
-                  </div>
-                )}
-              </div>
-            )}
-
           </div>
         </div>
       </main>
@@ -214,41 +243,6 @@ if ((user?.RoleName || user?.role) === "BUSINESS") {
       <Footer />
     </div>
   );
-}
-
-// 🚀 Nếu user chưa nâng cấp
-return (
-  <div className="page-container">
-    <Header />
-    <MenuBar />
-
-    <main className="page-body fade-in">
-      <div className="business-card text-center">
-        <h1 className="page-title">Hợp Tác Kinh Doanh</h1>
-        <p className="page-description">
-          Mở rộng hệ thống trạm sạc của bạn cùng chúng tôi – giải pháp năng lượng xanh cho tương lai.
-        </p>
-
-        <div className="business-content">
-          <h3>🎯 Trở thành đối tác doanh nghiệp EV</h3>
-          <p>
-            Bạn có thể quản lý trạm sạc, phương tiện, nhân viên, nhận báo cáo doanh thu định kỳ.
-          </p>
-
-          <button className="btn-premium" onClick={handleUpgrade}>
-            Gửi Yêu Cầu Nâng Cấp
-          </button>
-
-          <button className="btn-back" onClick={() => navigate("/premium")}>
-            ← Quay lại
-          </button>
-        </div>
-      </div>
-    </main>
-
-    <Footer />
-  </div>
-);
 };
 
 export default Business;

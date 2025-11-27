@@ -31,8 +31,8 @@ const Premium: React.FC = () => {
 
       <main className="member-body">
         <h1 className="member-title">
-          Trải Nghiệm Đặc Quyền - Nâng Tầm Hội Viên  
-          <br /> Chọn Gói Phù Hợp Cho Bạn
+          Experience Exclusive Privileges – Enhance Your Membership  
+          <br /> Select the Plan That Suits You
         </h1>
 
         <PremiumList

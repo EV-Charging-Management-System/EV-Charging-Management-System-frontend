@@ -45,12 +45,12 @@ export const useChargingSession = (bookingId?: number, bookingData?: any) => {
     let penaltyInterval: number | null = null
 
     if (state.isCharging && !state.finished && state.battery >= 100) {
-      console.log('⚠️ Pin đã đầy 100%! Bắt đầu đếm thời gian phạt...')
+      console.log('⚠️ Battery is fully charged (100%)! Starting penalty timer…')
       
       penaltyInterval = window.setInterval(() => {
         setState((prev) => {
           const newPenalty = prev.penaltyMinutes + 1
-          console.log(`⏱️ Thời gian quá 100%: ${newPenalty} giây (${newPenalty * 5000}đ)`)
+          console.log(`⏱️ Time Over 100%: ${newPenalty} giây (${newPenalty * 5000}đ)`)
           return { ...prev, penaltyMinutes: newPenalty }
         })
       }, 1000)
@@ -58,7 +58,7 @@ export const useChargingSession = (bookingId?: number, bookingData?: any) => {
 
     return () => {
       if (penaltyInterval) {
-        console.log('🛑 Dừng đếm thời gian phạt')
+        console.log('🛑 Stop Penalty Timer')
         window.clearInterval(penaltyInterval)
       }
     }
@@ -113,25 +113,26 @@ export const useChargingSession = (bookingId?: number, bookingData?: any) => {
           isCharging: true
         }))
         
-        alert(`✅ Phiên sạc đã bắt đầu!\n\n🔋 Pin hiện tại: ${randomBattery}%\n📍 Session ID: ${res.data.sessionId}\n\n⚠️ Lưu ý: Nếu sạc đến 100% mà không dừng, bạn sẽ bị tính phí phạt 5.000đ/giây!`)
+        alert(`✅ Charging session started!\n\n🔋 Current battery: ${randomBattery}%\n📍 Session ID: ${res.data.sessionId}\n\n⚠️ Note: If you reach 100% and do not stop the session, a penalty of 5,000đ/second will be applied!`)
+
       } else {
-        alert('⚠️ Không thể bắt đầu phiên sạc: ' + (res.message || 'Lỗi không xác định'))
+        alert('⚠️ Unable to start charging session: ' + (res.message || 'Unknown error'))
       }
     } catch (error: any) {
       console.error('❌ Start session error:', error)
-      alert('❌ Lỗi khi bắt đầu phiên sạc: ' + (error?.message || 'Vui lòng thử lại!'))
+      alert('❌ Error while starting session: ' + (error?.message || 'Please try again!'))
     }
   }
 
   // ===== Stop Session =====
   const handleStop = async () => {
     if (!state.sessionId) {
-      alert('Không tìm thấy phiên sạc. Vui lòng thử lại!')
+      alert('Charging session not found. Please try again!')
       return
     }
 
     if (!state.isCharging) {
-      alert('Phiên sạc chưa được bắt đầu!')
+      alert('The charging session has not started yet!')
       return
     }
 
@@ -156,8 +157,7 @@ export const useChargingSession = (bookingId?: number, bookingData?: any) => {
       // Step 2: Apply penalty if exists (PHẢI gọi TRƯỚC khi tạo invoice)
       if (state.penaltyMinutes > 0) {
         const calculatedPenaltyFee = state.penaltyMinutes * 5000
-        console.log(`⚠️ Step 2: Áp dụng phí phạt: ${state.penaltyMinutes} giây x 5.000đ = ${calculatedPenaltyFee.toLocaleString()}đ`)
-        
+        console.log('ℹ️ Step 2: No penalty applied (battery not full or stopped in time)')
         try {
           const penaltyRes = await chargingSessionService.applyPenalty(state.sessionId, calculatedPenaltyFee)
           console.log('✅ Penalty applied:', penaltyRes)  
@@ -166,7 +166,7 @@ export const useChargingSession = (bookingId?: number, bookingData?: any) => {
           alert('⚠️ Không thể áp dụng phí phạt. Vui lòng liên hệ hỗ trợ!')
         }
       } else {
-        console.log('ℹ️ Step 2: Không có phí phạt (pin chưa đạt 100% hoặc dừng kịp thời)')
+        console.log('ℹ️ Step 2: No penalty applied (battery not full or session stopped in time)')
       }
 
       // Step 3: Create invoice (Backend đã có penalty từ Step 2)
@@ -188,7 +188,7 @@ export const useChargingSession = (bookingId?: number, bookingData?: any) => {
           ? `\n- Phí phạt: ${backendPenaltyFee.toLocaleString()}đ` 
           : ''
         
-        alert(`✅ Phiên sạc đã kết thúc!\n\n📄 Hóa đơn đã được tạo:\n- Mã hóa đơn: #${invoiceRes.data?.invoiceId || 'N/A'}\n- Chi phí sạc: ${backendSessionPrice.toLocaleString()}đ${penaltyText}\n- Tổng thanh toán: ${backendTotalAmount.toLocaleString()}đ\n- Thanh toán: Ví trả sau`)
+        alert(`✅ Charging session has ended!\n\n📄 Invoice has been created:\n- Invoice ID: #${invoiceRes.data?.invoiceId || 'N/A'}\n- Charging Cost: ${backendSessionPrice.toLocaleString()}đ${penaltyText}\n- Total Amount: ${backendTotalAmount.toLocaleString()}đ\n- Payment Method: Postpaid Wallet`)
         
         // Cập nhật cost từ backend để hiển thị chính xác
         setState((prev) => ({
@@ -196,7 +196,7 @@ export const useChargingSession = (bookingId?: number, bookingData?: any) => {
           cost: backendTotalAmount
         }))
       } else {
-        alert('⚠️ Phiên sạc đã kết thúc nhưng không tạo được hóa đơn. Vui lòng liên hệ hỗ trợ!')
+       alert('⚠️ The charging session has ended, but the invoice could not be created. Please contact support!')
       }
       
       // Navigate after 2s

@@ -14,10 +14,10 @@ const BusinessInvoices = ({ companyId }) => {
   };
 
   // =========================
-  // 🔥 Thanh toán 1 hóa đơn
+  // 🔥 Pay a single business invoice
   // =========================
   const handlePaySingle = async (invoiceId) => {
-    // 🔥 Lưu lại loại thanh toán
+    // ⭐ Save payment type so PaymentSuccess can identify it
     localStorage.setItem("paymentType", "business-invoice");
     localStorage.setItem("payingInvoiceId", invoiceId);
 
@@ -25,10 +25,11 @@ const BusinessInvoices = ({ companyId }) => {
 
     try {
       const res = await businessService.paySingleInvoice(invoiceId);
+
       const url = res?.data?.url;
 
       if (!url) {
-        alert("Không nhận được URL thanh toán!");
+        alert("No payment URL received!");
         newTab.close();
         return;
       }
@@ -36,26 +37,26 @@ const BusinessInvoices = ({ companyId }) => {
       newTab.location.href = url;
     } catch (err) {
       console.error("PAY ERROR:", err);
-      alert("Không thể tạo thanh toán!");
+      alert("Unable to initiate payment!");
       newTab.close();
     }
   };
 
   return (
     <div className="business-section">
-      <h3 className="section-title">🧾 Hóa Đơn Doanh Nghiệp</h3>
+      <h3 className="section-title">🧾 Business Invoices</h3>
 
       <table className="green-table">
         <thead>
           <tr>
             <th>ID</th>
-            <th>Người dùng</th>
-            <th>Xe</th>
-            <th>Biển số</th>
-            <th>Số tiền</th>
-            <th>Trạng thái</th>
-            <th>Ngày tạo</th>
-            <th>Thanh toán</th>
+            <th>User</th>
+            <th>Vehicle</th>
+            <th>License Plate</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Created At</th>
+            <th>Payment</th>
           </tr>
         </thead>
 
@@ -64,17 +65,17 @@ const BusinessInvoices = ({ companyId }) => {
             <tr key={inv.invoiceId}>
               <td>{inv.invoiceId}</td>
 
-              {/* 🟢 HIỂN THỊ TÊN USER */}
-              <td>{inv.userName ? inv.userName : `User #${inv.userId}`}</td>
+              {/* Backend only returns userId */}
+              <td>User #{inv.userId}</td>
 
-              {/* 🟢 HIỂN THỊ TÊN XE */}
-              <td>{inv.vehicleName || "—"}</td>
+              {/* Backend does not return vehicle details */}
+              <td>—</td>
+              <td>—</td>
 
-              {/* 🟢 HIỂN THỊ BIỂN SỐ */}
-              <td>{inv.licensePlate || "—"}</td>
-
+              {/* Amount */}
               <td>{Number(inv.totalAmount || 0).toLocaleString()} đ</td>
 
+              {/* Paid status */}
               <td
                 style={{
                   color: inv.paidStatus === "Paid" ? "#00ff99" : "#ff4444",
@@ -84,6 +85,7 @@ const BusinessInvoices = ({ companyId }) => {
                 {inv.paidStatus}
               </td>
 
+              {/* Created At */}
               <td>
                 {inv.createdAt
                   ? new Date(inv.createdAt).toLocaleString()
@@ -93,14 +95,14 @@ const BusinessInvoices = ({ companyId }) => {
               <td>
                 {inv.paidStatus === "Paid" ? (
                   <span style={{ color: "#00ff99", fontWeight: "bold" }}>
-                    ✔ Đã thanh toán
+                    ✔ Paid
                   </span>
                 ) : (
                   <button
                     className="pay-btn"
                     onClick={() => handlePaySingle(inv.invoiceId)}
                   >
-                    💳 Thanh toán
+                    💳 Pay Now
                   </button>
                 )}
               </td>

@@ -26,10 +26,10 @@ const PremiumBusinessForm = ({ onClose }: any) => {
     const res = await businessService.createCompany(payload);
 
     if (res?.companyId) {
-      alert("Gửi yêu cầu thành công! Vui lòng chờ admin duyệt.");
+      alert("Request submitted successfully! Please wait for admin approval.");
       onClose();
     } else {
-      alert(res?.message || "Có lỗi xảy ra.");
+      alert(res?.message || "An error occurred.");
     }
 
     setLoading(false);
@@ -38,24 +38,24 @@ const PremiumBusinessForm = ({ onClose }: any) => {
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <h2>🏢 Đăng Ký Tài Khoản Doanh Nghiệp</h2>
+        <h2>🏢 Register Business Account</h2>
 
         <form onSubmit={handleSubmit}>
-          <label>Tên công ty</label>
+          <label>Company Name</label>
           <input
             type="text"
             required
-            placeholder="Nhập tên công ty..."
+            placeholder="Enter company name..."
             onChange={(e) =>
               setCompany({ ...company, companyName: e.target.value })
             }
           />
 
-          <label>Địa chỉ</label>
+          <label>Address</label>
           <input
             type="text"
             required
-            placeholder="Nhập địa chỉ..."
+            placeholder="Enter address..."
             onChange={(e) =>
               setCompany({ ...company, address: e.target.value })
             }
@@ -65,17 +65,17 @@ const PremiumBusinessForm = ({ onClose }: any) => {
           <input
             type="email"
             required
-            placeholder="Nhập email..."
+            placeholder="Enter email..."
             onChange={(e) =>
               setCompany({ ...company, mail: e.target.value })
             }
           />
 
-          <label>Số điện thoại</label>
+          <label>Phone Number</label>
           <input
             type="tel"
             required
-            placeholder="Nhập số điện thoại..."
+            placeholder="Enter phone number..."
             onChange={(e) =>
               setCompany({ ...company, phone: e.target.value })
             }
@@ -83,11 +83,11 @@ const PremiumBusinessForm = ({ onClose }: any) => {
 
           <div className="form-buttons">
             <button type="submit" className="confirm-btn" disabled={loading}>
-              {loading ? "Đang gửi..." : "Gửi yêu cầu"}
+              {loading ? "Submitting..." : "Submit Request"}
             </button>
 
             <button type="button" className="back-btn-bottom" onClick={onClose}>
-              ← Hủy
+              ← Cancel
             </button>
           </div>
         </form>
