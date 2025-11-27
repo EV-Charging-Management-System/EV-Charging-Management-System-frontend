@@ -44,7 +44,6 @@ export const useBookings = () => {
             minute: '2-digit'
           }),
           vehicle: b.VehicleName || 'Chưa cập nhật',
-          plate: b.LicensePlate || 'N/A',
           deposit: (b.DepositAmount?.toLocaleString('vi-VN') || '0') + ' ₫',
           qr: b.QR || 'N/A', // ✅ Hiển thị đầy đủ mã txnRef (QR code)
           status: 'Đã xác nhận'

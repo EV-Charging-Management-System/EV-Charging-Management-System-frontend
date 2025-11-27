@@ -21,14 +21,7 @@ interface Props {
 const UserTable: React.FC<Props> = ({ users, onAdd, onEdit, onDelete }) => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [showAddModal, setShowAddModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [newUser, setNewUser] = useState<Partial<User>>({
-    UserName: "",
-    Mail: "",
-    RoleName: "STAFF",
-    CompanyId: 1,
-  });
 
   // 🔹 Khi nhấn Sửa
   const handleEditClick = (user: User) => {
@@ -39,7 +32,6 @@ const UserTable: React.FC<Props> = ({ users, onAdd, onEdit, onDelete }) => {
   // 🔹 Đóng tất cả modal
   const handleClose = () => {
     setShowEditModal(false);
-    setShowAddModal(false);
     setShowDeleteModal(false);
     setSelectedUser(null);
   };
@@ -51,23 +43,6 @@ const UserTable: React.FC<Props> = ({ users, onAdd, onEdit, onDelete }) => {
       await onEdit(selectedUser);
     } catch (err) {
       console.error("❌ Lỗi FE khi cập nhật:", err);
-    } finally {
-      handleClose();
-    }
-  };
-
-  // ✅ Thêm người dùng (vẫn cảnh báo thiếu input ở đây)
-  const handleAdd = async () => {
-    if (!newUser.UserName || !newUser.Mail) {
-      toast.warn("⚠️ Vui lòng nhập đầy đủ thông tin!");
-      return;
-    }
-
-    try {
-      await onAdd(newUser);
-      setNewUser({ UserName: "", Mail: "", RoleName: "STAFF", CompanyId: 1 });
-    } catch (err) {
-      console.error("❌ Lỗi FE khi thêm:", err);
     } finally {
       handleClose();
     }
@@ -89,9 +64,6 @@ const UserTable: React.FC<Props> = ({ users, onAdd, onEdit, onDelete }) => {
     <section className="data-section">
       <div className="data-section-header">
         <h2>👤 Danh sách tài khoản</h2>
-        <button className="btn-add" onClick={() => setShowAddModal(true)}>
-          + Thêm tài khoản
-        </button>
       </div>
 
       <table className="admin-table">
@@ -190,58 +162,6 @@ const UserTable: React.FC<Props> = ({ users, onAdd, onEdit, onDelete }) => {
             <div className="modal-buttons">
               <button className="btn-save" onClick={handleSave}>
                 Lưu
-              </button>
-              <button className="btn-cancel" onClick={handleClose}>
-                Hủy
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* === MODAL: ADD === */}
-      {showAddModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h3>➕ Thêm tài khoản mới</h3>
-
-            <label>Tên đăng nhập</label>
-            <input
-              type="text"
-              value={newUser.UserName || ""}
-              onChange={(e) => setNewUser({ ...newUser, UserName: e.target.value })}
-            />
-
-            <label>Email</label>
-            <input
-              type="email"
-              value={newUser.Mail || ""}
-              onChange={(e) => setNewUser({ ...newUser, Mail: e.target.value })}
-            />
-
-            <label>Vai trò</label>
-            <select
-              value={newUser.RoleName || "STAFF"}
-              onChange={(e) => setNewUser({ ...newUser, RoleName: e.target.value })}
-            >
-              <option value="ADMIN">ADMIN</option>
-              <option value="STAFF">STAFF</option>
-              <option value="EVDRIVER">EVDRIVER</option>
-              <option value="BUSINESS">BUSINESS</option>
-            </select>
-
-            <label>Mã công ty</label>
-            <input
-              type="number"
-              value={newUser.CompanyId || 1}
-              onChange={(e) =>
-                setNewUser({ ...newUser, CompanyId: Number(e.target.value) })
-              }
-            />
-
-            <div className="modal-buttons">
-              <button className="btn-save" onClick={handleAdd}>
-                Thêm
               </button>
               <button className="btn-cancel" onClick={handleClose}>
                 Hủy

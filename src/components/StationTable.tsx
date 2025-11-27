@@ -34,6 +34,8 @@ const StationTable: React.FC<StationTableProps> = ({
   const [newStation, setNewStation] = useState({
     StationName: "",
     Address: "",
+    StationDescrip: "",
+    StationStatus: "ACTIVE",
     ChargingPointTotal: 0,
   });
 
@@ -78,28 +80,40 @@ const StationTable: React.FC<StationTableProps> = ({
   // 🆕 Mở modal thêm trạm
   const openModal = () => setShowModal(true);
   const closeModal = () => {
-    setNewStation({ StationName: "", Address: "", ChargingPointTotal: 0 });
+    setNewStation({ StationName: "", Address: "", StationDescrip: "", StationStatus: "ACTIVE", ChargingPointTotal: 0 });
     setShowModal(false);
   };
 
-  // ✅ Thêm trạm mới (giả lập)
-  const handleAddStation = () => {
-    if (!newStation.StationName || !newStation.Address) {
+  // ✅ Thêm trạm mới
+  const handleAddStation = async () => {
+    if (!newStation.StationName || !newStation.Address || !newStation.StationDescrip) {
       toast.warn("⚠️ Vui lòng nhập đủ thông tin!");
       return;
     }
 
-    const newItem: Station = {
-      StationId: stations.length + 1,
-      StationName: newStation.StationName,
-      Address: newStation.Address,
-      ChargingPointTotal: Number(newStation.ChargingPointTotal),
-      StationStatus: "ACTIVE",
-    };
+    try {
+      const res = await adminService.createStation(
+        newStation.StationName,
+        newStation.Address,
+        newStation.StationDescrip,
+        newStation.StationStatus,
+        Number(newStation.ChargingPointTotal)
+      );
 
-    setStations([...stations, newItem]);
-    toast.success("✅ Thêm trạm sạc thành công!");
-    closeModal();
+      if (res.success) {
+        toast.success(res.message || "✅ Thêm trạm sạc thành công!");
+        closeModal();
+        // Gọi callback để refresh danh sách
+        if (onAdd) {
+          onAdd();
+        }
+      } else {
+        toast.error(res.message || "Lỗi khi tạo trạm sạc");
+      }
+    } catch (error) {
+      console.error("Error creating station:", error);
+      toast.error("Lỗi khi tạo trạm sạc!");
+    }
   };
 
   // 🔧 Đổi trạng thái bảo trì / kích hoạt
@@ -250,6 +264,27 @@ const StationTable: React.FC<StationTableProps> = ({
                 setNewStation({ ...newStation, Address: e.target.value })
               }
             />
+
+            <label>Mô tả trạm</label>
+            <input
+              type="text"
+              value={newStation.StationDescrip}
+              onChange={(e) =>
+                setNewStation({ ...newStation, StationDescrip: e.target.value })
+              }
+            />
+
+            <label>Trạng thái</label>
+            <select
+              value={newStation.StationStatus}
+              onChange={(e) =>
+                setNewStation({ ...newStation, StationStatus: e.target.value })
+              }
+            >
+              <option value="ACTIVE">ACTIVE</option>
+              <option value="INACTIVE">INACTIVE</option>
+              <option value="MAINTENANCE">MAINTENANCE</option>
+            </select>
 
             <label>Tổng điểm sạc</label>
             <input

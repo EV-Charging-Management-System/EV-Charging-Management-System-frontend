@@ -24,6 +24,34 @@ export const adminService = {
     }
   },
 
+  // ➕ Tạo trạm sạc mới
+  async createStation(
+    stationName: string,
+    address: string,
+    stationDescrip: string,
+    stationStatus: string,
+    chargingPointTotal: number
+  ) {
+    try {
+      const payload = {
+        stationName,
+        address,
+        stationDescrip,
+        stationStatus,
+        chargingPointTotal,
+      };
+      const res = await apiClient.post("/admin/createStation", payload);
+      return {
+        success: res.data?.success ?? res.status === 201,
+        message: res.data?.message || "Tạo trạm sạc thành công!",
+        data: res.data?.data,
+      };
+    } catch (error) {
+      console.error("❌ Lỗi tạo trạm sạc:", error);
+      return { success: false, message: "Lỗi khi tạo trạm sạc!" };
+    }
+  },
+
   // 💳 Lấy danh sách thanh toán
   async getAllPayments() {
     try {

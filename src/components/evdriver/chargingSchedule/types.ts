@@ -18,7 +18,6 @@ export interface FormattedBooking {
   stationName: string
   startTime: string
   vehicle: string
-  plate: string
   deposit: string
   qr: string
   status: string

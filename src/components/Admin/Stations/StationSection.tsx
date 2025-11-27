@@ -1,10 +1,10 @@
 import StationTable from "../../../components/StationTable";
 
-const StationSection = ({ stations, onDelete, onViewPoints }: any) => {
+const StationSection = ({ stations, onDelete, onViewPoints, onCreate }: any) => {
   return (
     <StationTable
       stations={stations}
-      onAdd={() => {}}
+      onAdd={onCreate}
       onEdit={() => {}}
       onDelete={onDelete}
       onViewPoints={onViewPoints}

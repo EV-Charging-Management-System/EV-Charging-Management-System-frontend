@@ -19,11 +19,9 @@ const SessionCard: React.FC<SessionCardProps> = ({ session, onStartCharging }) =
           </Col>
           <Col md={3}>
             <p className="mb-1"><FaBolt /> {session.chargerName} ({session.power})</p>
-            <p className="mb-1">
-              {session.userType === "guest" 
-                ? `Pin: ${session.batteryPercentage}%` 
-                : `Biển số: ${session.LicensePlate}`}
-            </p>
+            {session.userType === "guest" && (
+              <p className="mb-1">Pin: {session.batteryPercentage}%</p>
+            )}
           </Col>
           <Col md={2}>
             {session.UserId && <p className="mb-1">UserId: {session.UserId}</p>}

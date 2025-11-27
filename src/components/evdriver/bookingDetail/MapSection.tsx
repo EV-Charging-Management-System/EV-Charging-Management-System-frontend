@@ -1,5 +1,5 @@
 import React from 'react'
-import mapImage from '../../../assets/mapdetailbook.jpg'
+import mapImage from '../../../assets/vihiclebg.jpg'
 
 /**
  * Component hiển thị map image
