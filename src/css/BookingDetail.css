@@ -475,3 +475,46 @@
   background: rgba(10, 10, 10, 0.3);
   z-index: -1;
 }
+/*  style cho slot theo khung giờ */
+.slot-picker {
+  margin: 20px 0;
+  padding: 15px;
+  background: #0f1115;
+  border-radius: 10px;
+  color: white;
+}
+
+.slot-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.slot-btn {
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+}
+
+.slot-free {
+  background: #1f2937;
+  color: white;
+}
+
+.slot-free:hover {
+  background: #374151;
+}
+
+.slot-booked {
+  background: #4b5563;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.slot-selected {
+  background: #f97316;
+  color: white;
+}
